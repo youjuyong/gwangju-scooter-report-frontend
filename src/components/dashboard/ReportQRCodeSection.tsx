@@ -10,33 +10,37 @@ export default function ReportQRCodeSection() {
   const [isScanning, setIsScanning] = useState(false);
 
   // 1. 카메라 권한 요청 및 시작
-  const startScanner = async () => {
+  // ReportQRCodeSection.tsx 내 startScanner 함수 수정
+    const startScanner = async () => {
     try {
-      // 권한 먼저 확인
-      await navigator.mediaDevices.getUserMedia({ video: true });
-      setHasPermission(true);
-      setIsScanning(true);
-
-      // 조금의 지연시간을 주어 DOM이 확실히 렌더링되게 함
-      setTimeout(async () => {
+        // 1. 모든 비디오 트랙 중지 (기존에 꼬여있을 수 있는 카메라 해제)
+        const devices = await Html5Qrcode.getCameras();
+        
+        if (devices && devices.length > 0) {
         const html5QrCode = new Html5Qrcode("reader");
         qrScannerRef.current = html5QrCode;
 
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-
-        // 후면 카메라(environment)로 시작 시도
-        await html5QrCode.start(
-          { facingMode: "environment" },
-          config,
-          onScanSuccess,
-          onScanFailure
+        // 2. 후면 카메라를 찾되, 못 찾으면 첫 번째 카메라 사용
+        const backCamera = devices.find(device => 
+            device.label.toLowerCase().includes("back") || 
+            device.label.toLowerCase().includes("후면")
         );
-      }, 300);
+        
+        const cameraId = backCamera ? backCamera.id : devices[0].id;
+
+        await html5QrCode.start(
+            cameraId, // facingMode 대신 직접 cameraId 사용
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            onScanSuccess,
+            onScanFailure
+        );
+        setIsScanning(true);
+        }
     } catch (err) {
-      console.error("카메라 시작 실패:", err);
-      setHasPermission(false);
+        console.error("카메라 시작 에러:", err);
+        alert("카메라를 시작할 수 없습니다. 다른 앱에서 카메라를 사용 중인지 확인해 주세요.");
     }
-  };
+    };
 
   const onScanSuccess = (decodedText: string) => {
     alert(`인식 성공: ${decodedText}`);
