@@ -11,34 +11,61 @@ export default function ReportQRCodeSection() {
 
   // 1. 카메라 권한 요청 및 시작
   // ReportQRCodeSection.tsx 내 startScanner 함수 수정
-    const startScanner = async () => {
+  const startScanner = async () => {
     try {
-        // 1. 모든 비디오 트랙 중지 (기존에 꼬여있을 수 있는 카메라 해제)
-        const devices = await Html5Qrcode.getCameras();
-        
-        if (devices && devices.length > 0) {
+        // 1. 기존 스캐너가 돌고 있다면 확실히 중지
+        if (qrScannerRef.current) {
+        await qrScannerRef.current.stop().catch(() => {});
+        }
+
+        // 2. 브라우저에 카메라 권한을 명시적으로 다시 요청 (스트림 생성으로 잠 깨우기)
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream.getTracks().forEach(track => track.stop()); // 권한만 확인하고 즉시 해제
+
         const html5QrCode = new Html5Qrcode("reader");
         qrScannerRef.current = html5QrCode;
 
-        // 2. 후면 카메라를 찾되, 못 찾으면 첫 번째 카메라 사용
+        // 3. 기기의 모든 카메라 목록 가져오기
+        const devices = await Html5Qrcode.getCameras();
+        
+        if (devices && devices.length > 0) {
+        // 4. 후면(Back/Rear) 카메라 찾기
         const backCamera = devices.find(device => 
-            device.label.toLowerCase().includes("back") || 
-            device.label.toLowerCase().includes("후면")
+            /back|rear|environment/i.test(device.label)
         );
         
-        const cameraId = backCamera ? backCamera.id : devices[0].id;
+        // 후면 카메라가 있으면 그것을, 없으면 마지막 카메라(보통 후면) 사용
+        const cameraId = backCamera ? backCamera.id : devices[devices.length - 1].id;
 
         await html5QrCode.start(
-            cameraId, // facingMode 대신 직접 cameraId 사용
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            onScanSuccess,
-            onScanFailure
+        cameraId,
+        {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            // 'as any'를 추가하여 타입 체크를 건너뜁니다.
+            videoConstraints: {
+            facingMode: "environment",
+            focusMode: "continuous",
+            } as any 
+        },
+        onScanSuccess,
+        onScanFailure
         );
         setIsScanning(true);
+        setHasPermission(true);
+        } else {
+        alert("사용 가능한 카메라 장치를 찾을 수 없습니다.");
         }
-    } catch (err) {
-        console.error("카메라 시작 에러:", err);
-        alert("카메라를 시작할 수 없습니다. 다른 앱에서 카메라를 사용 중인지 확인해 주세요.");
+    } catch (err: any) {
+        console.error("Camera Start Error:", err);
+        setHasPermission(false);
+        
+        // 에러 메시지에 따라 대응 가이드 출력
+        if (err.name === "NotAllowedError") {
+        alert("브라우저 설정에서 카메라 권한을 '허용'으로 변경해주세요.");
+        } else {
+        alert("카메라를 시작할 수 없습니다. 다른 앱(카톡, 기본카메라 등)을 완전히 종료하고 다시 시도해주세요.");
+        }
     }
     };
 
