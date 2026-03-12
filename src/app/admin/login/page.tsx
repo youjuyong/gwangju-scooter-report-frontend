@@ -1,4 +1,4 @@
-import LoginForm from "@/components/login/LoginForm";
+import LoginForm from "@/components/admin/login//LoginForm";
 import { Info } from "lucide-react";
 
 export default function LoginPage() {
