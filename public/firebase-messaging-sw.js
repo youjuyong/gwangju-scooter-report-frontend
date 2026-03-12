@@ -28,6 +28,8 @@ self.addEventListener("push", function (e) {
         data: { url: url },
         icon: "/push-icon.png", 
         badge: "/badge.png",
+        tag: "pm-report-alert",
+        renotify: true,
         vibrate: [200, 100, 200], // 진동 패턴 
       })
     );
