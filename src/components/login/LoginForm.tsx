@@ -2,16 +2,16 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, User, Info } from "lucide-react"; // 아이콘 라이브러리
+import { Lock, User } from "lucide-react"; // 아이콘 라이브러리
 import api from "@/services/api"; // 위에서 만든 api 설정
-import { setCookie, deleteCookie } from "cookies-next"; // npm install cookies-next 추천
+import { setCookie } from "cookies-next"; // npm install cookies-next 추천
 import RegisterForm from "@/components/RegisterForm";
 import { getFirebaseMessaging } from "@/hooks/useFCM"; 
 import { useAuthStore } from "@/store/authStore";
 import { getToken } from "firebase/messaging";
 
 
-export default function LoginPage() {
+export default function LoginForm() {
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -105,7 +105,6 @@ export default function LoginPage() {
         //   await saveFcmToken(fcmToken);
         // }
 
-        router.push("/main");
         router.replace("/main");
 
       } catch (err: any) {
