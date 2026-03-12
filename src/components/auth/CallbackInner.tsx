@@ -19,7 +19,7 @@ export default function OAuth2Callback() {
       setAccessToken(accessToken);
       setCookie('accessToken', accessToken);
       // 메인 페이지 이동
-      router.push("/main");
+      router.replace("/main");
     }
   }, [searchParams]);
 
