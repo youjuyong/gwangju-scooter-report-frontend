@@ -8,25 +8,28 @@ export default function ReportQRCodeSection() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null); // null: 확인전, true: 허용, false: 거절
 
   useEffect(() => {
-    // 1. 스캐너 초기화 (권한 허용 시에만 실행)
-    if (hasPermission === true) {
-      const scanner = new Html5QrcodeScanner(
-        "reader",
+  if (hasPermission === true) {
+    const scanner = new Html5QrcodeScanner(
+      "reader",
         { 
-          fps: 10, 
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0,
+            // 여기 아래 설정을 추가해보세요!
+            videoConstraints: {
+            facingMode: "environment" // 후면 카메라 강제 사용
+            }
         },
-        /* verbose= */ false
-      );
+        false
+        );
 
-      scanner.render(onScanSuccess, onScanFailure);
+        scanner.render(onScanSuccess, onScanFailure);
 
-      return () => {
-        scanner.clear().catch(error => console.error("Scanner clear failed", error));
-      };
+        return () => {
+        scanner.clear().catch(err => console.error(err));
+        };
     }
-  }, [hasPermission]);
+    }, [hasPermission]);
 
   // 스캔 성공 시
   const onScanSuccess = (decodedText: string) => {
