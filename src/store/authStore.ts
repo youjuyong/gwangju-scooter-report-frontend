@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 
 interface AuthState {
   accessToken: string | null;
-  setAccessToken: (token: string) => void;
+  setAccessToken: (token: string|null) => void;
   clearAuth: () => void;
 }
 
