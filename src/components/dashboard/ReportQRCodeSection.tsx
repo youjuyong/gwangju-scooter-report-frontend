@@ -1,107 +1,96 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Html5Qrcode } from "html5-qrcode";
-import { Camera, RefreshCw, Upload, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { QrReader } from "react-qr-reader"; // 최신 버전은 이렇게 가져옵니다
+import { Camera, X, RefreshCw, AlertCircle } from "lucide-react";
 
-export default function HybridReportSection() {
+export default function ReactQrReportSection() {
   const [isScanning, setIsScanning] = useState(false);
-  const [errorCount, setErrorCount] = useState(0);
-  const qrScannerRef = useRef<Html5Qrcode | null>(null);
+  const [data, setData] = useState("아직 인식된 결과가 없습니다.");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  // 1. 실시간 스캐너 시작 로직
-  const startScanner = async () => {
-    try {
-      const html5QrCode = new Html5Qrcode("reader");
-      qrScannerRef.current = html5QrCode;
-      setIsScanning(true);
-
-      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-      
-      // 기기 목록 확인 없이 바로 environment(후면) 시도
-      await html5QrCode.start(
-        { facingMode: "environment" },
-        config,
-        (text) => {
-          alert(`QR 인식 성공: ${text}`);
-          stopScanner();
-        },
-        () => {} // 스캔 실패는 무시
-      );
-    } catch (err) {
-      console.error(err);
-      setErrorCount(prev => prev + 1);
+  const handleResult = (result: any, error: any) => {
+    if (result) {
+      setData(result?.text);
       setIsScanning(false);
-      // 에러가 나면 스캐너 인스턴스 정리
-      if (qrScannerRef.current) {
-        qrScannerRef.current.clear();
-      }
+      alert(`신고 기기 확인: ${result?.text}`);
+      // 여기서 다음 단계(신고서 작성)로 넘어가면 됩니다.
     }
-  };
 
-  const stopScanner = async () => {
-    if (qrScannerRef.current && qrScannerRef.current.isScanning) {
-      await qrScannerRef.current.stop();
-      setIsScanning(false);
+    if (error) {
+      // 카메라 권한 거부나 장치 충돌 시 에러 발생
+      if (error?.name === "NotAllowedError") {
+        setErrorMsg("카메라 권한을 허용해주세요.");
+      }
+      // 일반적인 스캔 실패 에러는 무시 (콘솔이 너무 지저분해지므로)
     }
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto p-6 flex flex-col items-center min-h-[60vh]">
+    <div className="w-full flex flex-col items-center p-6 text-center min-h-[70vh]">
       {!isScanning ? (
-        <div className="w-full space-y-6 flex flex-col items-center my-auto">
-          <div className="bg-blue-50 p-6 rounded-[2.5rem] shadow-inner">
-            <Camera size={64} className="text-blue-500" />
+        <section className="space-y-6 my-auto w-full">
+          <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner border border-blue-100">
+            <Camera size={48} className="text-blue-500" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">QR코드 스캔 (React)</h2>
+            <p className="text-sm text-gray-400 mt-2">
+              주정차 위반 킥보드를 촬영하여<br />
+              신고 대상 기기를 확인하세요.
+            </p>
           </div>
           
-          <div className="text-center">
-            <h2 className="text-2xl font-black text-gray-900">QR코드 신고</h2>
-            <p className="text-gray-400 text-sm mt-2">킥보드의 QR코드를 스캔하거나<br/>촬영하여 신고를 진행하세요.</p>
-          </div>
-
-          <div className="w-full space-y-3 pt-4">
-            {/* 방법 1: 실시간 스캔 시도 */}
+          <button 
+            onClick={() => {
+              setIsScanning(true);
+              setErrorMsg("");
+            }}
+            className="w-full max-w-xs bg-blue-600 text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition-all"
+          >
+            스캔 시작하기
+          </button>
+        </section>
+      ) : (
+        <section className="w-full max-w-md space-y-4">
+          <div className="flex justify-between items-center px-2">
+            <h2 className="font-bold text-gray-800 flex items-center gap-2">
+              <RefreshCw size={16} className="animate-spin text-blue-500" />
+              QR 스캔 중...
+            </h2>
             <button 
-              onClick={startScanner}
-              className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
+              onClick={() => setIsScanning(false)} 
+              className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"
             >
-              <RefreshCw size={20} />
-              실시간 스캔 시작
+              <X size={18} />
             </button>
-
-            {/* 방법 2: 사진 직접 촬영 (우회로) */}
-            <label className="w-full bg-white border-2 border-gray-200 text-gray-700 py-4 rounded-2xl font-black flex items-center justify-center gap-2 cursor-pointer active:bg-gray-50 transition-all">
-              <Upload size={20} />
-              사진 직접 촬영/업로드
-              <input 
-                type="file" 
-                accept="image/*" 
-                capture="environment" 
-                className="hidden" 
-                onChange={(e) => alert("사진 분석 로직으로 연결")} 
-              />
-            </label>
+          </div>
+          
+          {/* QR 스캐너 영역 */}
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-black shadow-2xl border-4 border-white aspect-square">
+            <QrReader
+              onResult={handleResult}
+              constraints={{ facingMode: "environment" }} // 후면 카메라 강제
+              containerStyle={{ width: "100%" }}
+              videoStyle={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+            {/* 가이드 라인 디자인 */}
+            <div className="absolute inset-0 border-[2px] border-blue-500/30 pointer-events-none">
+              <div className="absolute top-1/2 left-0 w-full h-0.5 bg-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-pulse"></div>
+            </div>
           </div>
 
-          {errorCount > 0 && (
-            <div className="flex items-center gap-2 text-red-500 text-xs font-bold bg-red-50 p-3 rounded-lg">
+          {errorMsg && (
+            <div className="p-3 bg-red-50 text-red-500 rounded-xl text-xs font-bold flex items-center gap-2 justify-center">
               <AlertCircle size={14} />
-              카메라 연결이 원활하지 않습니다. '사진 촬영'을 이용해 주세요.
+              {errorMsg}
             </div>
           )}
-        </div>
-      ) : (
-        <div className="w-full space-y-4">
-          <div id="reader" className="w-full aspect-square bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white relative">
-             <div className="absolute inset-0 border-[2px] border-blue-500/30 animate-pulse"></div>
-          </div>
-          <button 
-            onClick={stopScanner}
-            className="w-full bg-gray-100 text-gray-500 py-4 rounded-2xl font-bold"
-          >
-            취소하기
-          </button>
-        </div>
+          
+          <p className="text-xs text-gray-400 font-medium">
+            기기의 QR코드를 사각형 안에 비춰주세요.
+          </p>
+        </section>
       )}
     </div>
   );
