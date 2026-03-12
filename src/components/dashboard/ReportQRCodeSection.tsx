@@ -1,68 +1,49 @@
 "use client";
 
 import { useState } from "react";
-import { Scanner } from "@yudiel/react-qr-scanner"; // 새로운 라이브러리
-import { Camera, X, RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react";
+import { QrReader } from "react-qr-reader";
+import { Camera, X, RefreshCw } from "lucide-react";
 
-export default function ReactQrReportSection() {
+export default function ReportQRCodeSection() {
   const [isScanning, setIsScanning] = useState(false);
-  const [scannedData, setScannedData] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [resultData, setResultData] = useState<string>("");
 
-  // 스캔 성공 시 실행
-  const handleScan = (result: any) => {
-    if (result && result[0]?.rawValue) {
-      const text = result[0].rawValue;
-      setScannedData(text);
+  // QR 코드 인식 성공 시 호출되는 핸들러
+  const handleResult = (result: any, error: any) => {
+    if (!!result) {
+      const scannedText = result?.text;
+      setResultData(scannedText);
       setIsScanning(false);
-      // 성공 알림 및 후속 로직 (예: 신고서 폼으로 이동)
-      alert(`신고 기기 확인: ${text}`);
+      
+      // 실제 서비스 시 여기서 API 호출을 하거나 상세 페이지로 이동합니다.
+      alert(`인식 성공: ${scannedText}\n기기 정보를 조회합니다.`);
     }
-  };
 
-  // 에러 발생 시 실행 (권한 거부 등)
-  const handleError = (error: any) => {
-    console.error("QR Scan Error:", error);
-    if (error?.name === "NotAllowedError") {
-      setErrorMsg("카메라 권한을 허용해주세요.");
-    } else {
-      setErrorMsg("카메라를 시작할 수 없습니다. 다시 시도해주세요.");
+    if (!!error) {
+      // 일반적인 스캔 과정의 에러는 무시하고, 권한 에러 등은 콘솔에 기록합니다.
+      // console.log(error);
     }
   };
 
   return (
-    <div className="w-full flex flex-col items-center p-6 text-center min-h-[70vh]">
+    <div className="w-full flex flex-col items-center p-4 text-center min-h-[70vh]">
       {!isScanning ? (
-        <section className="space-y-6 my-auto w-full">
-          {/* 상태 표시 아이콘 */}
-          <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner border border-blue-100">
-            {scannedData ? (
-              <CheckCircle2 size={48} className="text-green-500" />
-            ) : (
-              <Camera size={48} className="text-blue-500" />
-            )}
+        <section className="space-y-6 my-auto w-full max-w-sm">
+          <div className="w-24 h-24 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-inner border border-blue-100">
+            <Camera size={48} className="text-blue-500" />
           </div>
-
           <div>
-            <h2 className="text-2xl font-black text-gray-900 tracking-tight">
-              {scannedData ? "기기 확인 완료" : "QR코드 스캔"}
-            </h2>
-            <p className="text-sm text-gray-400 mt-2">
-              {scannedData 
-                ? `확인된 번호: ${scannedData}` 
-                : "주정차 위반 킥보드를 촬영하여\n신고 대상 기기를 확인하세요."}
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">QR코드 신고</h2>
+            <p className="text-sm text-gray-400 mt-2 leading-relaxed">
+              불법 주정차된 킥보드를 신고하기 위해<br />
+              기기의 QR코드를 스캔해 주세요.
             </p>
           </div>
-          
           <button 
-            onClick={() => {
-              setIsScanning(true);
-              setErrorMsg("");
-              setScannedData(null);
-            }}
-            className="w-full max-w-xs bg-blue-600 text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition-all"
+            onClick={() => setIsScanning(true)}
+            className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
           >
-            {scannedData ? "다시 스캔하기" : "스캔 시작하기"}
+            스캔 시작하기
           </button>
         </section>
       ) : (
@@ -76,51 +57,73 @@ export default function ReactQrReportSection() {
               onClick={() => setIsScanning(false)} 
               className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
             >
-              <X size={18} />
+              <X size={20} className="text-gray-500" />
             </button>
           </div>
           
-          {/* QR 스캐너 영역 */}
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-black shadow-2xl border-4 border-white aspect-square group">
-            <Scanner
-              onScan={handleScan}
-              onError={handleError}
-              allowMultiple={false}
-              constraints={{
-                facingMode: "environment", // 후면 카메라
-              }}
-              styles={{
-                container: { width: "100%", height: "100%" },
-                video: { objectFit: "cover" }
-              }}
-              // 라이브러리 자체 가이드라인을 사용하거나, 아래 커스텀 가이드라인 유지 가능
-              components={{
-                audio: false, // 스캔 시 소리 끄기
-                finder: false, // 기본 가이드라인 대신 커스텀 사용 시 false
-              }}
+          {/* 스캐너 컨테이너 */}
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-black shadow-2xl aspect-[3/4] border-4 border-white ring-1 ring-gray-100">
+            {/* 1. 실제 카메라 비디오 층 */}
+            <QrReader
+              onResult={handleResult}
+              constraints={{ facingMode: "environment" }}
+              containerStyle={{ width: "100%", height: "100%" }}
+              videoStyle={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
-            
-            {/* 커스텀 가이드 라인 디자인 */}
-            <div className="absolute inset-0 z-10 pointer-events-none">
-                {/* 모서리 강조 디자인 */}
-                <div className="absolute inset-12 border-2 border-white/30 rounded-3xl"></div>
-                {/* 스캔 라인 애니메이션 */}
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-blue-500/60 shadow-[0_0_15px_rgba(59,130,246,0.9)] animate-bounce"></div>
+
+            {/* 2. 디자인 오버레이 층 (React Native 스타일 구현) */}
+            <div className="absolute inset-0 flex flex-col pointer-events-none">
+              {/* 상단 오버레이 */}
+              <div className="flex-1 bg-black/40 flex items-center justify-center">
+                <span className="text-white/80 text-xs font-bold tracking-[0.2em] uppercase">
+                  Align QR Code within frame
+                </span>
+              </div>
+
+              {/* 중앙 인식 구역 가로 행 */}
+              <div className="flex flex-row h-[260px]">
+                <div className="flex-1 bg-black/40" /> {/* 좌측 오버레이 */}
+                
+                {/* 실제 인식 박스 가이드 */}
+                <div className="w-[260px] relative border-2 border-red-500/50">
+                  {/* 모서리 포인트 디자인 (선택사항) */}
+                  <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-red-500" />
+                  <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-red-500" />
+                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-red-500" />
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-red-500" />
+                  
+                  {/* 초록색 스캔 애니메이션 바 */}
+                  <div className="absolute w-[90%] h-[2px] bg-[#22ff00] left-[5%] shadow-[0_0_15px_#22ff00] animate-scan-move" />
+                </div>
+
+                <div className="flex-1 bg-black/40" /> {/* 우측 오버레이 */}
+              </div>
+
+              {/* 하단 오버레이 */}
+              <div className="flex-1 bg-black/40" />
             </div>
           </div>
-
-          {errorMsg && (
-            <div className="p-4 bg-red-50 text-red-500 rounded-2xl text-xs font-bold flex items-center gap-2 justify-center border border-red-100 animate-shake">
-              <AlertCircle size={14} />
-              {errorMsg}
-            </div>
-          )}
           
-          <p className="text-xs text-gray-400 font-medium">
-            킥보드 핸들 사이에 있는 QR코드를 비춰주세요.
-          </p>
+          <div className="bg-gray-50 py-3 px-4 rounded-2xl">
+            <p className="text-[11px] text-gray-400 font-medium">
+              인식이 잘 안 될 경우 기기와 20~30cm 거리를 유지해 주세요.
+            </p>
+          </div>
         </section>
       )}
+
+      {/* 스캔 바 애니메이션 정의 */}
+      <style jsx global>{`
+        @keyframes scanLine {
+          0% { top: 5%; opacity: 0; }
+          20% { opacity: 1; }
+          80% { opacity: 1; }
+          100% { top: 95%; opacity: 0; }
+        }
+        .animate-scan-move {
+          animation: scanLine 2.5s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }
