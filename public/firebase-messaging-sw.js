@@ -40,7 +40,6 @@ self.addEventListener("push", function (e) {
  */
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  console.log(event);
   const url = event.notification.data?.url || "/";
 
   event.waitUntil(
