@@ -61,7 +61,7 @@ export default function LoginForm() {
         vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
         serviceWorkerRegistration: registration,
       });
-      console.log(currentToken);
+      
       return currentToken;
     } catch (error) {
       console.error("FCM 설정 에러:", error);
