@@ -68,12 +68,27 @@ export default function ReactQrReportSection() {
           
           {/* QR 스캐너 영역 */}
           <div className="relative overflow-hidden rounded-[2.5rem] bg-black shadow-2xl border-4 border-white aspect-square">
-            <QrReader
-              onResult={handleResult}
-              constraints={{ facingMode: "environment" }} // 후면 카메라 강제
-              containerStyle={{ width: "100%" }}
-              videoStyle={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+           <QrReader
+                onResult={handleResult}
+                constraints={{ 
+                    facingMode: "environment",
+                    // 해상도를 명시적으로 낮추거나 높여서 대역폭 문제 해결 시도
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                }}
+                containerStyle={{ width: "100%", backgroundColor: "black" }}
+                videoStyle={{ 
+                    width: "100%", 
+                    height: "100%", 
+                    objectFit: "cover",
+                    // 아래 속성들이 모바일 검은 화면 해결의 핵심입니다
+                    display: "block",
+                }}
+                // video 태그에 직접 속성 주입 (일부 버전에서 지원)
+                videoContainerStyle={{
+                    paddingTop: '100%', // 1:1 비율 강제
+                }}
+                />
             {/* 가이드 라인 디자인 */}
             <div className="absolute inset-0 border-[2px] border-blue-500/30 pointer-events-none">
               <div className="absolute top-1/2 left-0 w-full h-0.5 bg-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-pulse"></div>
