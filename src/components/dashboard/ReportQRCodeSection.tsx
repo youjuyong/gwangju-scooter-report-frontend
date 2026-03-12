@@ -21,41 +21,42 @@ export default function ReportQRCodeSection() {
 
   // 스캐너 시작
   const startScanner = async () => {
-    try {
-      // 기존 스캐너 정리
-      if (!qrScannerRef.current) {
-        qrScannerRef.current = new Html5Qrcode("reader");
-      }
+  try {
 
-      await qrScannerRef.current.start(
-        { facingMode: "environment" }, // 후면 카메라 자동 선택
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1,
-        },
-        onScanSuccess,
-        onScanFailure
-      );
-
-      setIsScanning(true);
-      setHasPermission(true);
-    } catch (err: any) {
-      console.error("Camera Start Error:", err);
-
-      setHasPermission(false);
-
-      if (err.name === "NotAllowedError") {
-        alert("브라우저에서 카메라 권한을 허용해주세요.");
-      } else if (err.name === "NotReadableError") {
-        alert(
-          "카메라가 다른 앱에서 사용 중입니다.\n카메라 앱 또는 QR 앱을 종료해주세요."
-        );
-      } else {
-        alert("카메라를 시작할 수 없습니다.");
-      }
+    if (!qrScannerRef.current) {
+      qrScannerRef.current = new Html5Qrcode("reader");
     }
-  };
+
+    const devices = await Html5Qrcode.getCameras();
+
+    if (!devices.length) {
+      alert("카메라를 찾을 수 없습니다.");
+      return;
+    }
+
+    // 마지막 카메라 = 보통 후면
+    const cameraId = devices[devices.length - 1].id;
+
+    await qrScannerRef.current.start(
+    cameraId,
+    {
+        fps: 10,
+        qrbox: 250
+    },
+    onScanSuccess,
+    onScanFailure
+    );
+
+    setIsScanning(true);
+    setHasPermission(true);
+
+  } catch (err) {
+
+    console.error(err);
+    alert("카메라를 시작할 수 없습니다.");
+
+  }
+};
 
   // 스캐너 중지
   const stopScanner = async () => {
