@@ -10,56 +10,25 @@ export default function ReportQRCodeSection() {
   const [isScanning, setIsScanning] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
-  // QR 성공
+  // QR 인식 성공
   const onScanSuccess = async (decodedText: string) => {
     alert(`QR 인식 성공: ${decodedText}`);
     await stopScanner();
   };
 
-  // QR 실패 (무시)
+  // QR 인식 실패 (무시)
   const onScanFailure = () => {};
 
   // 스캐너 시작
   const startScanner = async () => {
     try {
-      // 기존 스캐너 완전 종료
-      if (qrScannerRef.current) {
-        try {
-          if (qrScannerRef.current.isScanning) {
-            await qrScannerRef.current.stop();
-          }
-          await qrScannerRef.current.clear();
-        } catch {}
+      // 기존 스캐너 정리
+      if (!qrScannerRef.current) {
+        qrScannerRef.current = new Html5Qrcode("reader");
       }
 
-      // 카메라 권한 요청 (깨우기)
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      stream.getTracks().forEach(track => track.stop());
-
-      // 인스턴스 생성
-      const html5QrCode = new Html5Qrcode("reader");
-      qrScannerRef.current = html5QrCode;
-
-      // 카메라 목록
-      const devices = await Html5Qrcode.getCameras();
-
-      if (!devices.length) {
-        alert("사용 가능한 카메라가 없습니다.");
-        return;
-      }
-
-      // 후면 카메라 찾기
-      const backCamera = devices.find(device =>
-        /back|rear|environment/i.test(device.label)
-      );
-
-      const cameraId = backCamera
-        ? backCamera.id
-        : devices[devices.length - 1].id;
-
-      // 스캐너 시작
-      await html5QrCode.start(
-        cameraId,
+      await qrScannerRef.current.start(
+        { facingMode: "environment" }, // 후면 카메라 자동 선택
         {
           fps: 10,
           qrbox: { width: 250, height: 250 },
@@ -80,7 +49,7 @@ export default function ReportQRCodeSection() {
         alert("브라우저에서 카메라 권한을 허용해주세요.");
       } else if (err.name === "NotReadableError") {
         alert(
-          "카메라가 이미 사용 중입니다. 카카오톡 / 카메라 앱 등을 종료해주세요."
+          "카메라가 다른 앱에서 사용 중입니다.\n카메라 앱 또는 QR 앱을 종료해주세요."
         );
       } else {
         alert("카메라를 시작할 수 없습니다.");
@@ -104,7 +73,7 @@ export default function ReportQRCodeSection() {
     setIsScanning(false);
   };
 
-  // 컴포넌트 종료 시 카메라 해제
+  // 컴포넌트 종료 시 카메라 정리
   useEffect(() => {
     return () => {
       stopScanner();
@@ -125,7 +94,7 @@ export default function ReportQRCodeSection() {
             </h2>
 
             <p className="text-sm text-gray-400 mt-2 leading-relaxed">
-              서울시 공유 킥보드 신고를 위해
+              공유 킥보드 신고를 위해
               <br />
               카메라 권한을 허용해주세요.
             </p>
@@ -153,7 +122,7 @@ export default function ReportQRCodeSection() {
             </button>
           </div>
 
-          {/* 스캐너 영역 */}
+          {/* 카메라 영역 */}
           <div className="relative overflow-hidden rounded-[2.5rem] bg-black shadow-2xl aspect-square border-4 border-white">
             <div id="reader" className="w-full h-full"></div>
 
