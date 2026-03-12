@@ -1,4 +1,3 @@
-// app/login/page.tsx (기본은 서버 컴포넌트)
 import LoginForm from "@/components/login/LoginForm";
 import { Info } from "lucide-react";
 
