@@ -44,12 +44,29 @@ export default function ReportQRCodeSection() {
   // 카메라 권한 요청 함수
   const requestCamera = async () => {
     try {
-      await navigator.mediaDevices.getUserMedia({ video: true });
-      setHasPermission(true);
+        // 후면 카메라 권한을 명시적으로 요청
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            facingMode: { exact: "environment" } // 안되면 exact 제거하고 시도
+        } 
+        });
+        
+        stream.getTracks().forEach(track => track.stop());
+        setHasPermission(true);
     } catch (err) {
-      setHasPermission(false);
+        // 만약 'exact' 설정 때문에 에러가 난다면, 일반 후면 카메라로 재시도
+        try {
+        const fallbackStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "environment" } 
+        });
+        fallbackStream.getTracks().forEach(track => track.stop());
+        setHasPermission(true);
+        } catch (fallbackErr) {
+        console.error("카메라 에러:", fallbackErr);
+        setHasPermission(false);
+        }
     }
-  };
+    };
 
   return (
     <div className="w-full flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
