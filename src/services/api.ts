@@ -16,10 +16,9 @@ api.interceptors.request.use(
 
     if (token) {
       // 헤더에 토큰이 있다면 Bearer 토큰 추가
-     // config.headers.Authorization = `Bearer ${token}`;
-      config.headers.Authorization = `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmY2IyNDYzOC0xZDE0LTQ5YWMtODY5NC05N2Y5ZDViMTJkNmIiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc3MzM2ODY1MCwiZXhwIjoxNzc1OTYwNjUwfQ.hf5PNwqUXmjNZn-twmIJdV3gKlzqdXJdEsNPgGvTLtPxtDcPJvIN0lXIgtnFSBpFf8QQKafpp0BKZFthdiA5tA`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    
+    config.headers.Authorization = `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmY2IyNDYzOC0xZDE0LTQ5YWMtODY5NC05N2Y5ZDViMTJkNmIiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc3MzM2ODY1MCwiZXhwIjoxNzc1OTYwNjUwfQ.hf5PNwqUXmjNZn-twmIJdV3gKlzqdXJdEsNPgGvTLtPxtDcPJvIN0lXIgtnFSBpFf8QQKafpp0BKZFthdiA5tA`;
     return config;
   },
   (error) => {
