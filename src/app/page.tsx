@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from 'react-hot-toast';
 import { Home, Camera, ClipboardList, Megaphone, LogOut, ChevronRight, Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { deleteCookie } from "cookies-next";
 import { useAuthStore } from "@/store/authStore";
 import { getFirebaseMessaging } from "@/hooks/useFCM"; 
 import ReportQRCodeSection from "@/components/dashboard/ReportQRCodeSection";
@@ -83,6 +85,18 @@ export default function SeoulFullWidthDashboard() {
                 onClick={() => {
                   setAccessToken(null);
                   router.replace("/");
+                  deleteCookie('accessToken');
+
+                  toast.success("로그아웃되었습니다. 메인으로 이동합니다.", {
+                    duration: 2000,
+                    style: {
+                      borderRadius: '16px',
+                      background: '#333',
+                      color: '#fff',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                    },
+                  });
                 }} 
                 className="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-red-500 transition-colors"
               >
