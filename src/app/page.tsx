@@ -10,7 +10,6 @@ import { getToken } from "firebase/messaging";
 
 export default function SeoulFullWidthDashboard() {
   const [activeTab, setActiveTab] = useState("홈");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
   const renderContent = () => {
@@ -79,12 +78,11 @@ export default function SeoulFullWidthDashboard() {
             <button className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors">
               <Bell size={20} />
             </button>
-            {isLoggedIn ? (
+            {accessToken ? (
               <button 
                 onClick={() => {
-                  localStorage.removeItem("accessToken"); // 토큰 삭제 예시
-                  setIsLoggedIn(false);
-                  router.replace("/app");
+                  setAccessToken(null);
+                  router.replace("/");
                 }} 
                 className="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-red-500 transition-colors"
               >

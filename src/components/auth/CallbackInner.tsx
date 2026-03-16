@@ -17,8 +17,7 @@ export default function OAuth2Callback() {
       // 토큰 저장
       setAccessToken(accessToken);
       setCookie('accessToken', accessToken);
-      // 메인 페이지 이동
-      router.replace("/app");
+      router.replace("/");
     }
   }, [searchParams]);
 

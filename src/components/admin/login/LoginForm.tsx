@@ -104,7 +104,7 @@ export default function LoginForm() {
         //   await saveFcmToken(fcmToken);
         // }
 
-        router.replace("/app");
+        router.replace("/");
 
       } catch (err: any) {
         handleLoginError(err); // 에러 핸들링 로직 분리
