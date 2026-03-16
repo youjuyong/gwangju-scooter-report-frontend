@@ -1,4 +1,3 @@
-// hooks/useFcmToken.ts
 import { getToken } from "firebase/messaging";
 import { getFirebaseMessaging } from "@/hooks/useFCM";
 import api from "@/services/api";
@@ -7,16 +6,11 @@ export const useFcmToken = () => {
   // 기기 정보 추출 유틸
   const getDeviceInfo = () => {
     const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-    let deviceType = "web";
-    if (/android/i.test(ua)) deviceType = "android";
-    else if (/iPad|iPhone|iPod/.test(ua)) deviceType = "ios";
+    let deviceType = "WEB";
+    if (/android/i.test(ua)) deviceType = "ANDROID";
+    else if (/iPad|iPhone|iPod/.test(ua)) deviceType = "IOS";
 
-    let deviceId = localStorage.getItem("device_id");
-    if (!deviceId) {
-      deviceId = crypto.randomUUID();
-      localStorage.setItem("device_id", deviceId);
-    }
-    return { deviceType, deviceId };
+    return  "ANDROID";
   };
 
   // 1. FCM 토큰 생성/가져오기
@@ -49,12 +43,11 @@ export const useFcmToken = () => {
   };
 
   // 2. 서버에 토큰 저장
-  const saveTokenToServer = async (fcmToken: string, accessToken: string) => {
-    const { deviceType, deviceId } = getDeviceInfo();
+  const saveTokenToServer = async (fcmToken: string) => {
+    const { deviceType } = getDeviceInfo();
     try {
       await api.post("/api/fcm/token", 
-        { fcmToken, deviceType, deviceId }, 
-        { headers: { Authorization: accessToken } } // 스토어에 담긴 형식이 Bearer 포함이면 그대로 사용
+        { fcmToken, deviceType }
       );
       console.log("FCM 토큰 서버 동기화 완료");
     } catch (error) {
@@ -62,5 +55,5 @@ export const useFcmToken = () => {
     }
   };
 
-  return { fetchFcmToken, saveTokenToServer };
+  return { fetchFcmToken, saveTokenToServer, getDeviceInfo };
 };

@@ -18,32 +18,30 @@ export default function LoginForm() {
   
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const { fetchFcmToken, saveTokenToServer } = useFcmToken();
+  const { fetchFcmToken, saveTokenToServer, getDeviceInfo } = useFcmToken();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 로딩 토스트 (선택사항)
     const loginToast = toast.loading("로그인 중...");
 
     try {
-      // 1. 로그인 API 호출
-      const response: any = await api.post("api/auth/login", { loginId, password });
+      const deviceType = getDeviceInfo();
+      const fcmToken = await fetchFcmToken();
+      const response: any = await api.post("api/auth/login", { 
+        loginId: loginId, 
+        password: password,
+        deviceType: deviceType ,
+        fcmToken : fcmToken
+      });
       
-      // 2. 인증 토큰 처리 (Authorization 헤더 추출)
       const authHeader = response.headers['authorization']; 
       if (!authHeader) throw new Error("인증 토큰을 받을 수 없습니다.");
 
       setAccessToken(authHeader);
       setCookie('accessToken', authHeader, { path: '/' });
 
-      // 3. FCM 처리 (공통 훅 사용)
-      const fcmToken = await fetchFcmToken();
-      if (fcmToken) {
-        await saveTokenToServer(fcmToken, authHeader);
-      }
-
-      // 4. 성공 처리
+      
       toast.success("반갑습니다! 로그인되었습니다.", { id: loginToast });
       router.replace("/");
 

@@ -18,7 +18,7 @@ export default function CitizenLoginForm() {
   
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const { fetchFcmToken, saveTokenToServer } = useFcmToken();
+  const { fetchFcmToken, saveTokenToServer, getDeviceInfo } = useFcmToken();
 
   // 일반 로그인 처리
   const handleLogin = async (e: React.FormEvent) => {
@@ -26,23 +26,22 @@ export default function CitizenLoginForm() {
     const loginToast = toast.loading("로그인 중...");
 
     try {
-      // 1. API 호출
-      const response: any = await api.post("api/auth/login", { loginId, password });
+      const deviceType = getDeviceInfo();
+      const fcmToken = await fetchFcmToken();
+      const response: any = await api.post("api/auth/login", { 
+        loginId: loginId, 
+        password: password,
+        deviceType: deviceType ,
+        fcmToken : fcmToken
+      });
       
-      // 2. 인증 헤더 추출 및 저장
       const authHeader = response.headers['authorization']; 
       if (!authHeader) throw new Error("인증 토큰이 없습니다.");
 
       setAccessToken(authHeader);
       setCookie('accessToken', authHeader, { path: '/' });
-      
-      // 3. FCM 토큰 처리 (공통 훅 사용)
-      const fcmToken = await fetchFcmToken();
-      if (fcmToken) {
-        await saveTokenToServer(fcmToken, authHeader);
-      }
 
-      toast.success("반갑습니다! 로그인되었습니다.", { id: loginToast });
+      toast.success("반갑습니다!", { id: loginToast });
       router.replace("/");
 
     } catch (err: any) {
@@ -53,7 +52,6 @@ export default function CitizenLoginForm() {
 
   // 카카오 로그인 처리
   const handleKakaoLogin = () => {
-    // OAuth2 콜백 페이지로 이동하기 전 간단한 알림
     toast.loading("카카오로 연결 중...");
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/kakao`;
   };
