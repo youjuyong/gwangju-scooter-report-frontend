@@ -44,7 +44,7 @@ export const useFcmToken = () => {
 
   // 2. 서버에 토큰 저장
   const saveTokenToServer = async (fcmToken: string) => {
-    const { deviceType } = getDeviceInfo();
+    const  deviceType  = getDeviceInfo();
     try {
       await api.post("/api/fcm/token", 
         { fcmToken, deviceType }
