@@ -43,11 +43,12 @@ export const useFcmToken = () => {
   };
 
   // 2. 서버에 토큰 저장
-  const saveTokenToServer = async (fcmToken: string) => {
+  const saveTokenToServer = async (fcmToken: string, accessToken : string) => {
     const  deviceType  = getDeviceInfo();
     try {
       await api.post("/api/fcm/token", 
-        { fcmToken, deviceType }
+        { fcmToken, deviceType },
+        { headers: { Authorization: `Bearer ${accessToken}`} }
       );
       console.log("FCM 토큰 서버 동기화 완료");
     } catch (error) {

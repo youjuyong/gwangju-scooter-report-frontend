@@ -3,12 +3,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function LandingPage() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken");
-  console.log(accessToken);
-  if (accessToken) {
-    redirect("/");
-  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-yellow-400">
