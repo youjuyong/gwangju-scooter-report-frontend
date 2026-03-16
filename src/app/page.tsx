@@ -60,7 +60,7 @@ export default function SeoulFullWidthDashboard() {
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  
+
   useEffect(() => {
       handleAllowNotification();
   }, []);

@@ -1,190 +1,128 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, User } from "lucide-react"; 
 import api from "@/services/api";
+import { handleApiError } from "@/hooks/errorHandler";
+import { useFcmToken } from "@/hooks/useFcmToken"; // 공통 FCM 훅
 import { setCookie } from "cookies-next";
 import RegisterForm from "@/components/RegisterForm";
-import { getFirebaseMessaging } from "@/hooks/useFCM"; 
 import { useAuthStore } from "@/store/authStore";
-import { getToken } from "firebase/messaging";
-
+import { toast } from "react-hot-toast";
 
 export default function CitizenLoginForm() {
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const pwInputRef = useRef<HTMLInputElement>(null);
+  const { fetchFcmToken, saveTokenToServer } = useFcmToken();
 
-  const getDeviceType = () => {
-    const ua = navigator.userAgent;
-    if (/android/i.test(ua)) return "android";
-    if (/iPad|iPhone|iPod/.test(ua)) return "ios";
-    return "web";
-  };
-
-  const getOrCreateDeviceId = () => {
-    if (typeof window === "undefined") return "";
-    let deviceId = localStorage.getItem("device_id");
-    if (!deviceId) {
-      deviceId = crypto.randomUUID();
-      localStorage.setItem("device_id", deviceId);
-    }
-    return deviceId;
-  };
-
-  // --- [추가] 알림 권한 요청 및 토큰 생성 ---
-  const handleAllowNotification = async () => {
-    const isSupported = 
-      typeof window !== "undefined" && 
-      "serviceWorker" in navigator &&
-      (location.protocol === "https:" || location.hostname === "localhost");
-
-    if (!isSupported) return null;
-
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") return null;
-
-      // 서비스 워커 등록 확인
-      const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
-      await navigator.serviceWorker.ready;
-
-      // FCM 토큰 가져오기
-      const messaging = getFirebaseMessaging();
-      if (!messaging) return null;
-
-      const currentToken = await getToken(messaging, {
-        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
-        serviceWorkerRegistration: registration,
-      });
-      console.log(currentToken);
-      return currentToken;
-    } catch (error) {
-      console.error("FCM 설정 에러:", error);
-      return null;
-    }
-  };
-
-  // --- [추가] 서버에 토큰 저장 ---
-  const saveFcmToken = async (fcmToken: string, accessToken: string) => {
-    try {
-      await api.post("/api/fcm/token", {
-        fcmToken: fcmToken,
-        deviceType: getDeviceType(),
-        deviceId: getOrCreateDeviceId(),
-      }, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-      console.log("FCM 토큰 서버 저장 완료");
-    } catch (error) {
-      console.error("FCM 토큰 저장 실패:", error);
-    }
-  };
-
-  useEffect(() => {
-    handleAllowNotification();
-  }, []);
-
+  // 일반 로그인 처리
   const handleLogin = async (e: React.FormEvent) => {
-      e.preventDefault();
-      try {
-        // 1. API 호출 (async/await 방식)
-        const response:any = await api.post("api/auth/login", { loginId: loginId, password: password });
-        const result = response.data.result;
+    e.preventDefault();
+    const loginToast = toast.loading("로그인 중...");
 
-       const authHeader = response.headers['authorization']; 
-        setAccessToken(authHeader);
-        setCookie('accessToken', authHeader);
-        
-        const fcmToken = await handleAllowNotification();
-        // if (fcmToken) {
-        //   await saveFcmToken(fcmToken);
-        // }
+    try {
+      // 1. API 호출
+      const response: any = await api.post("api/auth/login", { loginId, password });
+      
+      // 2. 인증 헤더 추출 및 저장
+      const authHeader = response.headers['authorization']; 
+      if (!authHeader) throw new Error("인증 토큰이 없습니다.");
 
-        router.replace("/");
-
-      } catch (err: any) {
-        handleLoginError(err); // 에러 핸들링 로직 분리
+      setAccessToken(authHeader);
+      setCookie('accessToken', authHeader, { path: '/' });
+      
+      // 3. FCM 토큰 처리 (공통 훅 사용)
+      const fcmToken = await fetchFcmToken();
+      if (fcmToken) {
+        await saveTokenToServer(fcmToken, authHeader);
       }
+
+      toast.success("반갑습니다! 로그인되었습니다.", { id: loginToast });
+      router.replace("/");
+
+    } catch (err: any) {
+      toast.dismiss(loginToast);
+      handleApiError(err, "아이디 또는 비밀번호를 확인해주세요.");
+    }
   };
-    
+
+  // 카카오 로그인 처리
   const handleKakaoLogin = () => {
+    // OAuth2 콜백 페이지로 이동하기 전 간단한 알림
+    toast.loading("카카오로 연결 중...");
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/kakao`;
   };
   
-  const handleLoginError = (err: any) => {
-    const resultCode = err?.response?.data?.resultCode;
-    const messageMap: { [key: string]: string } = {
-      "E001": "패스워드가 일치하지 않습니다.",
-      "E004": "존재하지 않는 아이디 입니다."
-    };
-
-    alert(err.message);
-    setPassword("");
-    pwInputRef.current?.focus();
-  };
-
   return (
     <>
-        {/* 로그인 폼 */}
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="space-y-4">
-            <div className="relative">
-              <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                required
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-yellow-500 focus:border-yellow-500 text-sm"
-                placeholder="사번 또는 아이디"
-                value={loginId}
-                onChange={(e) => setLoginId(e.target.value)}
-              />
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <input
-                type="password"
-                required
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-yellow-500 focus:border-yellow-500 text-sm"
-                placeholder="비밀번호"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+      {/* 로그인 폼 */}
+      <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <div className="space-y-4">
+          <div className="relative">
+            <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              required
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+              placeholder="아이디 또는 휴대폰 번호"
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
+            />
           </div>
-
-          <div>
-            <button
-              type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-black bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors"
-            >
-              로그인하기
-            </button>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <input
+              type="password"
+              required
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+              placeholder="비밀번호"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
-        </form>
+        </div>
 
-        {/* 시민 전용: 카카오 버튼 */}
+        <button
+          type="submit"
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors shadow-lg active:scale-95"
+        >
+          로그인하기
+        </button>
+      </form>
+
+      {/* 구분선 */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-400 font-medium">또는</span>
+        </div>
+      </div>
+
+      {/* 시민 전용: 카카오 버튼 */}
       <button 
         onClick={handleKakaoLogin}
-        className="w-full flex justify-center items-center py-3 bg-[#FEE500] text-black rounded-xl font-bold"
+        className="w-full flex justify-center items-center py-3.5 bg-[#FEE500] hover:bg-[#FADA0A] text-black rounded-xl font-bold transition-all shadow-md active:scale-95"
       >
-        <span className="mr-2">💬</span> 카카오로 시작하기
+        <span className="mr-2 text-lg">💬</span> 카카오로 시작하기
       </button>
 
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
-            계정이 없으신가요?{" "}
-            <button 
-              onClick={() => setIsRegisterOpen(true)}
-              className="text-yellow-600 font-bold hover:underline ml-1"
-            >
-              회원가입 신청
-            </button>
-          </p>
+      <div className="text-center mt-6">
+        <p className="text-sm text-gray-600 font-medium">
+          계정이 없으신가요?{" "}
+          <button 
+            onClick={() => setIsRegisterOpen(true)}
+            className="text-yellow-600 font-black hover:underline ml-1"
+          >
+            회원가입 신청
+          </button>
+        </p>
       </div>
       
       {isRegisterOpen && <RegisterForm onSuccess={() => setIsRegisterOpen(false)} />}

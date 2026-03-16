@@ -5,9 +5,9 @@ import Link from "next/link";
 export default async function LandingPage() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
-
+  console.log(accessToken);
   if (accessToken) {
-    redirect("/main");
+    redirect("/");
   }
 
   return (
