@@ -10,7 +10,7 @@ export const useFcmToken = () => {
     if (/android/i.test(ua)) deviceType = "ANDROID";
     else if (/iPad|iPhone|iPod/.test(ua)) deviceType = "IOS";
 
-    return  "ANDROID";
+    return  deviceType;
   };
 
   // 1. FCM 토큰 생성/가져오기

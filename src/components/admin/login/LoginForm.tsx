@@ -18,7 +18,7 @@ export default function LoginForm() {
   
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const { fetchFcmToken, saveTokenToServer, getDeviceInfo } = useFcmToken();
+  const { fetchFcmToken, getDeviceInfo } = useFcmToken();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
