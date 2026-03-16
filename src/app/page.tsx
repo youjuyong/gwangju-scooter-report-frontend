@@ -79,10 +79,7 @@ export default function SeoulFullWidthDashboard() {
             <button className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors">
               <Bell size={20} />
             </button>
-
-            {/* 2. 로그인 상태에 따른 조건부 렌더링 */}
             {isLoggedIn ? (
-              // 로그인 상태일 때: 로그아웃 버튼
               <button 
                 onClick={() => {
                   localStorage.removeItem("accessToken"); // 토큰 삭제 예시

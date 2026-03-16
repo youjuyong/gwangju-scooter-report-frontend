@@ -10,7 +10,6 @@ import { getFirebaseMessaging } from "@/hooks/useFCM";
 import { useAuthStore } from "@/store/authStore";
 import { getToken } from "firebase/messaging";
 
-
 export default function LoginForm() {
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
@@ -105,7 +104,7 @@ export default function LoginForm() {
         //   await saveFcmToken(fcmToken);
         // }
 
-        router.replace("/main");
+        router.replace("/app");
 
       } catch (err: any) {
         handleLoginError(err); // 에러 핸들링 로직 분리

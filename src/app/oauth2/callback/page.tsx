@@ -1,9 +1,11 @@
 import { Suspense } from "react";
-import CallbackInner from "@/components/auth/CallbackInner"; 
+import CallbackInner from "@/components/auth/CallbackInner";
+import LoadingSpinner from "@/components/ui/LoadingSpinner"; 
 
 export default function OAuthCallbackPage() {
   return (
-    <Suspense fallback={<div>로그인 처리 중...</div>}>
+    // 2. fallback을 LoadingSpinner로 교체
+    <Suspense fallback={<LoadingSpinner />}>
       <CallbackInner />
     </Suspense>
   );

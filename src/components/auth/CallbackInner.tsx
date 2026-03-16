@@ -18,9 +18,9 @@ export default function OAuth2Callback() {
       setAccessToken(accessToken);
       setCookie('accessToken', accessToken);
       // 메인 페이지 이동
-      router.replace("/main");
+      router.replace("/app");
     }
   }, [searchParams]);
 
-  return <div>로그인 처리중...</div>;
+  return null;
 }

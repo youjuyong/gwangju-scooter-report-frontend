@@ -105,7 +105,7 @@ export default function CitizenLoginForm() {
         //   await saveFcmToken(fcmToken);
         // }
 
-        router.replace("/main");
+        router.replace("/app");
 
       } catch (err: any) {
         handleLoginError(err); // 에러 핸들링 로직 분리
