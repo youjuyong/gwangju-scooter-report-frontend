@@ -73,12 +73,12 @@ export default function ReactQrReportSection() {
     }
 
     try {
-      const { data } = await api.get(`api/scooter/${kickboardInfo.deviceId}`);
+      // const { data } = await api.get(`api/scooter/${kickboardInfo.deviceId}`);
       
-      if (!data.success) {
-        alert(data.message);
-        return;
-      }
+      // if (!data.success) {
+      //   alert(data.message);
+      //   return;
+      // }
 
       const response = await api.post("api/report", { scooterId: kickboardInfo.deviceId });
       console.log(response);

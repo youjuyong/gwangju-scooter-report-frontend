@@ -18,6 +18,7 @@ export default function SimpleDashboard() {
       setAccessToken(null); 
       //  Axios 공통 헤더도 같이 비워주기
       delete axios.defaults.headers.common['Authorization'];
+      
       router.replace("/"); 
     } catch (error) {
       console.error("로그아웃 실패:", error);

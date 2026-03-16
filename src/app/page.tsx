@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { Home, Camera, ClipboardList, Megaphone, LogOut, ChevronRight, Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 import { getFirebaseMessaging } from "@/hooks/useFCM"; 
 import ReportQRCodeSection from "@/components/dashboard/ReportQRCodeSection";
 import { getToken } from "firebase/messaging";
 
 export default function SeoulFullWidthDashboard() {
   const [activeTab, setActiveTab] = useState("홈");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
   const renderContent = () => {
@@ -52,8 +54,12 @@ export default function SeoulFullWidthDashboard() {
         console.error("FCM 설정 에러:", error);
         return null;
       }
-    };
+  };
 
+
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  
   useEffect(() => {
       handleAllowNotification();
   }, []);
@@ -68,14 +74,35 @@ export default function SeoulFullWidthDashboard() {
           <h1 className="text-xl font-black text-blue-600 tracking-tighter cursor-pointer" onClick={() => setActiveTab("홈")}>
             광주 <span className="text-gray-900 font-bold ml-1">PM 신고</span>
           </h1>
+          
           <div className="flex items-center gap-4">
             <button className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors">
               <Bell size={20} />
             </button>
-            <button onClick={() => router.replace("/login")} className="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-red-500">
-              <LogOut size={18} />
-              <span className="hidden sm:inline">로그아웃</span>
-            </button>
+
+            {/* 2. 로그인 상태에 따른 조건부 렌더링 */}
+            {isLoggedIn ? (
+              // 로그인 상태일 때: 로그아웃 버튼
+              <button 
+                onClick={() => {
+                  localStorage.removeItem("accessToken"); // 토큰 삭제 예시
+                  setIsLoggedIn(false);
+                  router.replace("/app");
+                }} 
+                className="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-red-500 transition-colors"
+              >
+                <LogOut size={18} />
+                <span className="hidden sm:inline">로그아웃</span>
+              </button>
+            ) : (
+              // 로그인 전일 때: 로그인 버튼
+              <button 
+                onClick={() => router.push("/commLogin")} 
+                className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95"
+              >
+                로그인
+              </button>
+            )}
           </div>
         </div>
       </header>
