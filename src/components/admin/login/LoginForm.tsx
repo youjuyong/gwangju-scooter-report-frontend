@@ -30,7 +30,7 @@ export default function LoginForm() {
 
     try {
       const deviceType = getDeviceInfo();
-      const fcmToken = handleAllowNotification();
+      const fcmToken = await handleAllowNotification();
       const response = await api.post<ApiResponse<UserData>>("api/auth/login", { 
         loginId, 
         password,
@@ -117,7 +117,6 @@ export default function LoginForm() {
 
 
 const handleAllowNotification = async () => {
-  console.log("test");
       const isSupported = 
         typeof window !== "undefined" && 
         "serviceWorker" in navigator &&
