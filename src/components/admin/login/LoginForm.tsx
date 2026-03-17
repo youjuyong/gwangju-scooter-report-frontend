@@ -11,8 +11,6 @@ import { setCookie } from "cookies-next";
 import RegisterForm from "@/components/RegisterForm";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "react-hot-toast";
-import { getToken } from "firebase/messaging";
-import { getFirebaseMessaging } from "@/hooks/useFCM"; 
 
 export default function LoginForm() {
   const [loginId, setLoginId] = useState("");
@@ -22,7 +20,7 @@ export default function LoginForm() {
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const        setRole = useAuthStore((state) => state.setRole);
-  const { fetchFcmToken, getDeviceInfo } = useFcmToken();
+  const { handleAllowNotification, getDeviceInfo } = useFcmToken();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,35 +114,3 @@ export default function LoginForm() {
 }
 
 
-const handleAllowNotification = async () => {
-      const isSupported = 
-        typeof window !== "undefined" && 
-        "serviceWorker" in navigator &&
-        (location.protocol === "https:" || location.hostname === "localhost");
-    console.log(isSupported);
-      if (!isSupported) return null;
-  
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission !== "granted") return null;
-  
-        // 서비스 워커 등록 확인
-        const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
-        await navigator.serviceWorker.ready;
-  
-        // FCM 토큰 가져오기
-        const messaging = getFirebaseMessaging();
-        if (!messaging) return null;
-  
-        const currentToken =  await getToken(messaging, {
-          vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
-          serviceWorkerRegistration: registration,
-        });
-        
-        console.log(currentToken);
-        return currentToken;
-      } catch (error) {
-        console.error("FCM 설정 에러:", error);
-        return null;
-      }
-  };

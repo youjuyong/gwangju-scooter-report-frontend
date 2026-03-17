@@ -20,7 +20,7 @@ export default function CitizenLoginForm() {
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const        setRole = useAuthStore((state) => state.setRole);
-  const { fetchFcmToken, getDeviceInfo } = useFcmToken();
+ const { handleAllowNotification, getDeviceInfo } = useFcmToken();
 
   // 일반 로그인 처리
 
@@ -30,8 +30,7 @@ export default function CitizenLoginForm() {
 
     try {
       const deviceType = getDeviceInfo();
-      const fcmToken = await fetchFcmToken();
-
+      const fcmToken = await handleAllowNotification();
       const response = await api.post<ApiResponse<UserData>>("api/auth/login", { 
         loginId: loginId, 
         password: password,

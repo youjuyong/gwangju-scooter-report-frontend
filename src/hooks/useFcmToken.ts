@@ -42,6 +42,38 @@ export const useFcmToken = () => {
     }
   };
 
+  const handleAllowNotification = async () => {
+      const isSupported = 
+        typeof window !== "undefined" && 
+        "serviceWorker" in navigator &&
+        (location.protocol === "https:" || location.hostname === "localhost");
+
+      if (!isSupported) return null;
+  
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") return null;
+  
+        // 서비스 워커 등록 확인
+        const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+        await navigator.serviceWorker.ready;
+  
+        // FCM 토큰 가져오기
+        const messaging = getFirebaseMessaging();
+        if (!messaging) return null;
+  
+        const currentToken =  await getToken(messaging, {
+          vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+          serviceWorkerRegistration: registration,
+        });
+        
+        return currentToken;
+      } catch (error) {
+        console.error("FCM 설정 에러:", error);
+        return null;
+      }
+  };
+
   // 2. 서버에 토큰 저장
   const saveTokenToServer = async (fcmToken: string, accessToken : string) => {
     const  deviceType  = getDeviceInfo();
@@ -56,5 +88,5 @@ export const useFcmToken = () => {
     }
   };
 
-  return { fetchFcmToken, saveTokenToServer, getDeviceInfo };
+  return { fetchFcmToken, saveTokenToServer, getDeviceInfo, handleAllowNotification };
 };
