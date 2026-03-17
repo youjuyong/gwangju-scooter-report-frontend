@@ -4,17 +4,21 @@ import { useState, useEffect } from "react";
 import { toast } from 'react-hot-toast';
 import { Home, Camera, ClipboardList, Megaphone, LogOut, ChevronRight, Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useFcmToken } from "@/hooks/useFcmToken";
 import { deleteCookie } from "cookies-next";
 import { useAuthStore } from "@/store/authStore";
-import { useFcmToken } from "@/hooks/useFcmToken";
+import axios from "axios";
+import api from "@/services/api";
 
 import ReportQRCodeSection from "@/components/dashboard/ReportQRCodeSection";
 import ReportListSection from "@/components/dashboard/ReportListSection";
 
 export default function SeoulFullWidthDashboard() {
   const [activeTab, setActiveTab] = useState("홈");
+  const { getDeviceInfo } = useFcmToken();
+  const deviceType = getDeviceInfo();
   const router = useRouter();
-
+  
   const renderContent = () => {
     switch (activeTab) {
       case "홈": return <HomeSection setActiveTab={setActiveTab} />;
@@ -47,21 +51,34 @@ export default function SeoulFullWidthDashboard() {
             {accessToken ? (
               <button 
                 onClick={() => {
-                  setAccessToken(null);
-                  setRole(null);
-                  router.replace("/");
-                  deleteCookie('accessToken');
+                   if (!confirm("로그아웃 하시겠습니까?")) return;
 
-                  toast.success("로그아웃되었습니다. 메인으로 이동합니다.", {
-                    duration: 2000,
-                    style: {
-                      borderRadius: '16px',
-                      background: '#333',
-                      color: '#fff',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                    },
-                  });
+                  try {
+                    api.post("api/auth/logout", {
+                      deviceType: deviceType
+                    });
+
+                    toast.success("로그아웃되었습니다. 메인으로 이동합니다.", {
+                      duration: 2000,
+                      style: {
+                        borderRadius: '16px',
+                        background: '#333',
+                        color: '#fff',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                      },
+                    });
+                    setAccessToken(null); 
+                    setRole(null);
+                    deleteCookie('accessToken');
+                    //  Axios 공통 헤더도 같이 비워주기
+                    delete axios.defaults.headers.common['Authorization'];
+                    
+                    router.replace("/"); 
+                  } catch (error) {
+                    console.error("로그아웃 실패:", error);
+                    alert("로그아웃 중 오류가 발생했습니다.");
+                  }
                 }} 
                 className="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-red-500 transition-colors"
               >
