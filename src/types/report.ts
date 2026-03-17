@@ -1,5 +1,5 @@
 // 1. 신고 상태 타입 (나중에 색상 처리 시 유용)
-export type ReportStatus = "PROCESSING" | "COMPLETED" | "REJECTED";
+export type ReportStatus = "PROCESSING" | "COMPLETED" | "REJECTED" | "DONE";
 
 // 2. 개별 신고 항목 정보
 export interface ReportItem {

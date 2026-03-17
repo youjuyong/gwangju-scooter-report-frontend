@@ -20,6 +20,11 @@ export const getReportStatusInfo = (status: ReportStatus) => {
         label: "반려됨",
         style: "bg-red-100 text-red-600",
       };
+    case "DONE":
+      return {
+        label: "작업중",
+        style: "bg-emerald-100 text-emerald-600",
+      };
     default:
       return {
         label: "알 수 없음",

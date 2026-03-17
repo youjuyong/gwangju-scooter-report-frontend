@@ -80,7 +80,6 @@ export default function ReactQrReportSection() {
       // }
 
       const response = await api.post("api/report", { scooterId: kickboardInfo.deviceId });
-      console.log(response);
       alert(`신고가 접수되었습니다: [${kickboardInfo.company}] ID: ${kickboardInfo.deviceId}`);
     } catch (error) {
       if (axios.isAxiosError(error)) {
