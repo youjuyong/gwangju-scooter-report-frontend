@@ -3,6 +3,7 @@
 import { Bell, MapPin, ClipboardList, User, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import { useFcmToken } from "@/hooks/useFcmToken";
 import axios from "axios";
 import api from "@/services/api";
 
@@ -10,12 +11,16 @@ export default function SimpleDashboard() {
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setRole = useAuthStore((state) => state.setRole);
+  const { getDeviceInfo } = useFcmToken();
+  const deviceType = getDeviceInfo();
 
   const handleLogout = async () => {
     if (!confirm("로그아웃 하시겠습니까?")) return;
 
     try {
-      await api.post("api/auth/logout");
+      await api.post("api/auth/logout", {
+        deviceType: deviceType
+      });
       setAccessToken(null); 
       setRole(null);
       //  Axios 공통 헤더도 같이 비워주기
