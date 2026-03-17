@@ -6,6 +6,7 @@ import { handleApiError } from "@/hooks/errorHandler"; // 공통 에러 핸들�
 import { useFcmToken } from "@/hooks/useFcmToken"; // 공통 FCM 훅
 import { Lock, User } from "lucide-react";
 import api from "@/services/api";
+import { ApiResponse, UserData } from "@/types/auth";
 import { setCookie } from "cookies-next";
 import RegisterForm from "@/components/RegisterForm";
 import { useAuthStore } from "@/store/authStore";
@@ -18,31 +19,40 @@ export default function LoginForm() {
   
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const        setRole = useAuthStore((state) => state.setRole);
   const { fetchFcmToken, getDeviceInfo } = useFcmToken();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const loginToast = toast.loading("로그인 중...");
 
     try {
       const deviceType = getDeviceInfo();
       const fcmToken = await fetchFcmToken();
-      const response: any = await api.post("api/auth/login", { 
-        loginId: loginId, 
-        password: password,
-        deviceType: deviceType ,
-        fcmToken : fcmToken
+
+      const response = await api.post<ApiResponse<UserData>>("api/auth/login", { 
+        loginId, 
+        password,
+        deviceType,
+        fcmToken
       });
       
       const authHeader = response.headers['authorization']; 
       if (!authHeader) throw new Error("인증 토큰을 받을 수 없습니다.");
 
+      const { success, data, message } = response.data;
+
+      if (!success || !data) {
+        throw new Error(message || "로그인 정보가 올바르지 않습니다.");
+      }
+
+      const { role, name } = data;
+
       setAccessToken(authHeader);
+      setRole(role);
       setCookie('accessToken', authHeader, { path: '/' });
 
-      
-      toast.success("반갑습니다! 로그인되었습니다.", { id: loginToast });
+      toast.success(`${name}님, 반갑습니다!`, { id: loginToast });
       router.replace("/");
 
     } catch (err: any) {

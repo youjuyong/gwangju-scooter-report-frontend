@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { useFcmToken } from "@/hooks/useFcmToken";
+import { UserRole } from "@/types/auth";
 import { setCookie } from "cookies-next";
 
 export default function OAuth2Callback() {
@@ -11,6 +12,7 @@ export default function OAuth2Callback() {
   const router = useRouter();
   const { fetchFcmToken, saveTokenToServer } = useFcmToken();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const        setRole = useAuthStore((state) => state.setRole);
 
   useEffect(() => {
     const accessToken = searchParams.get("accessToken");
@@ -18,6 +20,7 @@ export default function OAuth2Callback() {
     if (accessToken) {
       // 토큰 저장
       setAccessToken(accessToken);
+      setRole(UserRole.USER);
       setCookie('accessToken', accessToken);
 
       fetchFcmToken().then((fcmToken) => {

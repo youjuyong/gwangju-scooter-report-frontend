@@ -7,6 +7,7 @@ import api from "@/services/api";
 import { handleApiError } from "@/hooks/errorHandler";
 import { useFcmToken } from "@/hooks/useFcmToken"; // 공통 FCM 훅
 import { setCookie } from "cookies-next";
+import { ApiResponse, UserData } from "@/types/auth"; 
 import RegisterForm from "@/components/RegisterForm";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "react-hot-toast";
@@ -18,9 +19,11 @@ export default function CitizenLoginForm() {
   
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const        setRole = useAuthStore((state) => state.setRole);
   const { fetchFcmToken, getDeviceInfo } = useFcmToken();
 
   // 일반 로그인 처리
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const loginToast = toast.loading("로그인 중...");
@@ -28,20 +31,27 @@ export default function CitizenLoginForm() {
     try {
       const deviceType = getDeviceInfo();
       const fcmToken = await fetchFcmToken();
-      const response: any = await api.post("api/auth/login", { 
+
+      const response = await api.post<ApiResponse<UserData>>("api/auth/login", { 
         loginId: loginId, 
         password: password,
-        deviceType: deviceType ,
-        fcmToken : fcmToken
+        deviceType: deviceType,
+        fcmToken: fcmToken
       });
       
+      const apiResponse = response.data;
       const authHeader = response.headers['authorization']; 
+
       if (!authHeader) throw new Error("인증 토큰이 없습니다.");
+      if (!apiResponse.success) throw new Error(apiResponse.message || "로그인 실패");
+
+      const { role, name } = apiResponse.data;
 
       setAccessToken(authHeader);
       setCookie('accessToken', authHeader, { path: '/' });
+      setRole(role);
 
-      toast.success("반갑습니다!", { id: loginToast });
+      toast.success(`${name}님, 반갑습니다!`, { id: loginToast });
       router.replace("/");
 
     } catch (err: any) {

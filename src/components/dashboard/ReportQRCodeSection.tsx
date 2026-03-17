@@ -36,7 +36,6 @@ export default function ReactQrReportSection() {
     } catch (error) {
       console.error("기기 정보 조회 실패:", error);
       setErrorMsg("등록되지 않은 기기입니다. 식별자를 직접 확인해주세요.");
-      // 조회 실패 시에도 입력한 ID는 유지하고 명칭만 비움
       setKickboardInfo((prev) => ({
         ...prev,
         company: "직접 입력 필요",
