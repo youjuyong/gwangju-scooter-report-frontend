@@ -66,7 +66,7 @@ export default function SeoulFullWidthDashboard() {
   const setRole        = useAuthStore((state) => state.setRole);
 
   useEffect(() => {
-        handleAllowNotification();
+      //  handleAllowNotification();
   }, []);
 
   return (
