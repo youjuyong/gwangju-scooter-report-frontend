@@ -55,14 +55,14 @@ messaging.onBackgroundMessage((payload) => {
   const body = payload.notification?.body || payload.data?.body || "";
   const url = payload.data?.url || "/"; // 클릭 시 이동할 URL
 
-  // return self.registration.showNotification(title, {
-  //   body: body,
-  //   icon: "/push-icon.png",
-  //   badge: "/badge.png",
-  //   data: { url: url }, // notificationclick에서 쓰기 위함
-  //   tag: "pm-report-alert",
-  //   renotify: true,
-  // });
+  return self.registration.showNotification(title, {
+    body: body,
+    icon: "/push-icon.png",
+    badge: "/badge.png",
+    data: { url: url }, // notificationclick에서 쓰기 위함
+    tag: "pm-report-alert",
+    renotify: true,
+  });
 });
 
 /**
