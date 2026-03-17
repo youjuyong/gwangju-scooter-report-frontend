@@ -10,47 +10,41 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
-onMessage(messaging, (payload) => {
-  new Notification(payload.notification.title, {
-    body: payload.notification.body,
-    icon: "/icons/icon-192.png",
-  });
-});
 
-// self.addEventListener("push", function (e) {
-//   console.log("Push received:", e);
+self.addEventListener("push" , function (e) {
+  console.log("Push received:", e);
 
-//   let title = "새 알림";
-//   let body = "내용이 없습니다.";
-//   let url = "/";
+  let title = "새 알림";
+  let body = "내용이 없습니다.";
+  let url = "/";
 
-//   if (e.data) {
-//     try {
-//       const payload = e.data.json();
-//       const target = payload.data || payload; 
+  if (e.data) {
+    try {
+      const payload = e.data.json();
+      const target = payload.data || payload; 
       
-//       title = target.title || title;
-//       body = target.body || body;
-//       url = target.url || url;
-//     } catch (err) {
-//       console.error("JSON 파싱 에러:", err);
-//       body = e.data.text();
-//     }
-//   }
+      title = target.title || title;
+      body = target.body || body;
+      url = target.url || url;
+    } catch (err) {
+      console.error("JSON 파싱 에러:", err);
+      body = e.data.text();
+    }
+  }
 
-//   // 데이터 여부와 상관없이 무조건 알림 표시
-//   e.waitUntil(
-//     self.registration.showNotification(title, {
-//       body: body,
-//       data: { url: url },
-//       icon: "/push-icon.png",
-//       badge: "/badge.png",
-//       tag: "pm-report-alert",
-//       renotify: true,
-//       vibrate: [200, 100, 200],
-//     })
-//   );
-// });
+  // 데이터 여부와 상관없이 무조건 알림 표시
+  e.waitUntil(
+    self.registration.showNotification(title, {
+      body: body,
+      data: { url: url },
+      icon: "/push-icon.png",
+      badge: "/badge.png",
+      tag: "pm-report-alert",
+      renotify: true,
+      vibrate: [200, 100, 200],
+    })
+  );
+});
 
 
 /**

@@ -31,7 +31,6 @@ export default function LoginForm() {
     try {
       const deviceType = getDeviceInfo();
       const fcmToken = handleAllowNotification();
-
       const response = await api.post<ApiResponse<UserData>>("api/auth/login", { 
         loginId, 
         password,
@@ -118,6 +117,7 @@ export default function LoginForm() {
 
 
 const handleAllowNotification = async () => {
+  console.log("test");
       const isSupported = 
         typeof window !== "undefined" && 
         "serviceWorker" in navigator &&
@@ -137,11 +137,12 @@ const handleAllowNotification = async () => {
         const messaging = getFirebaseMessaging();
         if (!messaging) return null;
   
-        const currentToken = await getToken(messaging, {
+        const currentToken =  await getToken(messaging, {
           vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
           serviceWorkerRegistration: registration,
         });
-
+        
+        console.log(currentToken);
         return currentToken;
       } catch (error) {
         console.error("FCM 설정 에러:", error);
