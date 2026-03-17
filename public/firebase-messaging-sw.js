@@ -11,6 +11,15 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+self.addEventListener("install", (event) => {
+  self.skipWaiting(); // 대기하지 않고 즉시 활성화 단계로 이동
+});
+
+self.addEventListener("activate", (event) => {
+  // 새 서비스 워커가 즉시 페이지의 제어권을 가져옴
+  event.waitUntil(clients.claim()); 
+});
+
 self.addEventListener("push" , function (e) {
   console.log("Push received:", e);
 
