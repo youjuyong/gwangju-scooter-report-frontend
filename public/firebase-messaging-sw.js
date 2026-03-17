@@ -47,6 +47,24 @@ const messaging = firebase.messaging();
 // });
 
 
+messaging.onBackgroundMessage((payload) => {
+  console.log('[firebase-messaging-sw.js] 백그라운드 메시지 수신: ', payload);
+
+  // 서버에서 보낸 notification 또는 data에서 값 추출
+  const title = payload.notification?.title || payload.data?.title || "새 알림";
+  const body = payload.notification?.body || payload.data?.body || "";
+  const url = payload.data?.url || "/"; // 클릭 시 이동할 URL
+
+  return self.registration.showNotification(title, {
+    body: body,
+    icon: "/push-icon.png",
+    badge: "/badge.png",
+    data: { url: url }, // notificationclick에서 쓰기 위함
+    tag: "pm-report-alert",
+    renotify: true,
+  });
+});
+
 /**
  * 알림 클릭 → React 페이지 이동
  */
