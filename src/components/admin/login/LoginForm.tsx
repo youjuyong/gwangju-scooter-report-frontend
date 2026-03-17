@@ -121,7 +121,7 @@ const handleAllowNotification = async () => {
         typeof window !== "undefined" && 
         "serviceWorker" in navigator &&
         (location.protocol === "https:" || location.hostname === "localhost");
-  
+    console.log(isSupported);
       if (!isSupported) return null;
   
       try {
