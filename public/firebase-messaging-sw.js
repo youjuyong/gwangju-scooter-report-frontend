@@ -12,8 +12,9 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 self.addEventListener("push", function (e) {
+  console.log(e);
   if (!e.data) return;
-
+  
   const payload = e.data.json();
   const data = payload.data; 
 
