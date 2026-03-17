@@ -12,29 +12,39 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 self.addEventListener("push", function (e) {
-  console.log(e);
-  if (!e.data) return;
-  
-  const payload = e.data.json();
-  const data = payload.data; 
+  console.log("Push received:", e);
 
-  if (data) {
-    const title = data.title || "새 알림";
-    const body = data.body || "";
-    const url = data.url || "/";
+  let title = "새 알림";
+  let body = "내용이 없습니다.";
+  let url = "/";
 
-    e.waitUntil(
-      self.registration.showNotification(title, {
-        body: body,
-        data: { url: url },
-        icon: "/push-icon.png", 
-        badge: "/badge.png",
-        tag: "pm-report-alert",
-        renotify: true,
-        vibrate: [200, 100, 200], // 진동 패턴 
-      })
-    );
+  if (e.data) {
+    try {
+      const payload = e.data.json();
+      const target = payload.data || payload; 
+      
+      title = target.title || title;
+      body = target.body || body;
+      url = target.url || url;
+    } catch (err) {
+      console.error("JSON 파싱 에러:", err);
+      // JSON이 아닐 경우 텍스트로라도 받기
+      body = e.data.text();
+    }
   }
+
+  // 데이터 여부와 상관없이 무조건 알림 표시
+  e.waitUntil(
+    self.registration.showNotification(title, {
+      body: body,
+      data: { url: url },
+      icon: "/push-icon.png",
+      badge: "/badge.png",
+      tag: "pm-report-alert",
+      renotify: true,
+      vibrate: [200, 100, 200],
+    })
+  );
 });
 
 
