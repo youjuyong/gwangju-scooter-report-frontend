@@ -9,6 +9,7 @@ import api from "@/services/api";
 export default function SimpleDashboard() {
   const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const setRole = useAuthStore((state) => state.setRole);
 
   const handleLogout = async () => {
     if (!confirm("로그아웃 하시겠습니까?")) return;
@@ -16,6 +17,7 @@ export default function SimpleDashboard() {
     try {
       await api.post("api/auth/logout");
       setAccessToken(null); 
+      setRole(null);
       //  Axios 공통 헤더도 같이 비워주기
       delete axios.defaults.headers.common['Authorization'];
       

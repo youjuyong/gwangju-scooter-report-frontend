@@ -7,7 +7,10 @@ import { useRouter } from "next/navigation";
 import { deleteCookie } from "cookies-next";
 import { useAuthStore } from "@/store/authStore";
 import { getFirebaseMessaging } from "@/hooks/useFCM"; 
+
 import ReportQRCodeSection from "@/components/dashboard/ReportQRCodeSection";
+import ReportListSection from "@/components/dashboard/ReportListSection";
+
 import { getToken } from "firebase/messaging";
 
 export default function SeoulFullWidthDashboard() {
@@ -19,7 +22,7 @@ export default function SeoulFullWidthDashboard() {
       case "홈": return <HomeSection setActiveTab={setActiveTab} />;
       case "신고하기": 
         return <ReportQRCodeSection />;
-      case "신고확인": return <div className="p-10 text-center font-bold">📋 신고 내역 확인</div>;
+      case "신고확인": return <ReportListSection />;
       case "공지사항": return <div className="p-10 text-center font-bold">📢 공지사항 리스트</div>;
       default: return <HomeSection setActiveTab={setActiveTab} />;
     }
@@ -49,7 +52,7 @@ export default function SeoulFullWidthDashboard() {
           vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
           serviceWorkerRegistration: registration,
         });
-        console.log(currentToken);
+        
         return currentToken;
       } catch (error) {
         console.error("FCM 설정 에러:", error);
@@ -60,16 +63,14 @@ export default function SeoulFullWidthDashboard() {
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const setRole        = useAuthStore((state) => state.setRole);
 
   useEffect(() => {
-      handleAllowNotification();
+        handleAllowNotification();
   }, []);
 
   return (
-    // max-w-md를 제거하여 전체 너비를 사용합니다.
     <div className="min-h-screen bg-[#F2F4F7] flex flex-col font-sans w-full">
-      
-      {/* 상단 헤더: 컨텐츠가 너무 퍼지지 않게 안쪽에만 max-wide를 줄 수 있습니다. */}
       <header className="sticky top-0 z-20 bg-white w-full border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-5 py-4 flex justify-between items-center">
           <h1 className="text-xl font-black text-blue-600 tracking-tighter cursor-pointer" onClick={() => setActiveTab("홈")}>
@@ -84,6 +85,7 @@ export default function SeoulFullWidthDashboard() {
               <button 
                 onClick={() => {
                   setAccessToken(null);
+                  setRole(null);
                   router.replace("/");
                   deleteCookie('accessToken');
 
