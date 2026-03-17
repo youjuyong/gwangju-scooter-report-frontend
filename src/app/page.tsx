@@ -25,13 +25,11 @@ export default function SeoulFullWidthDashboard() {
       default: return <HomeSection setActiveTab={setActiveTab} />;
     }
   };
-  const { handleAllowNotification, getDeviceInfo } = useFcmToken();
   const accessToken = useAuthStore((state) => state.accessToken);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setRole        = useAuthStore((state) => state.setRole);
 
   useEffect(() => {
-      handleAllowNotification();
   }, []);
 
   return (
