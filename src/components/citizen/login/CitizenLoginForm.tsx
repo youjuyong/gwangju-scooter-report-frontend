@@ -38,7 +38,7 @@ export default function CitizenLoginForm() {
         deviceType: deviceType,
         fcmToken: fcmToken
       });
-      
+      console.log(response);
       const apiResponse = response.data;
       const authHeader = response.headers['authorization']; 
 
