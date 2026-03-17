@@ -52,7 +52,7 @@ export default function SeoulFullWidthDashboard() {
           vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
           serviceWorkerRegistration: registration,
         });
-        
+
         return currentToken;
       } catch (error) {
         console.error("FCM 설정 에러:", error);
@@ -66,7 +66,7 @@ export default function SeoulFullWidthDashboard() {
   const setRole        = useAuthStore((state) => state.setRole);
 
   useEffect(() => {
-        handleAllowNotification();
+        //handleAllowNotification();
   }, []);
 
   return (
