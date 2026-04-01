@@ -121,7 +121,7 @@ export default function CitizenLoginForm() {
             onClick={handleKakaoLogin}
             className="w-full flex justify-center items-center py-3.5 bg-[#FEE500] hover:bg-[#FADA0A] text-black rounded-xl font-bold transition-all shadow-md active:scale-95"
         >
-          <span className="mr-2 text-lg">💬</span> 카카오로 시작하기
+          <span className="mr-2 text-lg">💬</span> 카카오
         </button>
         <button
             onClick={handleNaveerLogin}
