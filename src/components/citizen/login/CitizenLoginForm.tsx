@@ -67,6 +67,7 @@ export default function CitizenLoginForm() {
   const handleNaveerLogin = () => {
     toast.loading("네이버로 연결 중...");
     //window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/kakao`;
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/naver`;
   };
   
   return (
@@ -121,7 +122,7 @@ export default function CitizenLoginForm() {
             onClick={handleKakaoLogin}
             className="w-full flex justify-center items-center py-3.5 bg-[#FEE500] hover:bg-[#FADA0A] text-black rounded-xl font-bold transition-all shadow-md active:scale-95"
         >
-          <span className="mr-2 text-lg">💬</span> 카카오
+          <span className="mr-2 text-lg">💬</span> 카카오로 시작하기
         </button>
         <button
             onClick={handleNaveerLogin}
