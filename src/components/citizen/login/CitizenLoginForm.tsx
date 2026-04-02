@@ -47,7 +47,7 @@ export default function CitizenLoginForm() {
       const { role, name } = apiResponse.data;
 
       setAccessToken(authHeader);
-      setCookie('accessToken', authHeader, { path: '/' });
+      setCookie('accessToken', authHeader);
       setRole(role);
 
       toast.success(`${name}님, 반갑습니다!`, { id: loginToast });

@@ -49,7 +49,7 @@ export default function LoginForm() {
 
       setAccessToken(authHeader);
       setRole(role);
-      setCookie('accessToken', authHeader, { path: '/' });
+      setCookie('accessToken', authHeader);
 
       toast.success(`${name}님, 반갑습니다!`, { id: loginToast });
       router.replace("/");
