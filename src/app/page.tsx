@@ -45,11 +45,7 @@ export default function SeoulFullWidthDashboard() {
           </h1>
           
           <div className="flex items-center gap-4">
-            <button className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors" onClick={async() => {
-
-              const response =  await api.get("/api/auth/health");
-              console.log(response);
-            }}>
+            <button className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors">
               <Bell size={20} />
             </button>
             {accessToken ? (
