@@ -3,6 +3,7 @@ import { getFirebaseMessaging } from "@/hooks/useFCM";
 import api from "@/services/api";
 
 export const useFcmToken = () => {
+
   // 기기 정보 추출 유틸
   const getDeviceInfo = () => {
     const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
@@ -11,6 +12,24 @@ export const useFcmToken = () => {
     else if (/iPad|iPhone|iPod/.test(ua)) deviceType = "IOS";
 
     return  deviceType;
+  };
+
+  // 기기 uuid
+  const getOrCreateDeviceUuid = () => {
+    if (typeof window === "undefined") return "";
+
+    const STORAGE_KEY = "user_device_uuid";
+    let deviceUuid = localStorage.getItem(STORAGE_KEY);
+
+    if (!deviceUuid) {
+      deviceUuid = typeof crypto.randomUUID === "function" 
+        ? crypto.randomUUID() 
+        : Math.random().toString(36).substring(2) + Date.now().toString(36);
+      
+      localStorage.setItem(STORAGE_KEY, deviceUuid);
+    }
+
+    return deviceUuid;
   };
 
   // 1. FCM 토큰 생성/가져오기
@@ -77,9 +96,11 @@ export const useFcmToken = () => {
   // 2. 서버에 토큰 저장
   const saveTokenToServer = async (fcmToken: string, accessToken : string) => {
     const  deviceType  = getDeviceInfo();
+    const   deviceId   = getOrCreateDeviceUuid();
+    
     try {
       await api.post("/api/fcm/token", 
-        { fcmToken, deviceType },
+        { fcmToken, deviceType, deviceId },
         { headers: { Authorization: `Bearer ${accessToken}`} }
       );
       console.log("FCM 토큰 서버 동기화 완료");
