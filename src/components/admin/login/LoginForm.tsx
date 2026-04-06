@@ -29,7 +29,7 @@ export default function LoginForm() {
     try {
       const deviceType = getDeviceInfo();
       const fcmToken = await handleAllowNotification();
-      const response = await api.post<ApiResponse<UserData>>("api/auth/login", { 
+      const response = await api.post<ApiResponse<UserData>>("/auth/login", { 
         loginId, 
         password,
         deviceType,

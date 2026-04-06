@@ -14,7 +14,7 @@ export default function UserReportList() {
     const fetchMyReports = async () => {
       try {
         setLoading(true);
-        const response = await api.get<ApiResponse<ReportData>>("api/report/me");
+        const response = await api.get<ApiResponse<ReportData>>("/report/me");
         if (response.data.success) {
           setReports(response.data.data.content);
         }

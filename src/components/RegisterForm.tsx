@@ -18,7 +18,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post("api/auth/signup", formData); 
+      await api.post("/auth/signup", formData); 
       
       alert("회원가입 신청이 완료되었습니다.");
       onSuccess(); // 모달 닫기

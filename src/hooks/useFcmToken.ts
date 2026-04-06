@@ -99,7 +99,7 @@ export const useFcmToken = () => {
     const   deviceId   = getOrCreateDeviceUuid();
     
     try {
-      await api.post("/api/fcm/token", 
+      await api.post("/fcm/token", 
         { fcmToken, deviceType, deviceId },
         { headers: { Authorization: `Bearer ${accessToken}`} }
       );

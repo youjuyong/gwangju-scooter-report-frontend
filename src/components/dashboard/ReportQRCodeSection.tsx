@@ -20,7 +20,7 @@ export default function ReactQrReportSection() {
   // 공통 정보 조회 함수 (스캔 시 또는 직접 입력 후 필요 시 호출 가능)
   const fetchScooterInfo = async (id: string) => {
     try {
-      const response = await api.get(`/api/scooter/${id}`);
+      const response = await api.get(`/scooter/${id}`);
       const resData = response.data;
 
       if (resData.success && resData.data) {
@@ -79,7 +79,7 @@ export default function ReactQrReportSection() {
       //   return;
       // }
 
-      const response = await api.post("api/report", { scooterId: kickboardInfo.deviceId });
+      const response = await api.post("/report", { scooterId: kickboardInfo.deviceId });
       alert(`신고가 접수되었습니다: [${kickboardInfo.company}] ID: ${kickboardInfo.deviceId}`);
     } catch (error) {
       if (axios.isAxiosError(error)) {

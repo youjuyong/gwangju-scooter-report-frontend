@@ -54,7 +54,7 @@ export default function SeoulFullWidthDashboard() {
                    if (!confirm("로그아웃 하시겠습니까?")) return;
 
                   try {
-                    await api.post("api/auth/logout", {
+                    await api.post("/auth/logout", {
                       deviceType: deviceType
                     });
 

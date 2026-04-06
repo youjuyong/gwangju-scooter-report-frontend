@@ -14,7 +14,7 @@ export default function AdminReportList() {
   const fetchAllReports = async () => {
     try {
       setLoading(true);
-      const response = await api.get<ApiResponse<ReportData>>("api/report");
+      const response = await api.get<ApiResponse<ReportData>>("/report");
       if (response.data.success) {
         setReports(response.data.data.content);
       }
