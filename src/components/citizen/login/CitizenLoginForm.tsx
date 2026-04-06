@@ -62,12 +62,11 @@ export default function CitizenLoginForm() {
   // 카카오 로그인 처리
   const handleKakaoLogin = () => {
     toast.loading("카카오로 연결 중...");
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/kakao`;
+    window.location.href = `${process.env.NEXT_PUBLIC_LOGIN_API_URL}/oauth2/authorization/kakao`;
   };
   const handleNaveerLogin = () => {
     toast.loading("네이버로 연결 중...");
-    //window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/kakao`;
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/naver`;
+      window.location.href = `${process.env.NEXT_PUBLIC_LOGIN_API_URL}/oauth2/authorization/naver`;
   };
   
   return (
