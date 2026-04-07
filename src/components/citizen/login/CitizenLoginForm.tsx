@@ -59,14 +59,24 @@ export default function CitizenLoginForm() {
     }
   };
 
-  // 카카오 로그인 처리
-  const handleKakaoLogin = () => {
-    toast.loading("카카오로 연결 중...");
-    window.location.href = `${process.env.NEXT_PUBLIC_LOGIN_API_URL}/oauth2/authorization/kakao`;
-  };
-  const handleNaveerLogin = () => {
-    toast.loading("네이버로 연결 중...");
-      window.location.href = `${process.env.NEXT_PUBLIC_LOGIN_API_URL}/oauth2/authorization/naver`;
+  const oauthHandleLogin = async (provider:string) => {
+    const deviceType = getDeviceInfo();
+    const loginUrl = `${process.env.NEXT_PUBLIC_LOGIN_API_URL}/oauth2/authorization/${provider}`;
+
+    // 1. iOS인 경우에만 알림 권한 체크 및 요청
+    if (deviceType === "iOS") {
+      if ("Notification" in window && Notification.permission === "default") {
+        try {
+          await Notification.requestPermission();
+        } catch (error) {
+          console.error("iOS 알림 권한 요청 실패:", error);
+        }
+      }
+    }
+
+    // 2. 공통 로그인 처리 (권한 허용/거부와 상관없이 진행)
+    toast.loading(`${provider === 'kakao' ? '카카오' : '네이버'}로 연결 중...`);
+    window.location.href = loginUrl;
   };
   
   return (
@@ -118,13 +128,13 @@ export default function CitizenLoginForm() {
 
         {/* 시민 전용: 카카오 버튼 */}
         <button
-            onClick={handleKakaoLogin}
+            onClick={() => oauthHandleLogin('kakao')}
             className="w-full flex justify-center items-center py-3.5 bg-[#FEE500] hover:bg-[#FADA0A] text-black rounded-xl font-bold transition-all shadow-md active:scale-95"
         >
           <span className="mr-2 text-lg">💬</span> 카카오로 시작하기
         </button>
         <button
-            onClick={handleNaveerLogin}
+            onClick={() => oauthHandleLogin('naver')}
             className="w-full flex justify-center items-center py-3.5 bg-[#03C75A] hover:bg-[#00D462] text-black rounded-xl font-bold transition-all shadow-md active:scale-95"
         >
           <span className="mr-2 text-lg"></span> 네이버로 시작하기

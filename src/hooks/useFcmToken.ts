@@ -7,9 +7,9 @@ export const useFcmToken = () => {
   // 기기 정보 추출 유틸
   const getDeviceInfo = () => {
     const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-    let deviceType = "WEB";
-    if (/android/i.test(ua)) deviceType = "ANDROID";
-    else if (/iPad|iPhone|iPod/.test(ua)) deviceType = "IOS";
+    let deviceType = "Web";
+    if (/android/i.test(ua)) deviceType = "Android";
+    else if (/iPad|iPhone|iPod/.test(ua)) deviceType = "iOS";
 
     return  deviceType;
   };

@@ -18,18 +18,24 @@ export default function OAuth2Callback() {
     const accessToken = searchParams.get("accessToken");
 
     if (accessToken) {
-      // 토큰 저장
       setAccessToken(accessToken);
       setRole(UserRole.USER);
       setCookie('accessToken', accessToken);
 
-      fetchFcmToken().then((fcmToken) => {
-        if (fcmToken) {
-          saveTokenToServer(fcmToken, accessToken);
+      const processFcm = async () => {
+        try {
+          const fcmToken = await fetchFcmToken();
+          if (fcmToken) {
+            await saveTokenToServer(fcmToken, accessToken);
+          }
+        } catch (err) {
+          console.error("OAuth2 FCM Error:", err);
+        } finally {
+          router.replace("/");
         }
-      }).catch(err => console.error("OAuth2 FCM Error:", err));
+      };
 
-      router.replace("/");
+      processFcm();
     }
   }, [searchParams]);
 
