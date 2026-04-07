@@ -113,7 +113,7 @@ export const useFcmToken = () => {
   const saveTokenToServer = async (fcmToken: string, accessToken : string) => {
     const  deviceType  = getDeviceInfo();
     const   deviceId   = getOrCreateDeviceUuid();
-    
+    alert(deviceType);
     try {
       await api.post("/fcm/token", 
         { fcmToken, deviceType, deviceId },
