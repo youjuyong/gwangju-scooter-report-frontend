@@ -1,6 +1,8 @@
 {
   "short_name": "PM신고",
   "name": "공유 킥보드 신고 시스템",
+  "display": "standalone",
+  "start_url": "/",
   "icons": [
     {
       "src": "/push-icon-192.png", 
