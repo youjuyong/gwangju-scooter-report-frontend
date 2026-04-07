@@ -19,22 +19,19 @@ export default function OAuth2Callback() {
   const accessToken = searchParams.get("accessToken");
 
   if (accessToken) {
-    // 1. 기본 인증 정보 설정
     setAccessToken(accessToken);
     setRole(UserRole.USER);
     setCookie('accessToken', accessToken);
 
     const processFcm = async () => {
       try {
-        // 토큰 저장 중임을 알림 (디버깅 겸 흐름 제어)
         const loadingToast = toast.loading("알림 설정을 동기화 중입니다...");
 
         const fcmToken = await fetchFcmToken();
-        
+        alert(`토큰 결과: ${fcmToken ? '성공' : '실패(null)'}`);
         if (fcmToken) {
-          // 서버 저장이 완료될 때까지 '확실히' 기다림
           await saveTokenToServer(fcmToken, accessToken);
-          toast.success("로그인 및 알림 설정 완료!", { id: loadingToast });
+          toast.success("로그인 및 알림 설정 완료", { id: loadingToast });
         } else {
           toast.dismiss(loadingToast);
         }
