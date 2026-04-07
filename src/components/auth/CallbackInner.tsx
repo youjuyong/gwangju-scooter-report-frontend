@@ -36,8 +36,6 @@ export default function OAuth2Callback() {
             fcmToken = await fetchFcmToken();
           }
 
-          alert(`기기: ${deviceType} / 토큰: ${fcmToken ? '성공' : '실패(null)'}`);
-
           if (fcmToken) {
             await saveTokenToServer(fcmToken, accessToken);
             toast.success("로그인 및 알림 설정 완료", { id: loadingToast });
