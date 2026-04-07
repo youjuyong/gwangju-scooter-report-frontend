@@ -109,6 +109,7 @@ export const useFcmToken = () => {
     const  deviceType  = getDeviceInfo();
     const   deviceId   = getOrCreateDeviceUuid();
     
+    alert(deviceType);
     try {
       await api.post("/fcm/token", 
         { fcmToken, deviceType, deviceId },
