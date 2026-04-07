@@ -8,19 +8,24 @@ export const useFcmToken = () => {
   const getDeviceInfo = () => {
     if (typeof window === "undefined") return "Web";
 
-    const ua = navigator.userAgent;
-    const platform = navigator.platform;
-    const touchPoints = navigator.maxTouchPoints || 0;
+    try {
+      const ua = navigator.userAgent || "";
+      const platform = navigator.platform || "";
+      const touchPoints = navigator.maxTouchPoints || 0;
 
-    if (/android/i.test(ua)) return "Android";
+      if (/android/i.test(ua)) return "Android";
 
-    const isIOS = 
-      /iPad|iPhone|iPod/.test(ua) || 
-      /iPad|iPhone|iPod/.test(platform) ||
-      (platform === 'MacIntel' && touchPoints > 1) ||
-      (ua.includes("Macintosh") && "ontouchend" in document); 
+      const isIOS = 
+        /iPad|iPhone|iPod/.test(ua) || 
+        /iPad|iPhone|iPod/.test(platform) ||
+        (platform === 'MacIntel' && touchPoints > 1) ||
+        (typeof window !== "undefined" && "ontouchstart" in window); 
 
-    if (isIOS) return "iOS";
+      if (isIOS) return "iOS";
+    } catch (e) {
+      console.error("Device detection error:", e);
+      return "Web"; 
+    }
 
     return "Web";
   };
@@ -109,7 +114,6 @@ export const useFcmToken = () => {
     const  deviceType  = getDeviceInfo();
     const   deviceId   = getOrCreateDeviceUuid();
     
-    alert(deviceType);
     try {
       await api.post("/fcm/token", 
         { fcmToken, deviceType, deviceId },
