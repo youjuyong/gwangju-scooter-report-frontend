@@ -11,42 +11,55 @@ import { setCookie } from "cookies-next";
 export default function OAuth2Callback() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { fetchFcmToken, saveTokenToServer } = useFcmToken();
+  const { fetchFcmToken, saveTokenToServer, getDeviceInfo, fetchFcmTokenForCallback } = useFcmToken();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const        setRole = useAuthStore((state) => state.setRole);
 
   useEffect(() => {
-  const accessToken = searchParams.get("accessToken");
+    const accessToken = searchParams.get("accessToken");
 
-  if (accessToken) {
-    setAccessToken(accessToken);
-    setRole(UserRole.USER);
-    setCookie('accessToken', accessToken);
+    if (accessToken) {
+      setAccessToken(accessToken);
+      setRole(UserRole.USER);
+      setCookie('accessToken', accessToken);
 
-    const processFcm = async () => {
-      try {
+      const processFcm = async () => {
+        const deviceType = getDeviceInfo();
         const loadingToast = toast.loading("알림 설정을 동기화 중입니다...");
 
-        const fcmToken = await fetchFcmToken();
-        alert(`토큰 결과: ${fcmToken ? '성공' : '실패(null)'}`);
-        if (fcmToken) {
-          await saveTokenToServer(fcmToken, accessToken);
-          toast.success("로그인 및 알림 설정 완료", { id: loadingToast });
-        } else {
-          toast.dismiss(loadingToast);
-        }
-      } catch (err) {
-        console.error("OAuth2 FCM Error:", err);
-      } finally {
-        setTimeout(() => {
-          router.replace("/");
-        }, 500);
-      }
-    };
+        try {
+          let fcmToken = null;
 
-    processFcm();
-  }
-}, [searchParams, router]);
+          if (deviceType === "iOS") {
+            fcmToken = await fetchFcmTokenForCallback();
+          } else {
+            fcmToken = await fetchFcmToken();
+          }
+
+          alert(`기기: ${deviceType} / 토큰: ${fcmToken ? '성공' : '실패(null)'}`);
+
+          if (fcmToken) {
+            await saveTokenToServer(fcmToken, accessToken);
+            toast.success("로그인 및 알림 설정 완료", { id: loadingToast });
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          } else {
+            toast.dismiss(loadingToast);
+            console.warn("FCM 토큰을 획득하지 못해 서버 저장을 건너뜁니다.");
+          }
+        } catch (err) {
+          console.error("OAuth2 FCM Error:", err);
+          toast.error("알림 설정 중 오류가 발생했습니다.", { id: loadingToast });
+        } finally {
+          setTimeout(() => {
+            router.replace("/");
+          }, 500);
+        }
+      };
+
+      processFcm();
+    }
+  }, [searchParams, router]);
 
   return null;
 }

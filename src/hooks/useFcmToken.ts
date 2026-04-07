@@ -72,6 +72,45 @@ export const useFcmToken = () => {
     }
   };
 
+  const fetchFcmTokenForCallback = async () => {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+      console.error("서비스 워커를 지원하지 않는 환경입니다.");
+      return null;
+    }
+
+    try {
+      if (Notification.permission !== "granted") {
+        console.warn("알림 권한이 허용되지 않은 상태입니다.");
+        return null;
+      }
+
+      const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+      await navigator.serviceWorker.ready;
+
+      const messaging = getFirebaseMessaging();
+      if (!messaging) return null;
+
+      let token = null;
+      for (let i = 0; i < 3; i++) {
+        try {
+          token = await getToken(messaging, {
+            vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+            serviceWorkerRegistration: registration,
+          });
+          if (token) break; 
+        } catch (e) {
+          console.warn(`${i + 1}차 토큰 획득 시도 실패, 재시도 중...`);
+          await new Promise((res) => setTimeout(res, 1000)); 
+        }
+      }
+
+      return token;
+    } catch (error) {
+      console.error("FCM 콜백 전용 추출 에러:", error);
+      return null;
+    }
+  };
+
   const handleAllowNotification = async () => {
       const isSupported = 
         typeof window !== "undefined" && 
@@ -120,5 +159,5 @@ export const useFcmToken = () => {
     }
   };
 
-  return { fetchFcmToken, saveTokenToServer, getDeviceInfo, handleAllowNotification };
+  return { fetchFcmToken, saveTokenToServer, getDeviceInfo, handleAllowNotification, fetchFcmTokenForCallback };
 };
