@@ -7,11 +7,15 @@ export const useFcmToken = () => {
   // 기기 정보 추출 유틸
   const getDeviceInfo = () => {
     const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-    let deviceType = "Web";
-    if (/android/i.test(ua)) deviceType = "Android";
-    else if (/iPad|iPhone|iPod/.test(ua)) deviceType = "iOS";
+    const platform = typeof navigator !== "undefined" ? navigator.platform : "";
+    
+    if (/android/i.test(ua)) return "Android";
+    
+    if (/iPad|iPhone|iPod/.test(ua)) return "iOS";
+    
+    if (platform === 'MacIntel' && navigator.maxTouchPoints > 1) return "iOS";
 
-    return  deviceType;
+    return "Web";
   };
 
   // 기기 uuid
