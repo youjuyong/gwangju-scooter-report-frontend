@@ -31,7 +31,7 @@ export default function OAuth2Callback() {
         } catch (err) {
           console.error("OAuth2 FCM Error:", err);
         } finally {
-       //   router.replace("/");
+          router.replace("/");
         }
       };
 

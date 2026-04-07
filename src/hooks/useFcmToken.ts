@@ -6,26 +6,14 @@ export const useFcmToken = () => {
 
   // 기기 정보 추출 유틸
   const getDeviceInfo = () => {
-    if (typeof window === "undefined") return "Web";
-
-    try {
-      const ua = navigator.userAgent || "";
-      const platform = navigator.platform || "";
-      const touchPoints = navigator.maxTouchPoints || 0;
-
-      if (/android/i.test(ua)) return "Android";
-
-      const isIOS = 
-        /iPad|iPhone|iPod/.test(ua) || 
-        /iPad|iPhone|iPod/.test(platform) ||
-        (platform === 'MacIntel' && touchPoints > 1) ||
-        (typeof window !== "undefined" && "ontouchstart" in window); 
-
-      if (isIOS) return "iOS";
-    } catch (e) {
-      console.error("Device detection error:", e);
-      return "Web"; 
-    }
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const platform = typeof navigator !== "undefined" ? navigator.platform : "";
+    
+    if (/android/i.test(ua)) return "Android";
+    
+    if (/iPad|iPhone|iPod/.test(ua)) return "iOS";
+    
+    if (platform === 'MacIntel' && navigator.maxTouchPoints > 1) return "iOS";
 
     return "Web";
   };
@@ -113,7 +101,7 @@ export const useFcmToken = () => {
   const saveTokenToServer = async (fcmToken: string, accessToken : string) => {
     const  deviceType  = getDeviceInfo();
     const   deviceId   = getOrCreateDeviceUuid();
-    alert(deviceType);
+    
     try {
       await api.post("/fcm/token", 
         { fcmToken, deviceType, deviceId },
