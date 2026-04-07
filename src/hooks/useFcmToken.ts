@@ -6,14 +6,21 @@ export const useFcmToken = () => {
 
   // 기기 정보 추출 유틸
   const getDeviceInfo = () => {
-    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-    const platform = typeof navigator !== "undefined" ? navigator.platform : "";
-    
+    if (typeof window === "undefined") return "Web";
+
+    const ua = navigator.userAgent;
+    const platform = navigator.platform;
+    const touchPoints = navigator.maxTouchPoints || 0;
+
     if (/android/i.test(ua)) return "Android";
-    
-    if (/iPad|iPhone|iPod/.test(ua)) return "iOS";
-    
-    if (platform === 'MacIntel' && navigator.maxTouchPoints > 1) return "iOS";
+
+    const isIOS = 
+      /iPad|iPhone|iPod/.test(ua) || 
+      /iPad|iPhone|iPod/.test(platform) ||
+      (platform === 'MacIntel' && touchPoints > 1) ||
+      (ua.includes("Macintosh") && "ontouchend" in document); 
+
+    if (isIOS) return "iOS";
 
     return "Web";
   };
