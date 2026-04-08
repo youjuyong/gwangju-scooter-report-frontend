@@ -47,7 +47,6 @@ export default function ReactQrReportSection() {
   // 스캔 성공 시 실행
   const handleScan = async (result: any) => {
     if (result && result[0]?.rawValue) {
-      document.body.innerHTML = '<pre>' + JSON.stringify(result[0],null,2) + '</pre>'; 
       const scannedId = result[0].rawValue;
       setScannedData(scannedId);
       setIsScanning(false);
