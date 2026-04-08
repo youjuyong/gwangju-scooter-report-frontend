@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
       {
         // 로그인/인증 서버
         source: "/login-api/:path*",
-        destination: `${loginApiUrl}/:path*`, 
+        destination: `${loginApiUrl}/api/:path*`, 
       },
     ];
   },
