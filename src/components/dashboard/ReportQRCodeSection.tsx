@@ -51,8 +51,8 @@ export default function ReactQrReportSection() {
       setScannedData(scannedId);
       setIsScanning(false);
       setKickboardInfo((prev) => ({ ...prev, deviceId: scannedId }));
-      
-      await fetchScooterInfo(scannedId);
+      alert(scannedId);
+      //await fetchScooterInfo(scannedId);
     }
   };
 
@@ -79,7 +79,7 @@ export default function ReactQrReportSection() {
       //   return;
       // }
 
-      const response = await api.post("/report", { scooterId: kickboardInfo.deviceId });
+      //const response = await api.post("/report", { scooterId: kickboardInfo.deviceId });
       alert(`신고가 접수되었습니다: [${kickboardInfo.company}] ID: ${kickboardInfo.deviceId}`);
     } catch (error) {
       if (axios.isAxiosError(error)) {
