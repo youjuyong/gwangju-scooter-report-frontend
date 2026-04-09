@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { useFcmToken } from "@/hooks/useFcmToken";
 import axios from "axios";
-import api from "@/services/api";
+import authApi from "@/services/api";
 
 export default function SimpleDashboard() {
   const router = useRouter();
@@ -18,9 +18,9 @@ export default function SimpleDashboard() {
     if (!confirm("로그아웃 하시겠습니까?")) return;
 
     try {
-      await api.post("/auth/logout", {
-        deviceType: deviceType
-      });
+      await authApi.post('/api/auth/logout', {
+        deviceType: deviceType // "WEB", "ANDROID", "IOS" 등
+       });
       setAccessToken(null); 
       setRole(null);
       //  Axios 공통 헤더도 같이 비워주기

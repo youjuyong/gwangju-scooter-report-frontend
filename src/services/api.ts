@@ -15,6 +15,16 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+// 1. 인증/로그인 전용 인스턴스
+export const authApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_LOGIN_API_URL, 
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+});
+
+// 2. 일반 API 인스턴스
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
