@@ -17,7 +17,7 @@ const processQueue = (error: any, token: string | null = null) => {
 
 // 1. 인증/로그인 전용 인스턴스
 export const authApi = axios.create({
-  baseURL: '/api-auth', 
+  baseURL: process.env.NEXT_PUBLIC_LOGIN_API_URL, 
   headers: {
     'Content-Type': 'application/json',
   },
