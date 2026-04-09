@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { useFcmToken } from "@/hooks/useFcmToken";
 import axios from "axios";
-import authApi from "@/services/api";
+import { authApi } from "@/services/api";
 
 export default function SimpleDashboard() {
   const router = useRouter();

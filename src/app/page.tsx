@@ -8,7 +8,7 @@ import { useFcmToken } from "@/hooks/useFcmToken";
 import { deleteCookie } from "cookies-next";
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
-import authApi from "@/services/api";
+import {authApi} from "@/services/api";
 
 import ReportQRCodeSection from "@/components/dashboard/ReportQRCodeSection";
 import ReportListSection from "@/components/dashboard/ReportListSection";
