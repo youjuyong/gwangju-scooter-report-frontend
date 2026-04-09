@@ -8,7 +8,7 @@ import { useFcmToken } from "@/hooks/useFcmToken";
 import { deleteCookie } from "cookies-next";
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
-import api from "@/services/api";
+import authApi from "@/services/api";
 
 import ReportQRCodeSection from "@/components/dashboard/ReportQRCodeSection";
 import ReportListSection from "@/components/dashboard/ReportListSection";
@@ -54,8 +54,8 @@ export default function SeoulFullWidthDashboard() {
                    if (!confirm("로그아웃 하시겠습니까?")) return;
 
                   try {
-                    await api.post("/auth/logout", {
-                      deviceType: deviceType
+                    await authApi.post('/api-auth/logout', {
+                      deviceType: deviceType // "WEB", "ANDROID", "IOS" 등
                     });
 
                     toast.success("로그아웃되었습니다. 메인으로 이동합니다.", {
