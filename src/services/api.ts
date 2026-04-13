@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 
+// CSRF 및 기본 설정 전역 적용
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfCookieName = 'XSRF-TOKEN';
+axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN'; 
+
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
