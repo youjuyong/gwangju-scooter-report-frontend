@@ -42,13 +42,41 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().accessToken;
+    const csrfToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('XSRF-TOKEN='))
+      ?.split('=')[1];
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (csrfToken) {
+      config.headers['X-XSRF-TOKEN'] = csrfToken;
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
+
+authApi.interceptors.request.use(
+  (config) => {
+    const token = useAuthStore.getState().accessToken;
+    const csrfToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('XSRF-TOKEN='))
+      ?.split('=')[1];
+
+    if (token) {
+      config.headers.Authorization =  `Bearer ${token}`;
+    }
+    if (csrfToken) {
+      config.headers['X-XSRF-TOKEN'] = csrfToken;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 
 // 2. 응답 인터셉터
 api.interceptors.response.use(
