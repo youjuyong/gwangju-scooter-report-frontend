@@ -13,10 +13,10 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       accessToken: null,
-      setAccessToken: (token) => set({ accessToken: token }),
-      clearAuth: () => set({ accessToken: null }),
       role: null,
+      setAccessToken: (token) => set({ accessToken: token }),
       setRole: (role) => set({ role: role }),
+      clearAuth: () => set({ accessToken: null, role: null }),
     }),
     {
       name: 'auth-storage', 

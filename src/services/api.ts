@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
+import { toast } from "react-hot-toast";
 
 // CSRF 및 기본 설정 전역 적용
 axios.defaults.withCredentials = true;
@@ -83,6 +84,24 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const errorResponse = error.response;
+    if (errorResponse?.status === 401 && errorResponse?.data?.code === "A006") {
+        if (errorResponse.data.role !== "REPORT_USER") {
+            toast.error("다른 기기에서 로그인되어 접속이 종료되었습니다.");
+
+            useAuthStore.getState().clearAuth();
+
+            if (typeof window !== "undefined") {
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 10000);
+            }
+        } else {
+            useAuthStore.getState().clearAuth();
+            window.location.href = "/";
+        }
+        return Promise.reject(error);
+    }
 
     if (originalRequest.url?.includes("api/auth/login")) {
       return Promise.reject(error);
