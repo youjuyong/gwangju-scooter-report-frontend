@@ -11,6 +11,7 @@ import { ApiResponse, UserData } from "@/types/auth";
 import RegisterForm from "@/components/RegisterForm";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "react-hot-toast";
+import {useSqlValidator} from "@/hooks/useSqlValidator";
 
 export default function CitizenLoginForm() {
   const [loginId, setLoginId] = useState("");
@@ -21,11 +22,19 @@ export default function CitizenLoginForm() {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const        setRole = useAuthStore((state) => state.setRole);
  const { handleAllowNotification, getDeviceInfo } = useFcmToken();
-
+    const { validate } = useSqlValidator(); // 훅 불러오기
   // 일반 로그인 처리
 
   const handleLogin = async (e: React.FormEvent) => {
+
+      // 전송 직전에 검사!
+      if (!validate(loginId)) {
+          return; // 검사 탈락 시 여기서 중단 (alert은 훅 내부에서 뜸)
+      }
+
     e.preventDefault();
+
+
     const loginToast = toast.loading("로그인 중...");
 
     try {
