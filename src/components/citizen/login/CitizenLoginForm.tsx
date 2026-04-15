@@ -26,13 +26,12 @@ export default function CitizenLoginForm() {
   // 일반 로그인 처리
 
   const handleLogin = async (e: React.FormEvent) => {
+      e.preventDefault();
 
       // 전송 직전에 검사!
       if (!validate(loginId)) {
-          return; // 검사 탈락 시 여기서 중단 (alert은 훅 내부에서 뜸)
+          return; // 검사 탈락 시 여기서 중단 (toast 훅 내부에서 뜸)
       }
-
-    e.preventDefault();
 
 
     const loginToast = toast.loading("로그인 중...");
