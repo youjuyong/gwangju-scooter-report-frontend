@@ -1,4 +1,4 @@
-import api from "../api";
+import api, {authApi} from "../api";
 import {deptResponse, roleResponse, signUpRequest, signUpResponse,} from "@/types/regiser";
 
 
@@ -25,6 +25,6 @@ export const getDeptApi = async ( deptTypeCode: string): Promise<deptResponse[]>
  * 회원가입
  */
 export const signUpApi = async (request: signUpRequest): Promise<signUpResponse> => {
-    const response = await api.post('/admin/auth/signup', request);
+    const response = await authApi.post('/api-auth/admin/signup', request);
     return response.data;
 }
