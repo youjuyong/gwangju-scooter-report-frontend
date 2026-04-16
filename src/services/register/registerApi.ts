@@ -25,6 +25,9 @@ export const getDeptApi = async ( deptTypeCode: string): Promise<deptResponse[]>
  * 회원가입
  */
 export const signUpApi = async (request: signUpRequest): Promise<signUpResponse> => {
-    const response = await api.post('/admin/auth/signup', request);
+    const response = await api.post('/admin/auth/signup', request, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },});
     return response.data;
 }
