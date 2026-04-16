@@ -1,116 +1,152 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { handleApiError } from "@/hooks/errorHandler"; // 공통 에러 핸들러
-import { useFcmToken } from "@/hooks/useFcmToken"; // 공통 FCM 훅
-import { Lock, User } from "lucide-react";
-import api from "@/services/api";
-import { ApiResponse, UserData } from "@/types/auth";
-import { setCookie } from "cookies-next";
+import {useState} from "react";
+import {useRouter} from "next/navigation";
+import {handleApiError} from "@/hooks/errorHandler"; // 공통 에러 핸들러
+import {useFcmToken} from "@/hooks/useFcmToken"; // 공통 FCM 훅
+import {Lock, User} from "lucide-react";
+import {setCookie} from "cookies-next";
 import RegisterForm from "@/components/RegisterForm";
-import { useAuthStore } from "@/store/authStore";
-import { toast } from "react-hot-toast";
+import {useAuthStore} from "@/store/authStore";
+import {toast} from "react-hot-toast";
+import {loginService} from "@/services/auth/loginApi";
 
 export default function LoginForm() {
-  const [loginId, setLoginId] = useState("");
-  const [password, setPassword] = useState("");
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-  
-  const router = useRouter();
-  const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const        setRole = useAuthStore((state) => state.setRole);
-  const { handleAllowNotification, getDeviceInfo } = useFcmToken();
+    const [userId, setUserId] = useState("");
+    const [pswd, setPswd] = useState("");
+    const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const loginToast = toast.loading("로그인 중...");
+    const router = useRouter();
+    const setAccessToken = useAuthStore((state) => state.setAccessToken);
+    const setRole = useAuthStore((state) => state.setRole);
+    const {
+        handleAllowNotification,
+        getDeviceInfo,
+        saveTokenToServer,
+        fetchFcmTokenForCallback
+    } = useFcmToken();
 
-    try {
-      const deviceType = getDeviceInfo();
-      const fcmToken = await handleAllowNotification();
-      const response = await api.post<ApiResponse<UserData>>("/auth/login", { 
-        loginId, 
-        password,
-        deviceType,
-        fcmToken
-      });
-      
-      const authHeader = response.headers['authorization']; 
-      if (!authHeader) throw new Error("인증 토큰을 받을 수 없습니다.");
+    // const handleLogin = async (e?: React.FormEvent, isForce: "Y" | "N" = "N") => {
+    const handleLogin = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        const loginToast = toast.loading("로그인 중...");
 
-      const { success, data, message } = response.data;
+        try {
+            const response = await loginService.login({userId, pswd});
 
-      if (!success || !data) {
-        throw new Error(message || "로그인 정보가 올바르지 않습니다.");
-      }
+            const apiResponse = response;
+            const authHeader = apiResponse.data?.accessToken;
+            if (!authHeader) throw new Error("인증 토큰이 없습니다.");
+            if (!apiResponse.success) throw new Error(apiResponse.message || "로그인 실패");
 
-      const { role, name } = data;
+            const {success, data, message} = apiResponse;
 
-      setAccessToken(authHeader);
-      setRole(role);
-      setCookie('accessToken', authHeader);
+            if (!success || !data) {
+                throw new Error(message || "로그인 정보가 올바르지 않습니다.");
+            }
 
-      toast.success(`${name}님, 반갑습니다!`, { id: loginToast });
-      router.replace("/");
+            const {role, userNm} = apiResponse.data.userInfo;
 
-    } catch (err: any) {
-      toast.dismiss(loginToast);
-      handleApiError(err, "로그인 정보가 올바르지 않습니다.");
-    }
-  };
+            setAccessToken(authHeader);
+            setRole(role);
+            setCookie('accessToken', authHeader);
 
-  return (
-    <>
-      <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-        <div className="space-y-4">
-          <div className="relative">
-            <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              required
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-yellow-500 focus:border-yellow-500 text-sm"
-              placeholder="사번 또는 아이디"
-              value={loginId}
-              onChange={(e) => setLoginId(e.target.value)}
-            />
-          </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-            <input
-              type="password"
-              required
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-yellow-500 focus:border-yellow-500 text-sm"
-              placeholder="비밀번호"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-        </div>
+            const processFcm = async () => {
+                try {
+                    const deviceType = getDeviceInfo();
+                    let fcmToken = null;
+                    if (deviceType === "iOS") {
+                        fcmToken = await fetchFcmTokenForCallback();
+                    } else {
+                        fcmToken = await handleAllowNotification();
+                    }
 
-        <button
-          type="submit"
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
-        >
-          로그인하기
-        </button>
-      </form>
+                    if (fcmToken) {
+                        await saveTokenToServer(fcmToken, authHeader);
+                    }
+                } catch (fcmErr) {
+                    console.error("FCM 동기화 실패:", fcmErr);
+                }
+            };
 
-      <div className="text-center mt-4">
-        <p className="text-sm text-gray-600">
-          계정이 없으신가요?{" "}
-          <button 
-            onClick={() => setIsRegisterOpen(true)}
-            className="text-yellow-600 font-bold hover:underline ml-1"
-          >
-            회원가입 신청
-          </button>
-        </p>
-      </div>
-      
-      {isRegisterOpen && <RegisterForm onSuccess={() => setIsRegisterOpen(false)} />}
-    </>
-  );
+            await processFcm();
+
+            toast.success(`${userNm}님, 반갑습니다!`, {id: loginToast});
+            router.replace("/");
+
+        } catch (err: any) {
+            toast.dismiss(loginToast);
+
+            if (err.response?.status === 401) {
+                const userRole = err.response.data?.role;
+
+                if (userRole !== "USER") {
+                    // return handleLogin(undefined, "Y");
+                    return handleLogin(undefined);
+                } else {
+                    if (confirm("이미 다른 기기에서 로그인 중입니다. 기존 연결을 끊고 여기서 로그인하시겠습니까?")) {
+                        // return handleLogin(undefined, "Y");
+                        return handleLogin(undefined);
+                    }
+                }
+                return;
+            }
+
+            handleApiError(err, "로그인 정보가 올바르지 않습니다.");
+        }
+    };
+
+    return (
+        <>
+            <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+                <div className="space-y-4">
+                    <div className="relative">
+                        <User className="absolute left-3 top-3 h-5 w-5 text-gray-400"/>
+                        <input
+                            type="text"
+                            required
+                            className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+                            placeholder="사번 또는 아이디"
+                            value={userId}
+                            onChange={(e) => setUserId(e.target.value)}
+                        />
+                    </div>
+                    <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400"/>
+                        <input
+                            type="password"
+                            required
+                            className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+                            placeholder="비밀번호"
+                            value={pswd}
+                            onChange={(e) => setPswd(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <button
+                    type="submit"
+                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors"
+                >
+                    로그인하기
+                </button>
+            </form>
+
+            <div className="text-center mt-4">
+                <p className="text-sm text-gray-600">
+                    계정이 없으신가요?{" "}
+                    <button
+                        onClick={() => setIsRegisterOpen(true)}
+                        className="text-yellow-600 font-bold hover:underline ml-1"
+                    >
+                        회원가입 신청
+                    </button>
+                </p>
+            </div>
+
+            {isRegisterOpen && <RegisterForm onSuccess={() => setIsRegisterOpen(false)}/>}
+        </>
+    );
 }
 
 
