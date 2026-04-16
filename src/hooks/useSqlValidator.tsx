@@ -6,7 +6,7 @@ import {handleApiError} from "@/hooks/errorHandler";
 export const useSqlValidator = () => {
     const [isValid, setIsValid] = useState(true);
 
-    const validate = (value: string) => {
+    const sqlValidate = (value: string) => {
         if (containsSQLInjection(value)) {
             setIsValid(false);
 
@@ -49,7 +49,7 @@ export const useSqlValidator = () => {
         return true;
     };
 
-    return {isValid, validate};
+    return {isValid, sqlValidate};
 };
 
 // 입력값에 해당하는 버튼 함수에 추가해서 검증
