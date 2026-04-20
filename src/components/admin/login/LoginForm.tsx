@@ -26,13 +26,12 @@ export default function LoginForm() {
         fetchFcmTokenForCallback
     } = useFcmToken();
 
-    // const handleLogin = async (e?: React.FormEvent, isForce: "Y" | "N" = "N") => {
-    const handleLogin = async (e?: React.FormEvent) => {
+    const handleLogin = async (e?: React.FormEvent, forceLogin: boolean = false) => {
         if (e) e.preventDefault();
         const loginToast = toast.loading("로그인 중...");
 
         try {
-            const response = await loginService.login({userId, pswd});
+            const response = await loginService.login({userId, pswd, forceLogin});
 
             const apiResponse = response;
             const authHeader = apiResponse.data?.accessToken;
@@ -77,16 +76,14 @@ export default function LoginForm() {
         } catch (err: any) {
             toast.dismiss(loginToast);
 
-            if (err.response?.status === 401) {
+            if (err.response?.status === 409) {
                 const userRole = err.response.data?.role;
 
-                if (userRole !== "USER") {
-                    // return handleLogin(undefined, "Y");
-                    return handleLogin(undefined);
+                if (userRole === "USER") {
+                    return handleLogin(undefined, true);
                 } else {
                     if (confirm("이미 다른 기기에서 로그인 중입니다. 기존 연결을 끊고 여기서 로그인하시겠습니까?")) {
-                        // return handleLogin(undefined, "Y");
-                        return handleLogin(undefined);
+                        return handleLogin(undefined, true);
                     }
                 }
                 return;

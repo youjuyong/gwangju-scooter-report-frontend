@@ -1,7 +1,7 @@
 export interface LoginData {
     userId: string;
     pswd: string;
-    forceLogin?: "Y" | "N";
+    forceLogin: boolean;
 }
 
 export interface LoginResponseData {
