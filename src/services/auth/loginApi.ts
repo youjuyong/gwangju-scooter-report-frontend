@@ -8,7 +8,7 @@ export const loginService = {
     * */
     login: async (data: LoginData): Promise<ApiResponse<LoginResponseData>> => {
         const response = await authApi.post<ApiResponse<LoginResponseData>>(
-            "/api-auth/admin/login",
+            "/admin/login",
             data
         );
 

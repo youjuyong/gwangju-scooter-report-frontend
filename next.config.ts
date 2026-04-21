@@ -5,11 +5,16 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   async rewrites() {
     const apiUrl = process.env.INTERNAL_API_URL || "http://fac.raontec.co.kr:28085";
+    const authUrl = process.env.AUTH_API_URL || "https://raonbackend.kr";
 
     return [
       {
         source: "/api/:path*",
         destination: `${apiUrl}/api/:path*`,
+      },
+      {
+        source: "/api-auth/:path*",
+        destination: `${authUrl}/api-auth/:path*`,
       },
     ];
   },

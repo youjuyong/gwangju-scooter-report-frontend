@@ -18,7 +18,7 @@ export default function SimpleDashboard() {
     if (!confirm("로그아웃 하시겠습니까?")) return;
 
     try {
-      await authApi.post('/api-auth/logout', {
+      await authApi.post('/logout', {
         deviceType: deviceType // "WEB", "ANDROID", "IOS" 등
        });
       setAccessToken(null); 
