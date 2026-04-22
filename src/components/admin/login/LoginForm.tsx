@@ -26,6 +26,10 @@ export default function LoginForm() {
         fetchFcmTokenForCallback
     } = useFcmToken();
 
+    const ERROR_MESSAGES: Record<string, string> = {
+        "E008": "비밀번호 오류 횟수 초과로 계정이 잠겼습니다. 관리자에게 문의하세요.",
+    };
+
     const handleLogin = async (e?: React.FormEvent, forceLogin: boolean = false) => {
         if (e) e.preventDefault();
         const loginToast = toast.loading("로그인 중...");
@@ -86,6 +90,12 @@ export default function LoginForm() {
                         return handleLogin(undefined, true);
                     }
                 }
+                return;
+            }
+            const resultCode = err.response?.data.resultCode;
+            const message = ERROR_MESSAGES[resultCode]
+            if (resultCode === "E008") {
+                toast.error(message);
                 return;
             }
 
