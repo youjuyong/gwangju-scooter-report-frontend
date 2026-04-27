@@ -61,7 +61,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
             <div className="popupconten">
                 <p className="popuptxt">로그인 후 이용하세요</p>
                 <div className="popupbtnset">
-                    <button>확인</button>
+                    <button onClick={(e) => setShowLoginPopup(false)}>확인</button>
                 </div>
             </div>
             <div className="popbg"></div>
