@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useFcmToken } from "@/hooks/useFcmToken";
 import axios from "axios";
 import { authApi } from "@/services/api";
+import Cookies from 'js-cookie';
 
 export default function SimpleDashboard() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export default function SimpleDashboard() {
       setRole(null);
       //  Axios 공통 헤더도 같이 비워주기
       delete axios.defaults.headers.common['Authorization'];
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
       
       router.replace("/"); 
     } catch (error) {
