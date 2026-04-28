@@ -26,6 +26,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const accessToken = useAuthStore((state) => state.accessToken);
     const setAccessToken = useAuthStore((state) => state.setAccessToken);
     const setRole = useAuthStore((state) => state.setRole);
+    const userName = useAuthStore((state) => state.userName);
 
 
     // 로그아웃 핸들러
@@ -45,12 +46,15 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     };
 
     // 이동 전 권한 체크 함수
-    const handleProtectedAction = (e: React.MouseEvent, path: string) => {
+    const handleProtectedAction = (e: React.MouseEvent, tabName: string) => {
+        e.preventDefault(); // 기본 링크 이동 방지
+
         if (!accessToken) {
-            e.preventDefault(); // 페이지 이동 차단
-            setShowLoginPopup(true); // 팝업 띄우기
+            // 1. 로그인 안 되어 있으면 팝업 띄우기
+            setShowLoginPopup(true);
         } else {
-            router.push(path);
+            // 2. 로그인 되어 있으면 해당 탭으로 전환
+            setActiveTab(tabName);
         }
     };
 
@@ -79,7 +83,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
             {/* 로그인 상태에 따른 메시지 분기 */}
             {accessToken ? (
                 <p className="login-msg">
-                    반갑습니다! <span onClick={handleLogout} style={{ cursor: 'pointer', textDecoration: 'underline', marginLeft: '5px', fontSize: '12px' }}>임시 로그아웃</span>
+                    {userName}님 반갑습니다! <span onClick={handleLogout} style={{ cursor: 'pointer', textDecoration: 'underline', marginLeft: '5px', fontSize: '12px' }}>임시 로그아웃</span>
                 </p>
             ) : (
                 <p className="login-msg" onClick={() => router.push("/commLogin")} style={{ cursor: 'pointer' }}>
@@ -109,11 +113,12 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                             홈
                         </a>
                     </li>
+                    {/* 신고확인: 로그인 체크 적용 */}
                     <li className={activeTab === "신고확인" ? "click" : ""}>
                         <a
                             href="#"
                             className="menuReport"
-                            onClick={(e) => { e.preventDefault(); setActiveTab("신고확인"); }}
+                            onClick={(e) => handleProtectedAction(e, "신고확인")}
                         >
                             신고확인
                         </a>

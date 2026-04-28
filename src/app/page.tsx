@@ -7,6 +7,7 @@ import ReportQRCodeSection from "@/components/dashboard/ReportQRCodeSection";
 import ReportListSection from "@/components/dashboard/ReportListSection";
 import {toast} from "react-hot-toast";
 import {useFcmToken} from "@/hooks/useFcmToken";
+import MainNotice from "@/components/notice/MainNotice";
 
 
 export default function SeoulFullWidthDashboard() {
@@ -29,16 +30,6 @@ export default function SeoulFullWidthDashboard() {
         // wrap 클래스: 홈일 때와 아닐 때를 구분하여 클래스 부여 가능
         <div className={`wrap ${activeTab === "홈" ? "main-wrap" : "sub-wrap"}`}>
 
-            {/*/!* 팝업창 (상태에 따라 display 제어 가능) *!/*/}
-            {/*<div className="popupbox" style={{ display: "none" }}>*/}
-            {/*    <div className="popupconten">*/}
-            {/*        <p className="popuptxt">로그인 후 이용하세요</p>*/}
-            {/*        <div className="popupbtnset">*/}
-            {/*            <button>확인</button>*/}
-            {/*        </div>*/}
-            {/*    </div>*/}
-            {/*    <div className="popbg"></div>*/}
-            {/*</div>*/}
 
             <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
@@ -84,6 +75,7 @@ function HomeSection({ setActiveTab, accessToken }: any) {
             {/*        <button type="button" className="btnright" aria-label="다음 공지 보기">다음공지보기</button>*/}
             {/*    </div>*/}
             {/*</article>*/}
+            <MainNotice></MainNotice>
 
             <div className="mainImgBox">
                 <div className="img">
