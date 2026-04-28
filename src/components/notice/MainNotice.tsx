@@ -25,16 +25,6 @@ export default function MainNotice() {
         fetchNotices();
     }, []);
 
-    // 2. 자동 롤링 로직 (3초마다 다음 공지)
-    useEffect(() => {
-        if (notices.length <= 1) return;
-
-        const timer = setInterval(() => {
-            handleNext();
-        }, 3000);
-
-        return () => clearInterval(timer);
-    }, [notices, currentIndex]);
 
     // 다음 공지 보기
     const handleNext = () => {

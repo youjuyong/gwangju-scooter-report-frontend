@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from 'react-hot-toast';
 import "../css/base_style.css"; // 경로에 맞춰 임포트
 import "../css/style.css";
+import React from "react";
+import BFCacheHandler from "@/components/auth/BFCacheHandler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +40,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html lang="ko">
       <head>
@@ -49,6 +52,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <BFCacheHandler />
         <Toaster />
         {children}
       </body>
