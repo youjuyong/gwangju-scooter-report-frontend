@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 
 // src/app/layout.tsx
 export const metadata: Metadata = {
-  title: "PM 신고 시스템",
-  description: "공유 킥보드 관리 및 신고 시스템",
+  title: "경기도광주시 공유 킥보드 신고 시스템",
+  description: "경기도 광주시에서 공유 킥보드를 신고 할수 있는 시스템입니다.",
   manifest: "/manifest.json",
   icons: {
     apple: "/push-icon.png",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true, 
     statusBarStyle: "default", 
-    title: "PM 신고 시스템",
+    title: "경기도광주시 공유 킥보드 신고 시스템",
   },
   formatDetection: {
     telephone: false, // 전화번호 자동 링크 방지 (필요 시)
