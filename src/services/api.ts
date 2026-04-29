@@ -1,5 +1,8 @@
 import axios from 'axios';
 import {useAuthStore} from '@/store/authStore';
+import { useRouter } from "next/navigation";
+
+const router = useRouter();
 
 // CSRF 및 기본 설정 전역 적용
 axios.defaults.withCredentials = true;
@@ -88,6 +91,7 @@ api.interceptors.response.use(
         if (errorResponse?.status === 401 && errorResponse?.data?.code === "E007") {
             useAuthStore.getState().clearAuth();
             alert("다른 기기에서 로그인되어 연결이 종료되었습니다.");
+            router.replace("/");
             return Promise.reject(error);
         }
 
@@ -112,18 +116,18 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                // // const response = await axios.post(
-                // //     `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
-                // //     {},
-                // //     {withCredentials: true}
-                // // );
+                const response = await axios.post(
+                    `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+                    {},
+                    {withCredentials: true}
+                );
 
-                // // const newAccessToken = response.data.data.accessToken;
+                const newAccessToken = response.data.data.accessToken;
 
-                // useAuthStore.getState().setAccessToken(newAccessToken);
-                // originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                useAuthStore.getState().setAccessToken(newAccessToken);
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-                // processQueue(null, newAccessToken);
+                processQueue(null, newAccessToken);
 
                 return api(originalRequest);
             } catch (refreshError) {
@@ -133,7 +137,7 @@ api.interceptors.response.use(
 
                 // 쿠키 삭제 및 홈 이동 로직 (window.location.href 사용 추천)
                 if (typeof window !== "undefined") {
-                //    window.location.href = "/";
+                    window.location.href = "/";
                 }
 
                 return Promise.reject(refreshError);
