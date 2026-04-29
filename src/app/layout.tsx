@@ -4,7 +4,6 @@ import "./globals.css";
 import { Toaster } from 'react-hot-toast';
 import "../css/base_style.css"; // 경로에 맞춰 임포트
 import "../css/style.css";
-import React from "react";
 import BFCacheHandler from "@/components/auth/BFCacheHandler";
 
 const geistSans = Geist({

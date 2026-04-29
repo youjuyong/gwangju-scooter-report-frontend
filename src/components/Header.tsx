@@ -12,9 +12,10 @@ import axios from "axios";
 // 1. 이제 setActiveTab은 필요 없습니다. URL이 상태가 되기 때문입니다.
 interface HeaderProps {
     activeTab: string;
+    setActiveTab: (tab: string) => void;
 }
 
-export default function Header({ activeTab }: HeaderProps) {
+export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const router = useRouter();
     const { getDeviceInfo } = useFcmToken();
     const deviceType = getDeviceInfo();
