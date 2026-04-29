@@ -4,25 +4,25 @@
     font-family: 'NanumSquareNeo';
     font-style: normal;
     font-weight: 300;
-     src: url(../../public/fonts/NanumSquareNeoOTF-Rg.woff2) format('woff2'),
-        url(../../public/fonts/NanumSquareNeoOTF-Rg.woff) format('woff'),
-        url(../../public/fonts/NanumSquareNeoOTF-Rg.otf) format('opentype');}
+     src: url(../fonts/NanumSquareNeoOTF-Rg.woff2) format('woff2'),
+        url(../fonts/NanumSquareNeoOTF-Rg.woff) format('woff'),
+        url(../fonts/NanumSquareNeoOTF-Rg.otf) format('opentype');}
 
 @font-face {
     font-family: 'NanumSquareNeo';
     font-style: normal;
     font-weight: 500;
-    src: url(../../public/fonts/NanumSquareNeoOTF-Bd.woff2) format('woff2'),
-        url(../../public/fonts/NanumSquareNeoOTF-Bd.woff) format('woff'),
-        url(../../public/fonts/NanumSquareNeoOTF-Bd.otf) format('opentype');}
+    src: url(../fonts/NanumSquareNeoOTF-Bd.woff2) format('woff2'),
+        url(../fonts/NanumSquareNeoOTF-Bd.woff) format('woff'),
+        url(../fonts/NanumSquareNeoOTF-Bd.otf) format('opentype');}
 
 @font-face {
     font-family: 'NanumSquareNeo';
     font-style: normal;
     font-weight: 700;
-    src: url(../../public/fonts/NanumSquareNeoOTF-Eb.woff2) format('woff2'),
-        url(../../public/fonts/NanumSquareNeoOTF-Eb.woff) format('woff'),
-        url(../../public/fonts/NanumSquareNeoOTF-Eb.otf) format('opentype');}
+    src: url(../fonts/NanumSquareNeoOTF-Eb.woff2) format('woff2'),
+        url(../fonts/NanumSquareNeoOTF-Eb.woff) format('woff'),
+        url(../fonts/NanumSquareNeoOTF-Eb.otf) format('opentype');}
 
 
 /* CSS Document */
@@ -48,7 +48,7 @@ select option {
   font-size: 16px;
 }
 
-select{ background: url(../../public/images/img_select.png)right 10px top 20px no-repeat;}
+select{ background: url(../images/img_select.png)right 10px top 20px no-repeat;}
 
 a{ color:#000; text-decoration:none; outline:none;}
 button {cursor:pointer; border:0; font-family: 'NanumSquareNeo';}
@@ -65,14 +65,28 @@ a:hover,button:hover{text-decoration: underline}
 li{list-style: none}
 table{border-collapse: collapse; width: 100%;}
 
-a:focus-visible, button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline: dotted 2px #cde3ff; box-shadow: inset 0 0 0px 4px rgba(0,0,0,1); outline-offset: -3px; text-decoration: underline;}
+a:focus, 
+button:focus, 
+input:focus, 
+textarea:focus, 
+select:focus {
+    outline: none;
+    box-shadow:none;
+}
+
+/* 오직 키보드로 탭했을 때만 나타날 스타일 */
+a:focus-visible, 
+button:focus-visible, 
+input:focus-visible, 
+textarea:focus-visible, 
+select:focus-visible{
+  outline: dotted 2px #cde3ff;
+  box-shadow: inset 0 0 0px 4px rgba(0,0,0,1);
+  outline-offset: -3px;
+  text-decoration: underline;
+}
 
 
-input[type=checkbox]{background: url(../../public/images/check.png)center no-repeat; border-bottom: none!important; width:19px!important; height: 19px!important; vertical-align: middle;}
-input[type=checkbox]:checked{background: url(../../public/images/check_click.png)center no-repeat;}
 
-
-
-
-
-
+input[type=checkbox]{background: url(../images/check.png)center no-repeat; border-bottom: none!important; width:19px!important; height: 19px!important; vertical-align: middle;}
+input[type=checkbox]:checked{background: url(../images/check_click.png)center no-repeat;}
