@@ -67,7 +67,7 @@ export default function CitizenLoginForm() {
 
   const oauthHandleLogin = async (provider:string) => {
     const deviceType = getDeviceInfo();
-    const loginUrl = `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/oauth2/authorization/${provider}`;
+    const loginUrl = `api-auth/oauth2/authorization/${provider}`;
   
     // 1. iOS인 경우에만 알림 권한 체크 및 요청
     if (deviceType === "iOS") {
