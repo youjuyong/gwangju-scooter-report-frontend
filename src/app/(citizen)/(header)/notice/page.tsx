@@ -1,64 +1,53 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
-import Header from "@/components/Header";
-import { getMainNoticeApi } from "@/services/notice/noticeApi";
-import { NoticeResponse } from "@/types/notice";
 import Link from "next/link";
+import {NoticeResponse} from "@/types/notice";
 
-export default function NoticeListPage() {
-    const [notices, setNotices] = useState<NoticeResponse[]>([]);
-    const [totalCount, setTotalCount] = useState(0);
-    const [activeTab, setActiveTab] = useState("공지사항");
+export default async function NoticeListPage() {
+    let notices: NoticeResponse[] = [];
 
-    useEffect(() => {
-        const fetchAllNotices = async () => {
-            try {
-                // 목록 페이지이므로 size를 넉넉히 잡거나 페이징 로직을 넣습니다.
-                const result = await getMainNoticeApi({
-                    page: 0,
-                    size: 20, // 일단 20개 로드
-                });
+    try {
+        const baseUrl = process.env.INTERNAL_API_URL;
 
-                // API 구조에 따라 result가 배열이거나 content를 포함한 객체일 수 있습니다.
-                // 여기서는 이전 답변에서 정리한 content 배열 기준입니다.
-                setNotices(result);
-                setTotalCount(result.length); // 실제로는 API의 totalElements를 사용 권장
-            } catch (error) {
-                console.error("공지사항 목록 로드 실패:", error);
-            }
-        };
+        const response = await fetch(`${baseUrl}/api/ntc?page=0&size=999`, {
+            method: 'GET',
+            cache: 'no-store', // 서버에서 매번 새로 데이터를 가져오도록 설정 (백엔드의 실시간 데이터 반영)
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`API 호출 실패: ${response.status}`);
+        }
+        const result = await response.json();
 
-        fetchAllNotices();
-    }, []);
+        notices = Array.isArray(result) ? result : (result.data.content || []);
+
+    } catch (error) {
+        console.error("공지사항 서버 페칭 에러:", error);
+    }
+
+    const totalCount = notices.length;
 
     return (
-        // 공지사항 페이지는 wrap에 별도의 클래스가 필요할 수 있어 sub-wrap 등을 적용
+        <article className="subBoard">
+            <h2>공지사항</h2>
+            <div className="noticount">
+                총 <span>{totalCount}</span>건
+            </div>
 
-
-                <article className="subBoard">
-                    <h2>공지사항</h2>
-                    <div className="noticount">
-                        총 <span>{totalCount}</span>건
-                    </div>
-
-                    <ul className="notilistBody">
-                        {notices.length > 0 ? (
-                            notices.map((notice) => (
-                                <li key={notice.ntcId}>
-                                    {/* 상세 페이지 이동 (Link 활용) */}
-                                    <Link href={`/notice/${notice.ntcId}`}>
-                                        <p className="noticeTitle">{notice.ttlNm}</p>
-                                        <p className="noticeDay">{notice.regDt}</p>
-                                    </Link>
-                                </li>
-                            ))
-                        ) : (
-                            <li className="text-center py-10">등록된 공지사항이 없습니다.</li>
-                        )}
-                    </ul>
-                </article>
-
-
+            <ul className="notilistBody">
+                {notices.length > 0 ? (
+                    notices.map((notice: any) => (
+                        <li key={notice.ntcId}>
+                            <Link href={`/notice/${notice.ntcId}`}>
+                                <p className="noticeTitle">{notice.ttlNm}</p>
+                                <p className="noticeDay">{notice.regDt}</p>
+                            </Link>
+                        </li>
+                    ))
+                ) : (
+                    <li className="text-center py-10">등록된 공지사항이 없습니다.</li>
+                )}
+            </ul>
+        </article>
     );
 }

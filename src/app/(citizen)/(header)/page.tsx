@@ -4,12 +4,9 @@ import { useAuthStore } from "@/store/authStore";
 import { toast } from "react-hot-toast";
 import { useFcmToken } from "@/hooks/useFcmToken";
 import MainNotice from "@/components/notice/MainNotice";
-// 이제 탭 전환용 섹션들을 import 할 필요가 없습니다. (각자 URL 페이지로 독립)
-import ReportQRCodeSection from "@/components/dashboard/ReportQRCodeSection";
 
 export default function HomeContents() {
     const accessToken = useAuthStore((state) => state.accessToken);
-    // 탭 상태(activeTab) 관리가 필요 없어졌습니다. 레이아웃이 URL로 판단하니까요.
 
     return (
         <HomeSection accessToken={accessToken} />
@@ -23,7 +20,6 @@ function HomeSection({ accessToken }: { accessToken: string | null }) {
         const currentOrigin = window.location.origin;
         const deviceType = getDeviceInfo();
         const loginUrl = `api-auth/oauth2/authorization/${provider}?redirect_uri=${currentOrigin}/api-auth/login/oauth2/code/${provider}`;
-
 
         if (deviceType === "iOS") {
             if ("Notification" in window && Notification.permission === "default") {

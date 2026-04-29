@@ -9,7 +9,6 @@ import { authApi } from "@/services/api";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 
-// 1. 이제 setActiveTab은 필요 없습니다. URL이 상태가 되기 때문입니다.
 interface HeaderProps {
     activeTab: string;
     setActiveTab: (tab: string) => void;

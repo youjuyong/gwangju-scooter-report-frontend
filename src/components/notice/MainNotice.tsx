@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {getMainNoticeApi} from "@/services/notice/noticeApi";
+import {getMainNoticeApi, getMainNoticeListApi} from "@/services/notice/noticeApi";
 import {NoticeResponse} from "@/types/notice";
 
 export default function MainNotice() {
@@ -12,7 +12,7 @@ export default function MainNotice() {
     useEffect(() => {
         const fetchNotices = async () => {
             try {
-                const result = await getMainNoticeApi({
+                const result = await getMainNoticeListApi({
                     page: 0,
                     size: 3,
                     mainExpsrYn: 'Y'

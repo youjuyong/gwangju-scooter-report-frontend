@@ -14,14 +14,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (pathname.includes("/notice")) activeTab = "공지사항";
     else if (pathname.includes("/report")) activeTab = "신고하기";
 
-    const [isMounted, setIsMounted] = useState(false);
     // 컴포넌트가 브라우저에 완전히 마운트된 후에만 화면을 보여줌
     const isClient = useSyncExternalStore(
         emptySubscribe,
         () => true,  // 클라이언트(브라우저)일 때 값
         () => false  // 서버일 때 값
     );
-
     if (!isClient) {
         return <div className="loading-screen">로딩 중...</div>; // 또는 빈 화면
     }

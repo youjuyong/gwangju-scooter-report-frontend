@@ -6,9 +6,16 @@ const BASE_CODE_URL = '/ntc';
 /**
  * 메인 공지사항
  */
-export const getMainNoticeApi = async (request: NoticeRequestForm): Promise<NoticeResponse[]> => {
+export const getMainNoticeListApi = async (request: NoticeRequestForm): Promise<NoticeResponse[]> => {
     const response = await api.get(BASE_CODE_URL , {
         params: request
     });
+    return response.data.data.content;
+}
+/**
+ * 메인 공지사항
+ */
+export const getMainNoticeApi = async (ntcId:string ): Promise<NoticeResponse[]> => {
+    const response = await api.get(BASE_CODE_URL + ntcId );
     return response.data.data.content;
 }
