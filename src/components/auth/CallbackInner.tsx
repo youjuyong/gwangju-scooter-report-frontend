@@ -29,7 +29,8 @@ export default function OAuth2Callback() {
 
             const processFcm = async () => {
                 const deviceType = getDeviceInfo();
-                const loadingToast = toast.loading("알림 설정을 동기화 중입니다...");
+                
+                const loadingToast = toast.loading("알림 설정을 동기화 중입니다...", {duration: 60000});
 
                 try {
                     let fcmToken = null;
