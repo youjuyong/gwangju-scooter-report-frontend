@@ -1,8 +1,5 @@
 import axios from 'axios';
 import {useAuthStore} from '@/store/authStore';
-import { useRouter } from "next/navigation";
-
-const router = useRouter();
 
 // CSRF 및 기본 설정 전역 적용
 axios.defaults.withCredentials = true;
@@ -87,11 +84,11 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
         const errorResponse = error.response;
-        
+        console.log(error);
         if (errorResponse?.status === 401 && errorResponse?.data?.code === "E007") {
             useAuthStore.getState().clearAuth();
             alert("다른 기기에서 로그인되어 연결이 종료되었습니다.");
-            router.replace("/");
+            window.location.href = "/";
             return Promise.reject(error);
         }
 
