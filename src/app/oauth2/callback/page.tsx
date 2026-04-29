@@ -1,11 +1,11 @@
 import { Suspense } from "react";
-import CallbackInner from "@/components/auth/CallbackInner";
+import OAuth2Callback from "@/components/auth/CallbackInner";
 import LoadingSpinner from "@/components/ui/LoadingSpinner"; 
 
 export default function OAuthCallbackPage() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <CallbackInner />
+      <OAuth2Callback />
     </Suspense>
   );
 }
