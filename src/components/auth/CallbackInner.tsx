@@ -28,42 +28,40 @@ export default function OAuth2Callback() {
             setCookie('accessToken', accessToken);
 
             const processFcm = async () => {
-    const deviceType = getDeviceInfo();
-    
-    // 1. 로딩 토스트 생성 (ID를 고정하여 관리하는 것이 좋습니다)
-    const toastId = "fcm-sync-toast";
-    toast.loading("알림 설정을 동기화 중입니다...", { id: toastId });
-
-    try {
-            let fcmToken = null;
-
-            // 2. FCM 토큰 획득 (권한 요청 팝업 포함)
-            if (deviceType === "iOS") {
-                fcmToken = await fetchFcmTokenForCallback();
-            } else {
-                fcmToken = await fetchFcmToken();
-            }
-
-            if (fcmToken) {
-                await saveTokenToServer(fcmToken, accessToken);
+                const deviceType = getDeviceInfo();
                 
-                toast.success("로그인 및 알림 설정 완료", { id: toastId });
-                
-                await new Promise(resolve => setTimeout(resolve, 1500));
-            } else {
-                toast.error("알림 권한이 없어 설정을 건너뜁니다.", { id: toastId });
-                console.warn("FCM 토큰 획득 실패");
-                
-                await new Promise(resolve => setTimeout(resolve, 1500));
-            }
-        } catch (err) {
-            console.error("OAuth2 FCM Error:", err);
-            toast.error("알림 설정 중 오류가 발생했습니다.", { id: toastId });
-            await new Promise(resolve => setTimeout(resolve, 1500));
-        } finally {
-            router.replace("/");
-        }
-    };
+                const toastId = "fcm-sync-toast";
+                toast.loading("알림 설정을 동기화 중입니다...", { id: toastId });
+
+                try {
+                    let fcmToken = null;
+
+                    if (deviceType === "iOS") {
+                        fcmToken = await fetchFcmTokenForCallback();
+                    } else {
+                        fcmToken = await fetchFcmToken();
+                    }
+
+                    if (fcmToken) {
+                        await saveTokenToServer(fcmToken, accessToken);
+                        
+                        toast.success("로그인 및 알림 설정 완료", { id: toastId });
+                        
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                    } else {
+                        toast.error("알림 권한이 없어 설정을 건너뜁니다.", { id: toastId });
+                        console.warn("FCM 토큰 획득 실패");
+                        
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                    }
+                } catch (err) {
+                    console.error("OAuth2 FCM Error:", err);
+                    toast.error("알림 설정 중 오류가 발생했습니다.", { id: toastId });
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                } finally {
+                    router.replace("/");
+                }
+         };
 
             processFcm();
         }
