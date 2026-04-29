@@ -45,8 +45,9 @@ function HomeSection({ setActiveTab, accessToken }: any) {
     const { handleAllowNotification, getDeviceInfo } = useFcmToken();
 
     const oauthHandleLogin = async (provider:string) => {
+        const currentOrigin = window.location.origin;
         const deviceType = getDeviceInfo();
-        const loginUrl = `api-auth/oauth2/authorization/${provider}`;
+        const loginUrl = `api-auth/oauth2/authorization/${provider}?redirect_uri=${currentOrigin}/api-auth/login/oauth2/code/kakao`;
 
         // 1. iOS인 경우에만 알림 권한 체크 및 요청
         if (deviceType === "iOS") {
