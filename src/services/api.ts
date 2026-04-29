@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {useAuthStore} from '@/store/authStore';
+import {ROLE_REDIRECT_MAP} from "@/types/auth";
 
 // CSRF 및 기본 설정 전역 적용
 axios.defaults.withCredentials = true;
@@ -82,13 +83,15 @@ authApi.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        const originalRequest = error.config;
-        const errorResponse = error.response;
-        console.log(error);
-        if (errorResponse?.status === 401 && errorResponse?.data?.code === "E007") {
-            useAuthStore.getState().clearAuth();
-            alert("다른 기기에서 로그인되어 연결이 종료되었습니다.");
-            window.location.href = "/";
+        const { response, config: originalRequest } = error;
+
+        // 1. 중복 로그인 에러(E007) 처리
+        if (response?.status === 401 && response?.data?.code === "E007") {
+            const userRole = response.data.data?.role;
+            const clearAuth = useAuthStore.getState().clearAuth;
+
+            handleDuplicateLogin(userRole, clearAuth);
+            
             return Promise.reject(error);
         }
 
@@ -146,5 +149,26 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+const ROLE_REDIRECT_PATH: Record<ROLE_REDIRECT_MAP, string> = {
+    [ROLE_REDIRECT_MAP.ADMIN]: "/admin/login",
+    [ROLE_REDIRECT_MAP.OPERATOR]: "/op/login",
+    [ROLE_REDIRECT_MAP.PM_CORP]: "/pm/login",
+    [ROLE_REDIRECT_MAP.TOW_CORP]: "/tow/login",
+    [ROLE_REDIRECT_MAP.REPORT_USER]: "/",
+};
+
+
+/**
+ * 중복 로그인 공통 처리 함수
+ */
+export const handleDuplicateLogin = (role: string | undefined, clearAuth: () => void) => {
+    clearAuth();
+    alert("다른 기기에서 로그인되어 연결이 종료되었습니다.");
+
+    const redirectPath = ROLE_REDIRECT_PATH[role as ROLE_REDIRECT_MAP] || "/";
+    
+    window.location.href = redirectPath;
+};
 
 export default api;
