@@ -19,7 +19,7 @@ interface QRProps {
 
 export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QRProps) {
     const router = useRouter();
-    const [isCamera, setIsCamera] = useState<boolean>(false);
+    const [isCamera, setIsCamera] = useState<boolean>(true);
     const [businessList, setBusinessList] = useState<BusinessInfo[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const isValid = formData.brand.trim() !== "" && formData.deviceId.trim() !== "";
