@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import {getMainNoticeApi, getMainNoticeListApi} from "@/services/notice/noticeApi";
 import {NoticeResponse} from "@/types/notice";
+import Link from "next/link";
 
 export default function MainNotice() {
     const [notices, setNotices] = useState<NoticeResponse[]>([]);
@@ -54,9 +55,13 @@ export default function MainNotice() {
             <div className="title">
                 {/* 공지사항 화면 나오면  이동  */}
                 {/*<a href={`/notice/${notices[currentIndex].ntcId}`}>*/}
-                <a>
+                <Link
+                    href={`/notice/${notices[currentIndex].ntcId}`}
+                    prefetch={false}
+                >
                     {notices[currentIndex].ttlNm}
-                </a>
+                </Link>
+
             </div>
             <div className="main_bord_arrow">
                 <button

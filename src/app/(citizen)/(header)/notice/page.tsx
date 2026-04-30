@@ -20,7 +20,7 @@ export default async function NoticeListPage() {
         const result = await response.json();
 
         notices = Array.isArray(result) ? result : (result.data.content || []);
-        console.log(notices);
+
     } catch (error) {
         console.error("공지사항 서버 페칭 에러:", error);
     }

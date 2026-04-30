@@ -16,30 +16,15 @@ interface HeaderProps {
 
 export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const router = useRouter();
-    const { getDeviceInfo } = useFcmToken();
-    const deviceType = getDeviceInfo();
+
 
     const [showLoginPopup, setShowLoginPopup] = useState(false);
 
     const accessToken = useAuthStore((state) => state.accessToken);
-    const setAccessToken = useAuthStore((state) => state.setAccessToken);
-    const setRole = useAuthStore((state) => state.setRole);
+
     const userName = useAuthStore((state) => state.userName);
 
-    const handleLogout = async () => {
-        if (!confirm("로그아웃 하시겠습니까?")) return;
-        try {
-            await authApi.post("/logout", { deviceType });
-            setAccessToken(null);
-            setRole(null);
-            delete axios.defaults.headers.common["Authorization"];
-            toast.success("로그아웃되었습니다.");
-            router.replace("/");
-        } catch (error) {
-            console.error("로그아웃 실패:", error);
-            alert("로그아웃 중 오류가 발생했습니다.");
-        }
-    };
+
 
     // 2. 권한 체크 및 '페이지 이동' 처리
     const handleNavigation = (e: React.MouseEvent, path: string, isProtected: boolean) => {
@@ -77,7 +62,8 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
 
                 {accessToken ? (
                     <p className="login-msg">
-                        {userName}님 반갑습니다! <span onClick={handleLogout} style={{ cursor: 'pointer', textDecoration: 'underline', marginLeft: '5px', fontSize: '12px' }}>임시 로그아웃</span>
+                        {userName}님 반갑습니다!
+                        {/*<span onClick={handleLogout} style={{ cursor: 'pointer', textDecoration: 'underline', marginLeft: '5px', fontSize: '12px' }}>임시 로그아웃</span>*/}
                     </p>
                 ) : (
                     <p className="login-msg" onClick={() => router.push("/commLogin")} style={{ cursor: 'pointer' }}>
