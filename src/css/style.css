@@ -262,3 +262,12 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 .popuptxt{width: 100%; font-size: 13px; line-height: 16px; margin-bottom: 20px}
 .popupbtnset{width: 100%; text-align: center;}
 .popupbtnset button{font-size: 13px; border:none; border-radius: 5px; height: 35px; width: 70px; background:#f6f6f6; box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.3);}
+
+.hiddenFocus *:focus,
+.hiddenFocus *:focus-visible,
+.hiddenFocus .visually-hidden:focus {
+	outline: none !important;
+	box-shadow: none !important;
+	outline-offset: 0 !important;
+	text-decoration: none !important;
+}
