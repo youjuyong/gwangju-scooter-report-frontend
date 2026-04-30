@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import api from "@/services/api";
-import { updateReportStatus } from "@/services/report";
+import { updateReportStatus } from "@/services/report/reportApi";
 import { ApiResponse, ReportData, ReportItem, ReportStatus } from "@/types/report";
 import ReportItemCard from "@/components/shared/report/ReportItemCard";
 

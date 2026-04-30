@@ -1,20 +1,22 @@
 "use client";
 
-import { useAuthStore } from "@/store/authStore";
-import { toast } from "react-hot-toast";
-import { useFcmToken } from "@/hooks/useFcmToken";
+import {useAuthStore} from "@/store/authStore";
+import {toast} from "react-hot-toast";
+import {useFcmToken} from "@/hooks/useFcmToken";
 import MainNotice from "@/components/notice/MainNotice";
+import {useRouter} from "next/navigation";
 
 export default function HomeContents() {
     const accessToken = useAuthStore((state) => state.accessToken);
 
     return (
-        <HomeSection accessToken={accessToken} />
+        <HomeSection accessToken={accessToken}/>
     );
 }
 
-function HomeSection({ accessToken }: { accessToken: string | null }) {
-    const { getDeviceInfo } = useFcmToken();
+function HomeSection({accessToken}: { accessToken: string | null }) {
+    const {getDeviceInfo} = useFcmToken();
+    const router = useRouter();
 
     const oauthHandleLogin = async (provider: string) => {
         const currentOrigin = window.location.origin;
@@ -35,13 +37,17 @@ function HomeSection({ accessToken }: { accessToken: string | null }) {
         window.location.href = loginUrl;
     };
 
+    const handleReport = () => {
+        router.push("/report");
+    };
+
     return (
         <>
-            <MainNotice />
+            <MainNotice/>
 
             <div className="mainImgBox">
                 <div className="img">
-                    <img src="/images/main_all_img.png" alt="광주시 킥보드 주정차 위반신고" className="mainImg" />
+                    <img src="/images/main_all_img.png" alt="광주시 킥보드 주정차 위반신고" className="mainImg"/>
                 </div>
             </div>
 
@@ -61,7 +67,7 @@ function HomeSection({ accessToken }: { accessToken: string | null }) {
                     /* 버튼 클릭 시 상태 변경이 아니라 실제 페이지로 이동합니다 */
                     <button
                         className="go_report"
-                        onClick={() => window.location.href = "/report"}
+                        onClick={handleReport}
                     >
                         신고하기
                     </button>
