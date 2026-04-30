@@ -46,14 +46,7 @@ export default function SettingsPage() {
         <div className="wrap noMenubody">
             <header>
                 <h1>설정</h1>
-                <button
-                    type="button"
-                    className="back"
-                    onClick={() => router.back()}
-                    aria-label="이전 페이지로 이동"
-                >
-                    뒤로 가기
-                </button>
+                <a href="/" className="back" style={{cursor: 'pointer'}}>뒤로 가기</a>
             </header>
 
             <main className="sub_article set_article">
