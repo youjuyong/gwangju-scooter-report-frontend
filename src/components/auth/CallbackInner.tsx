@@ -5,6 +5,7 @@ import {toast} from "react-hot-toast";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useAuthStore} from "@/store/authStore";
 import {useFcmToken} from "@/hooks/useFcmToken";
+import LoadingSpinner from "@/components/ui/LoadingSpinner"; 
 import {setCookie} from "cookies-next";
 
 export default function OAuth2Callback() {
@@ -67,5 +68,5 @@ export default function OAuth2Callback() {
         }
     }, [searchParams, router]);
 
-    return null;
+    return <LoadingSpinner />;
 }
