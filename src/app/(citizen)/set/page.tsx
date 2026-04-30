@@ -73,7 +73,7 @@ export default function SettingsPage() {
                     </li>
 
                     <li>
-                        <Link href="/terms" className="go_agree">
+                        <Link href="/set/agree" className="go_agree">
                             약관 조회
                         </Link>
                     </li>
