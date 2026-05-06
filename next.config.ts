@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   output: 'standalone',
   async rewrites() {
-    const apiUrl = process.env.INTERNAL_API_URL || "http://fac.raontec.co.kr:28085";
-    const authUrl = process.env.AUTH_API_URL || "https://raonbackend.kr";
+    const apiUrl = process.env.NEXT_PUBLIC_INTERNAL_API_URL || "http://fac.raontec.co.kr:28085";
+    const authUrl = process.env.NEXT_PUBLIC_AUTH_API_URL || "https://raonbackend.kr";
 
     return [
       {
