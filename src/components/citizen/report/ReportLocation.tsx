@@ -12,7 +12,7 @@ interface MapProps {
 
 export default function ReportLocation({onSelect, onBack}: MapProps) {
     const [loading, error] = useKakaoLoader({
-        appkey: process.env.KAKAO_API_KEY!,
+        appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
         libraries: ["services"],
     });
 
