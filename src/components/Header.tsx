@@ -66,7 +66,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                         {/*<span onClick={handleLogout} style={{ cursor: 'pointer', textDecoration: 'underline', marginLeft: '5px', fontSize: '12px' }}>임시 로그아웃</span>*/}
                     </p>
                 ) : (
-                    <p className="login-msg" onClick={() => router.push("/commLogin")} style={{ cursor: 'pointer' }}>
+                    <p className="login-msg"  style={{ cursor: 'pointer' }}>
                         로그인 해주세요.
                     </p>
                 )}
@@ -84,7 +84,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                             </a>
                         </li>
                         <li className={activeTab === "신고확인" ? "click" : ""}>
-                            <a href="#" className="menuReport" onClick={(e) => handleNavigation(e, "/report-list", true)}>
+                            <a href="#" className="menuReport" onClick={(e) => handleNavigation(e, "/userReport", true)}>
                                 신고확인
                             </a>
                         </li>

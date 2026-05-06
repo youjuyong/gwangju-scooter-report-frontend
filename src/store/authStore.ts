@@ -3,7 +3,9 @@ import {createJSONStorage, persist} from 'zustand/middleware';
 
 interface AuthState {
     accessToken: string | null;
+    fcmToken: string | null;
     setAccessToken: (token: string | null) => void;
+    setFcmToken: (token: string | null) => void;
     role: string | null;
     userName: string | null;
     userId: string | null;
@@ -19,14 +21,17 @@ export const useAuthStore = create<AuthState>()(
             role: null,
             userName: null,
             userId: null,
+            fcmToken: null,
             setAccessToken: (token) => set({accessToken: token}),
+            setFcmToken: (token) => set({fcmToken: token}),
             setRole: (role) => set({role: role}),
             setUserInfo: (name, id) => set({userName: name, userId: id}),
             clearAuth: () => set({
                 accessToken: null,
                 role: null,
                 userName: null,
-                userId: null
+                userId: null,
+                fcmToken :null
             }),
         }),
         {

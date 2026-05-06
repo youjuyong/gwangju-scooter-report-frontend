@@ -21,7 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         () => false  // 서버일 때 값
     );
     if (!isClient) {
-        return <div className="loading-screen">로딩 중...</div>; // 또는 빈 화면
+        return <div className="loading-screen"></div>; // 또는 빈 화면
     }
 
     return (

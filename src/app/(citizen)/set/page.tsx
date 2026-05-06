@@ -5,41 +5,96 @@ import { useAuthStore } from "@/store/authStore";
 import { deleteCookie } from "cookies-next";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
-import { useState } from "react";
-import {authApi} from "@/services/api";
+import { useState, useEffect } from "react";
+import { authApi } from "@/services/api";
 import axios from "axios";
-import {useFcmToken} from "@/hooks/useFcmToken";
+import { useFcmToken } from "@/hooks/useFcmToken";
 
 export default function SettingsPage() {
     const router = useRouter();
-    const { getDeviceInfo } = useFcmToken();
+    const { getDeviceInfo, fetchFcmToken, saveTokenToServer,fetchFcmTokenForCallback,deleteTokenToServer } = useFcmToken();
     const deviceType = getDeviceInfo();
+    const accessToken = useAuthStore((state) => state.accessToken);
+    const fcmToken = useAuthStore((state) => state.fcmToken);
     const setAccessToken = useAuthStore((state) => state.setAccessToken);
+    const setFcmToken = useAuthStore((state) => state.setFcmToken);
     const setRole = useAuthStore((state) => state.setRole);
 
-    // 1. 푸시 알림 로컬 상태 (실제로는 API와 연동 권장)
     const [isPushOn, setIsPushOn] = useState(false);
 
+    const [mounted, setMounted] = useState(false);
+
+    //토글 상태값
+    useEffect(() => {
+        // 2. 브라우저에 마운트된 시점에 실행
+        setMounted(true);
+        if (fcmToken) {
+            setIsPushOn(true);
+        } else {
+            setIsPushOn(false);
+        }
+    }, [fcmToken]);
 
     const handleLogout = async () => {
         if (!confirm("로그아웃 하시겠습니까?")) return;
         try {
+            // 백엔드에 로그아웃 알림 (기기 정보 전달)
             await authApi.post("/logout", { deviceType });
+
+            // 클라이언트 상태 및 쿠키 삭제
             setAccessToken(null);
             setRole(null);
+            deleteCookie("accessToken");
             delete axios.defaults.headers.common["Authorization"];
+
             toast.success("로그아웃되었습니다.");
             router.replace("/");
         } catch (error) {
             console.error("로그아웃 실패:", error);
-            alert("로그아웃 중 오류가 발생했습니다.");
+            toast.error("로그아웃 중 오류가 발생했습니다.");
         }
     };
 
+    // 푸시 알림 토글 기능 핵심 로직
+    const togglePush = async () => {
+        const toastId = "push-toggle-toast";
 
-    const togglePush = () => {
-        setIsPushOn((prev) => !prev);
-        toast.success(`알림이 ${!isPushOn ? "설정" : "해제"}되었습니다.`);
+        if (!isPushOn) {
+            // OFF -> ON 하려는 경우
+            toast.loading("알림 설정을 활성화 중입니다...", { id: toastId });
+            try {
+
+                let currentFcmToken = null;
+                if (deviceType === "iOS") {
+                    currentFcmToken = await fetchFcmTokenForCallback();
+                } else {
+                    currentFcmToken = await fetchFcmToken();
+                }
+                if (currentFcmToken) {
+                    await saveTokenToServer(currentFcmToken, accessToken);
+                    setFcmToken(currentFcmToken);
+                    setIsPushOn(true);
+                    toast.success("푸시 알림이 활성화되었습니다.", { id: toastId });
+                } else {
+                    toast.error("알림 권한이 거부되었거나 설정에 실패했습니다.", { id: toastId });
+                }
+            } catch (error) {
+                toast.error("설정 중 오류가 발생했습니다.", { id: toastId });
+            }
+        } else {
+
+            if (confirm("알림을 끄시겠습니까? (기기 설정에서 권한을 차단해야 완전히 해제됩니다)")) {
+                try {
+                    // fcmToken 토큰 삭제
+                    await deleteTokenToServer(accessToken);
+                    setFcmToken(null);
+                    setIsPushOn(false);
+                    toast.success("앱 내 알림 수신이 비활성화되었습니다.");
+                } catch (error) {
+                    toast.error("처리 중 오류가 발생했습니다.");
+                }
+            }
+        }
     };
 
     return (
@@ -51,7 +106,6 @@ export default function SettingsPage() {
 
             <main className="sub_article set_article">
                 <ul className="set_box">
-                    {/* 푸시알림 설정 */}
                     <li className="pushbox">
                         <label htmlFor="push-toggle">푸시알림</label>
                         <button
@@ -71,7 +125,6 @@ export default function SettingsPage() {
                         </Link>
                     </li>
 
-                    {/* 로그아웃 */}
                     <li>
                         <button
                             type="button"

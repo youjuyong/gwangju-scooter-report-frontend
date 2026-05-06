@@ -14,6 +14,7 @@ export default function OAuth2Callback() {
     const setAccessToken = useAuthStore((state) => state.setAccessToken);
     const setRole = useAuthStore((state) => state.setRole);
     const setUserInfo = useAuthStore((state) => state.setUserInfo);
+    const setFcmToken = useAuthStore((state) => state.setFcmToken);
 
     useEffect(() => {
         const accessToken = searchParams.get("accessToken");
@@ -43,6 +44,7 @@ export default function OAuth2Callback() {
                     }
 
                     if (fcmToken) {
+                        setFcmToken(fcmToken);
                         await saveTokenToServer(fcmToken, accessToken);
                         
                         toast.success("로그인 및 알림 설정 완료", { id: toastId });

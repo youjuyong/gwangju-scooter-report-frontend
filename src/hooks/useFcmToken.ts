@@ -158,6 +158,17 @@ export const useFcmToken = () => {
       console.error("FCM 서버 저장 실패:", error);
     }
   };
+  // 2. 서버에 토큰 저장
+  const deleteTokenToServer = async (accessToken :string) => {
 
-  return { fetchFcmToken, saveTokenToServer, getDeviceInfo, handleAllowNotification, fetchFcmTokenForCallback };
+    try {
+      await api.delete("/fcm/token",
+          { headers: { Authorization: `Bearer ${accessToken}`} });
+      console.log("FCM 토큰 서버 삭제 완료");
+    } catch (error) {
+      console.error("FCM 서버 삭제 실패:", error);
+    }
+  };
+
+  return { fetchFcmToken, saveTokenToServer, getDeviceInfo, handleAllowNotification, fetchFcmTokenForCallback, deleteTokenToServer };
 };
