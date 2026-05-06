@@ -4,7 +4,7 @@ export default async function TermsPage() {
     let termsContent = "내용을 불러오는 중입니다...";
 
     try {
-        const baseUrl = process.env.INTERNAL_API_URL ;
+        const baseUrl = process.env.NEXT_PUBLIC_INTERNAL_API_URL ;
 
 
         const response = await fetch(`${baseUrl}/api/ntc/type?ntcTypeCd=NTCT02`, {
