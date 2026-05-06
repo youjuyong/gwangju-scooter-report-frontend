@@ -10,7 +10,7 @@ export default async function NoticeDetailPage({ params }: Props) {
     let notice: any = null;
 
     try {
-        const baseUrl = process.env.INTERNAL_API_URL ;
+        const baseUrl = process.env.NEXT_PUBLIC_INTERNAL_API_URL ;
 
         const response = await fetch(`${baseUrl}/api/ntc/${ntcId}`, {
             method: 'GET',

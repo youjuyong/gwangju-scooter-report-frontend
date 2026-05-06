@@ -5,7 +5,7 @@ export default async function NoticeListPage() {
     let notices: NoticeResponse[] = [];
 
     try {
-        const baseUrl = process.env.INTERNAL_API_URL;
+        const baseUrl = process.env.NEXT_PUBLIC_INTERNAL_API_URL;
 
         const response = await fetch(`${baseUrl}/api/ntc?page=0&size=999`, {
             method: 'GET',
