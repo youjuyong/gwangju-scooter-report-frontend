@@ -72,13 +72,13 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
 
     const handleLocation = (data: { address: string; lat: number; lng: number, zoneId: string }) => {
         if (data.address) {
-            setFData({
-                ...fData,
+            setFData(prev => ({
+                ...prev,
                 location: data.address,
                 lat: data.lat,
                 lng: data.lng,
                 zoneId: data.zoneId,
-            });
+            }));
         }
         setIsMapOpen(false);
     };
@@ -111,8 +111,8 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             return;
         }
 
-        if (!files.firstImg && !files.secondImg) {
-            alert("최소 한 장의 사진을 등록해 주세요.");
+        if (!files.firstImg || !files.secondImg) {
+            alert("사진을 두장 등록해 주세요.");
             return;
         }
 

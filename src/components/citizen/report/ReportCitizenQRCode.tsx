@@ -61,6 +61,8 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
     const handleScan = (result: any) => {
         const qrValue = result?.[0]?.rawValue;
         if (!qrValue) return;
+        let isMatched = false;
+        setIsValidated(false);
 
         for (const business of businessList) {
             try {
@@ -78,6 +80,7 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                         deviceId: extractedId,
                         qrValue: qrValue,
                     });
+                    isMatched = true;
                     return;
                 }
             } catch (err) {
@@ -85,7 +88,16 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
             }
         }
 
-        onUpdate({deviceId: qrValue});
+        if (!isMatched) {
+            alert("존재하지 않거나 유효하지 않은 기기 정보입니다.");
+            onUpdate({
+                brand: "",
+                brandId: "",
+                deviceId: "",
+                qrValue: ""
+            });
+        }
+
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -110,7 +122,6 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
         }
         const selectedBiz = businessList.find(b => b.bzentyId === formData.brandId);
         if (!selectedBiz) return false;
-
         try {
             const res = await getDeviceValid(selectedBiz.bzentyId, formData.deviceId);
             if (res.success && res.data) {
@@ -123,7 +134,7 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
             }
         } catch (error: any) {
             setIsValidated(false);
-            const errMessage = error?.response?.data?.message;
+            const errMessage = error?.response?.data?.resultMsg;
             alert(errMessage || "해당 업체에 등록되지 않았거나 유효하지 않은 킥보드입니다.");
             console.error("유효성 검사 중 에러:", error);
             return false;
