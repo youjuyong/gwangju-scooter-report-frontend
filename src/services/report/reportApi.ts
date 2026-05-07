@@ -42,3 +42,11 @@ export const registerReport = async (formData: FormData) => {
   });
   return response.data;
 };
+
+/**
+ * 본인 신고 내역 전체 조회
+ */
+export const getReportList = async () => {
+  const response = await api.get<ApiResponse<any>>(`/dclr/my-list`);
+  return response.data;
+};
