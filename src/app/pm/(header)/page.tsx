@@ -1,78 +1,82 @@
 "use client";
 
-import {useAuthStore} from "@/store/authStore";
-import {toast} from "react-hot-toast";
-import {useFcmToken} from "@/hooks/useFcmToken";
-import MainNotice from "@/components/notice/MainNotice";
-import {useRouter} from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 
-export default function HomeContents() {
-    const accessToken = useAuthStore((state) => state.accessToken);
-
-    return (
-        <HomeSection accessToken={accessToken}/>
-    );
-}
-
-function HomeSection({accessToken}: { accessToken: string | null }) {
-    const {getDeviceInfo} = useFcmToken();
+export default function MainHome() {
     const router = useRouter();
+    const pathname = usePathname();
+    const mapRef = useRef<HTMLDivElement>(null);
+    const [map, setMap] = useState<any>(null);
 
-    const oauthHandleLogin = async (provider: string) => {
-        const currentOrigin = window.location.origin;
-        const deviceType = getDeviceInfo();
-        const loginUrl = `api-auth/oauth2/authorization/${provider}?redirect_uri=${currentOrigin}/api-auth/login/oauth2/code/${provider}`;
+    // URL Prefix 추출 (/pm 또는 /admin)
+    const prefix = pathname.startsWith("/pm") ? "/pm" : pathname.startsWith("/admin") ? "/admin" : "";
+    const logout = useAuthStore((state) => state.clearAuth);
 
-        if (deviceType === "iOS") {
-            if ("Notification" in window && Notification.permission === "default") {
-                try {
-                    await Notification.requestPermission();
-                } catch (error) {
-                    console.error("iOS 알림 권한 요청 실패:", error);
-                }
-            }
+    // 1. 카카오 지도 초기화
+    useEffect(() => {
+        if (typeof window !== "undefined" && window.kakao && mapRef.current) {
+            const options = {
+                center: new window.kakao.maps.LatLng(36.191, 127.112), // 초기 좌표 (광주시 등 설정)
+                level: 3,
+            };
+            const kakaoMap = new window.kakao.maps.Map(mapRef.current, options);
+            setMap(kakaoMap);
+
+            // 샘플 마커 (Zone 표시 예시)
+            const markerPosition = new window.kakao.maps.LatLng(36.191, 127.112);
+
+            // 커스텀 오버레이로 HTML 구조 삽입 (HTML의 .zone 부분)
+            const content = `
+        <div class="zone">
+          <span class="spot"></span>
+          <span class="round"></span>
+        </div>
+      `;
+
+            const customOverlay = new window.kakao.maps.CustomOverlay({
+                position: markerPosition,
+                content: content,
+            });
+            customOverlay.setMap(kakaoMap);
         }
+    }, []);
 
-        toast.loading(`${provider === 'kakao' ? '카카오' : '네이버'}로 연결 중...`);
-        window.location.href = loginUrl;
-    };
-
-    const handleReport = () => {
-        router.push("/report");
-    };
 
     return (
-        <>
-            <MainNotice/>
+        <div className="wrap">
 
-            <div className="mainImgBox">
-                <div className="img">
-                    <img src="/images/main_all_img.png" alt="광주시 킥보드 주정차 위반신고" className="mainImg"/>
-                </div>
-            </div>
 
-            <div className={`main_loginbtnBox ${accessToken ? "login_on" : ""}`}>
-                <p className="guid">신고가능시간 <span>평일 07:00~17:00 (주말 및 공휴일 휴무)</span></p>
+            <main className="main_article">
+                {/* 회수 등록 페이지로 이동 */}
+                <button className="btn_result" onClick={() => router.push(`${prefix}/register`)}>
+                    회수등록
+                </button>
 
-                {!accessToken ? (
-                    <div className="main_loginset">
-                        <button onClick={() => oauthHandleLogin('kakao')} className="login_cacao">
-                            카카오톡으로 시작하기
-                        </button>
-                        <button onClick={() => oauthHandleLogin('naver')} className="login_naver">
-                            네이버로 시작하기
-                        </button>
+                {/* 상태별 현황판 */}
+                <div className="legend">
+                    <div className="item red">
+                        <span className="badge">20</span>
+                        <span className="label">미배정</span>
                     </div>
-                ) : (
-                    /* 버튼 클릭 시 상태 변경이 아니라 실제 페이지로 이동합니다 */
-                    <button
-                        className="go_report"
-                        onClick={handleReport}
-                    >
-                        신고하기
-                    </button>
-                )}
-            </div>
-        </>
+                    <div className="item blue">
+                        <span className="badge">7</span>
+                        <span className="label">처리중</span>
+                    </div>
+                    <div className="item gray">
+                        <span className="badge">10</span>
+                        <span className="label">완료</span>
+                    </div>
+                </div>
+
+                {/* 지도 영역 */}
+                <div className="mainmap">
+                    <div ref={mapRef} style={{ width: "100%", height: "100%" }}>
+                        {/* 카카오 지도가 렌더링됩니다 */}
+                    </div>
+                </div>
+            </main>
+        </div>
     );
 }

@@ -2,12 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { useFcmToken } from "@/hooks/useFcmToken";
 import { authApi } from "@/services/api";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import {deleteCookie} from "cookies-next";
 
 interface HeaderProps {
     activeTab: string;
@@ -16,12 +17,19 @@ interface HeaderProps {
 
 export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const router = useRouter();
-
-
-    const [showLoginPopup, setShowLoginPopup] = useState(false);
-
+    const pathname = usePathname();
+    const pathSegments = pathname.split('/');
+    const prefix = pathSegments[1] === "admin" || pathSegments[1] === "pm"
+        ? `/${pathSegments[1]}`
+        : "";
+    const { getDeviceInfo, fetchFcmToken, saveTokenToServer,fetchFcmTokenForCallback,deleteTokenToServer } = useFcmToken();
+    const deviceType = getDeviceInfo();
     const accessToken = useAuthStore((state) => state.accessToken);
-
+    const fcmToken = useAuthStore((state) => state.fcmToken);
+    const setAccessToken = useAuthStore((state) => state.setAccessToken);
+    const setFcmToken = useAuthStore((state) => state.setFcmToken);
+    const setRole = useAuthStore((state) => state.setRole);
+    const [showLoginPopup, setShowLoginPopup] = useState(false);
     const userName = useAuthStore((state) => state.userName);
 
 
@@ -30,11 +38,38 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const handleNavigation = (e: React.MouseEvent, path: string, isProtected: boolean) => {
         e.preventDefault();
 
+        const targetPath = path === "/" ? (prefix || "/") : `${prefix}${path}`;
+
         if (isProtected && !accessToken) {
             setShowLoginPopup(true);
         } else {
-            // 주소창을 변경하여 실제 페이지로 이동시킵니다.
-            router.push(path);
+            router.push(targetPath);
+        }
+    };
+    console.log(prefix);
+    const handleLogout = async () => {
+        if (!confirm("로그아웃 하시겠습니까?")) return;
+        try {
+            // 백엔드에 로그아웃 알림 (기기 정보 전달)
+            await authApi.post("/logout", { deviceType });
+
+            // 클라이언트 상태 및 쿠키 삭제
+            setAccessToken(null);
+            setRole(null);
+            deleteCookie("accessToken");
+            delete axios.defaults.headers.common["Authorization"];
+
+            toast.success("로그아웃되었습니다.");
+
+            if(prefix){
+                router.push(prefix || "/login");
+            }else{
+                router.push( "/");
+            }
+
+        } catch (error) {
+            console.error("로그아웃 실패:", error);
+            toast.error("로그아웃 중 오류가 발생했습니다.");
         }
     };
 
@@ -55,25 +90,28 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                     <img
                         src="/images/simbol_s.png"
                         alt="킥보드주정차위반신고"
-                        onClick={() => router.push("/")}
+                        onClick={() => router.push(prefix || "/")}
                         style={{ cursor: 'pointer' }}
-                    />
+                    />{prefix && " 방치 킥보드 회수 시스템"}
                 </h1>
-
-                {accessToken ? (
-                    <p className="login-msg">
-                        {userName}님 반갑습니다!
-                        {/*<span onClick={handleLogout} style={{ cursor: 'pointer', textDecoration: 'underline', marginLeft: '5px', fontSize: '12px' }}>임시 로그아웃</span>*/}
-                    </p>
-                ) : (
-                    <p className="login-msg"  style={{ cursor: 'pointer' }}>
-                        로그인 해주세요.
-                    </p>
+                {!prefix && (
+                    accessToken ? (
+                        <p className="login-msg">{userName}님 반갑습니다!</p>
+                    ) : (
+                        <p className="login-msg" style={{ cursor: 'pointer' }} onClick={() => router.push("/login")}>
+                            로그인 해주세요.
+                        </p>
+                    )
                 )}
 
                 <div className="header_right">
-                    <a href="#" className="btnalarm" onClick={(e) => handleNavigation(e, "/alarm", true)}>알림</a>
-                    <a href="#" className="btnset" onClick={(e) => handleNavigation(e, "/set", true)}>환경설정</a>
+                    <a href="#" className="btnalarm" onClick={(e) => handleNavigation(e,"/alarm", true)}>알림</a>
+                    {/* 🚀 핵심: prefix가 있으면(admin/pm) 로그아웃 버튼, 없으면 환경설정 버튼 */}
+                    {prefix ? (
+                        <a href="#" className="btnlogout" onClick={handleLogout}>로그아웃</a>
+                    ) : (
+                        <a href="#" className="btnset" onClick={(e) => handleNavigation(e, "/set", true)}>환경설정</a>
+                    )}
                 </div>
 
                 <nav>
