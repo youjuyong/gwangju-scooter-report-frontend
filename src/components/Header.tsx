@@ -62,7 +62,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
             toast.success("로그아웃되었습니다.");
 
             if(prefix){
-                router.push(prefix || "/login");
+                router.push(prefix + "/login");
             }else{
                 router.push( "/");
             }
