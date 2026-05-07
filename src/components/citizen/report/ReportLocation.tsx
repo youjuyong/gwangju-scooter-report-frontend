@@ -1,7 +1,7 @@
 "use client";
 
-import {useEffect, useState} from "react";
-import {Map, MapMarker, useKakaoLoader} from "react-kakao-maps-sdk";
+import {useCallback, useEffect, useState} from "react";
+import {Map, MapMarker} from "react-kakao-maps-sdk";
 import "@/css/base_style.css";
 import "@/css/style.css";
 
@@ -11,48 +11,17 @@ interface MapProps {
 }
 
 export default function ReportLocation({onSelect, onBack}: MapProps) {
-    const [loading, error] = useKakaoLoader({
-        appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
-        libraries: ["services"],
-    });
-
     const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
     const [address, setAddress] = useState<string>("위치를 선택해 주세요");
     const [zoneId, setZoneId] = useState<string>("");
 
-    useEffect(() => {
-        if (!navigator.geolocation) return;
-
-        const watchId = navigator.geolocation.watchPosition(
-            (pos) => {
-                setPosition({
-                    lat: pos.coords.latitude,
-                    lng: pos.coords.longitude,
-                });
-            },
-            (err) => {
-                console.warn("GPS 권한 거부 또는 오류가 발생했습니다.");
-            },
-            {
-                enableHighAccuracy: false,
-                timeout: 10000,
-                maximumAge: 0
-            }
-        );
-
-        return () => navigator.geolocation.clearWatch(watchId);
-    }, []);
-
-    useEffect(() => {
+    const fetchAddressInfo = useCallback((lat: number, lng: number) => {
         const {kakao} = window;
-        if (loading || !kakao || !kakao.maps || !position) return;
-
+        if (!kakao || !kakao.maps.services) return;
         kakao.maps.load(() => {
-            if (!kakao.maps.services) return;
-
             const geocoder = new kakao.maps.services.Geocoder();
 
-            geocoder.coord2Address(position.lng, position.lat, (result: any, status: any) => {
+            geocoder.coord2Address(lng, lat, (result: any, status: any) => {
                 if (status === kakao.maps.services.Status.OK) {
                     const addr = result[0].road_address
                         ? result[0].road_address.address_name
@@ -63,21 +32,43 @@ export default function ReportLocation({onSelect, onBack}: MapProps) {
                 }
             });
 
-            geocoder.coord2RegionCode(position.lng, position.lat, (result: any, status: any) => {
+            geocoder.coord2RegionCode(lng, lat, (result: any, status: any) => {
                 if (status === kakao.maps.services.Status.OK) {
                     const zoneInfo = result.find((item: any) => item.region_type === 'B');
-
                     if (zoneInfo) {
                         setZoneId(zoneInfo.code);
                     }
                 }
             });
-
         });
-    }, [position, loading]);
+    }, []);
+
+    useEffect(() => {
+        if (!navigator.geolocation) {
+            alert("GPS를 지원하지 않는 기기입니다.");
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const newPos = {
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                };
+                setPosition(newPos);
+                fetchAddressInfo(newPos.lat, newPos.lng);
+            },
+            (err) => {
+                console.warn("GPS 획득 실패:", err);
+                alert("현재 위치를 가져올 수 없습니다. 지도를 직접 움직여 선택해 주세요.");
+                setPosition({lat: 37.42870, lng: 127.25618});
+            },
+            {enableHighAccuracy: true, timeout: 10000}
+        );
+    }, [fetchAddressInfo]);
 
     const handleLocationSubmit = () => {
-        if (!position || address === "위치를 선택해 주세요" || !zoneId) {
+        if (!position || !zoneId || address === "위치를 선택해 주세요") {
             alert("정확한 위치를 선택해 주세요.");
             return;
         }
@@ -89,8 +80,7 @@ export default function ReportLocation({onSelect, onBack}: MapProps) {
         });
     };
 
-    if (error) return <div className="loading_box">지도 로드 중 에러가 발생했습니다.</div>;
-    if (loading) return <div className="loading_box">지도를 불러오는 중...</div>;
+    if (!position) return <div className="loading_box">내 위치를 찾는 중...</div>;
 
     return (
         <div className="wrap noMenubody">
@@ -105,13 +95,15 @@ export default function ReportLocation({onSelect, onBack}: MapProps) {
                         {typeof window !== "undefined" && window.kakao && position && (
                             <Map
                                 center={position}
-                                style={{width: "100%", height: "400px"}}
+                                style={{ width: "100%", height: "80vh", minHeight: "300px" }}
                                 level={3}
-                                onCenterChanged={(map) => {
-                                    setPosition({
-                                        lat: map.getCenter().getLat(),
-                                        lng: map.getCenter().getLng(),
-                                    });
+                                onIdle={(map) => {
+                                    const center = map.getCenter();
+                                    const lat = center.getLat();
+                                    const lng = center.getLng();
+
+                                    setPosition({ lat, lng });
+                                    fetchAddressInfo(lat, lng);
                                 }}
                             >
                                 <MapMarker position={position}/>

@@ -3,6 +3,8 @@ import {Geist, Geist_Mono} from "next/font/google";
 import {Toaster} from 'react-hot-toast';
 import BFCacheHandler from "@/components/auth/BFCacheHandler";
 import FocusVisibleProvider from "@/components/FocusVisibleProvider";
+import React from "react";
+import Script from "next/script";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -47,6 +49,10 @@ export default function RootLayout({
             <meta name="mobile-web-app-capable" content="yes"/>
             {/* 상태바 스타일 (default, black, black-translucent) */}
             <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+            <Script
+                src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_API_KEY}&libraries=services&autoload=false`}
+                strategy="beforeInteractive"
+            />
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <BFCacheHandler/>
