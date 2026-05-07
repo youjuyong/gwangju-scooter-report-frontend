@@ -1,6 +1,8 @@
 import type {Metadata} from "next";
 import {Geist, Geist_Mono} from "next/font/google";
-
+import {Toaster} from 'react-hot-toast';
+import BFCacheHandler from "@/components/auth/BFCacheHandler";
+import FocusVisibleProvider from "@/components/FocusVisibleProvider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -47,7 +49,11 @@ export default function RootLayout({
             <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <BFCacheHandler/>
+        <Toaster/>
+        <FocusVisibleProvider>
             {children}
+        </FocusVisibleProvider>
         </body>
         </html>
     );
