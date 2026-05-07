@@ -19,21 +19,20 @@ export default function SettingsPage() {
     const setAccessToken = useAuthStore((state) => state.setAccessToken);
     const setFcmToken = useAuthStore((state) => state.setFcmToken);
     const setRole = useAuthStore((state) => state.setRole);
-
-    const [isPushOn, setIsPushOn] = useState(false);
-
     const [mounted, setMounted] = useState(false);
+
+    const isPushOn = mounted ? !!fcmToken : false;
 
     //토글 상태값
     useEffect(() => {
-        // 2. 브라우저에 마운트된 시점에 실행
-        setMounted(true);
-        if (fcmToken) {
-            setIsPushOn(true);
-        } else {
-            setIsPushOn(false);
-        }
-    }, [fcmToken]);
+
+        const raf = requestAnimationFrame(() => {
+            setMounted(true);
+        });
+        return () => cancelAnimationFrame(raf);
+    }, []);
+
+
 
     const handleLogout = async () => {
         if (!confirm("로그아웃 하시겠습니까?")) return;
@@ -71,9 +70,9 @@ export default function SettingsPage() {
                     currentFcmToken = await fetchFcmToken();
                 }
                 if (currentFcmToken) {
-                    await saveTokenToServer(currentFcmToken, accessToken);
+                    await saveTokenToServer(currentFcmToken, accessToken!);
                     setFcmToken(currentFcmToken);
-                    setIsPushOn(true);
+                    // setIsPushOn(true);
                     toast.success("푸시 알림이 활성화되었습니다.", { id: toastId });
                 } else {
                     toast.error("알림 권한이 거부되었거나 설정에 실패했습니다.", { id: toastId });
@@ -86,9 +85,9 @@ export default function SettingsPage() {
             if (confirm("알림을 끄시겠습니까? (기기 설정에서 권한을 차단해야 완전히 해제됩니다)")) {
                 try {
                     // fcmToken 토큰 삭제
-                    await deleteTokenToServer(accessToken);
+                    await deleteTokenToServer(accessToken!);
                     setFcmToken(null);
-                    setIsPushOn(false);
+                    // setIsPushOn(false);
                     toast.success("앱 내 알림 수신이 비활성화되었습니다.");
                 } catch (error) {
                     toast.error("처리 중 오류가 발생했습니다.");
@@ -101,7 +100,7 @@ export default function SettingsPage() {
         <div className="wrap noMenubody">
             <header>
                 <h1>설정</h1>
-                <a href="/" className="back" style={{cursor: 'pointer'}}>뒤로 가기</a>
+                <Link href="/" className="back" style={{cursor: 'pointer'}}>뒤로 가기</Link>
             </header>
 
             <main className="sub_article set_article">
