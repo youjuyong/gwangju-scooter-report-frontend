@@ -81,7 +81,7 @@ export default function OAuth2Callback() {
         } else {
             // 토큰이 없으면 로그인 페이지로 튕기기
             toast.error("인증 정보가 없습니다.");
-            router.replace("/login");
+            router.replace("/");
         }
     }, [searchParams, router]);
 

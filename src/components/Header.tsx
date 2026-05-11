@@ -128,7 +128,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                             </a>
                         </li>
                         <li className={activeTab === "신고확인" ? "click" : ""}>
-                            <a href="#" className="menuReport" onClick={(e) => handleNavigation(e, "/userReport", true)}>
+                            <a href="#" className="menuReport" onClick={(e) => handleNavigation(e, "/reportList", true)}>
                                 신고확인
                             </a>
                         </li>
