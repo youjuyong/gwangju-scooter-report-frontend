@@ -13,6 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     let activeTab = "홈";
     if (pathname.includes("/notice")) activeTab = "공지사항";
     else if (pathname.includes("/report")) activeTab = "신고하기";
+    else if (pathname.includes("/reportList")) activeTab = "신고확인";
 
     // 컴포넌트가 브라우저에 완전히 마운트된 후에만 화면을 보여줌
     const isClient = useSyncExternalStore(

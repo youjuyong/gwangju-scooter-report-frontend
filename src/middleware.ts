@@ -23,7 +23,7 @@ export function middleware(request: NextRequest) {
 
     // 2. 일반 시민(Reporter) 보호 경로 체크
     // 로그인이 반드시 필요한 시민용 페이지 리스트
-    const reporterProtectedPaths = ['/set', '/userReport', '/alarm'];
+    const reporterProtectedPaths = ['/set', '/reportList', '/alarm'];
 
     // 현재 경로가 보호 목록에 포함되는지 확인
     const isReporterProtected = reporterProtectedPaths.some(path => pathname.startsWith(path));
@@ -33,7 +33,7 @@ export function middleware(request: NextRequest) {
 
         if (!token) {
             // 시민은 /login 페이지가 루트에 있으므로 /login으로 보냄
-            const loginUrl = new URL('/login', request.url);
+            const loginUrl = new URL('/', request.url);
             // 로그인 후 다시 돌아오게 하고 싶다면 쿼리 추가
             // loginUrl.searchParams.set('callbackUrl', pathname);
             return NextResponse.redirect(loginUrl);
@@ -50,7 +50,7 @@ export const config = {
         '/pm/:path*',
         '/tow/:path*',
         '/set/:path*',      // 시민 설정 페이지
-        '/userReport/:path*', // 시민 신고확인 페이지
+        '/reportList/:path*', // 시민 신고확인 페이지
         '/alarm/:path*'     // 시민 알림 페이지
     ],
 }
