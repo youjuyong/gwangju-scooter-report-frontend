@@ -28,7 +28,7 @@ export default function MainHome() {
 
     return (
         <>
-            <button className="btn_result" onClick={() => router.push(`${prefix}/register`)}>
+            <button className="btn_result" onClick={() => router.push(`${prefix}/report`)}>
                 회수등록
             </button>
 
