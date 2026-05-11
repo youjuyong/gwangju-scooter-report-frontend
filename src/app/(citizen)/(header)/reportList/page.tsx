@@ -39,8 +39,7 @@ export default function ReportListPage() {
                 {reportList.map((item) => {
                     const isCompleted = ['DEST04', 'DEST08'].includes(item.dclrStts?.cdId);
                     const statusClass = isCompleted ? 'si2' : 'si1';
-                    // 이미지 수정 예정
-                    const firstImage = (item.imgUrls && item.imgUrls.length > 0 && !item.imgUrls[0].startsWith("data:image"))
+                    const firstImage = (item.imgUrls && item.imgUrls.length > 0 && item.imgUrls[0].startsWith("data:image"))
                         ? item.imgUrls[0]
                         : "/images/camera.png";
 
