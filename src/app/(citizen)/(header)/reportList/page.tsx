@@ -1,12 +1,14 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {getReportList} from "@/services/report/reportApi";
-import Link from "next/link";
+import {useRouter} from "next/navigation";
 
 export default function ReportListPage() {
     const [reportList, setReportList] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const router = useRouter();
 
     useEffect(() => {
         const fetchList = async () => {
@@ -24,6 +26,10 @@ export default function ReportListPage() {
         fetchList();
     }, []);
 
+    const getDetail = (id: string) => {
+        router.push(`/reportDetail/${id}`);
+    };
+
     if (isLoading) return <div className="loading_box">로딩 중...</div>;
 
     return (
@@ -35,55 +41,52 @@ export default function ReportListPage() {
                     const statusClass = isCompleted ? 'si2' : 'si1';
 
                     return (
-                        <li key={item.dclrId}>
-                            {/*<Link href={`/reportList/${item.dclrId}`}>*/}
-                            <Link href={`/reportList`}>
-                                <p className={`situation ${statusClass}`}>
-                                    {item.dclrStts?.cdNm}
-                                </p>
+                        <li key={item.dclrId} onClick={() => getDetail(item.dclrId)}>
+                            <p className={`situation ${statusClass}`}>
+                                {item.dclrStts?.cdNm}
+                            </p>
 
-                                <p className="add">{item.dclrAddrTxt}</p>
+                            <p className="add">{item.dclrAddrTxt}</p>
 
-                                <div className="listconten">
-                                    <div className="leftbox">
-                                        <dl>
-                                            <dt>신고일시</dt>
-                                            <dd>{item.regDt}</dd>
-                                        </dl>
-                                        <dl>
-                                            <dt>킥보드ID</dt>
-                                            <dd>{item.qrcdVl}</dd>
-                                        </dl>
-                                        <dl>
-                                            <dt>위반유형</dt>
-                                            <dd>{item.vltnType?.cdNm}</dd>
-                                        </dl>
-                                        <dl>
-                                            <dt>상세설명</dt>
-                                            <dd>{item.dclrCn}</dd>
-                                        </dl>
-                                        <dl>
-                                            <dt>처리일시</dt>
-                                            <dd className="blue">{item.prcsDt || "-"}</dd>
-                                        </dl>
-                                    </div>
-
-                                    <div className="img_area">
-                                        {item.imgUrls && item.imgUrls[0] && item.imgUrls[0] !== "data:image/jpeg;base64," ? (
-                                            <img
-                                                src={item.imgUrls[0]}
-                                                className="list_img"
-                                                alt="신고 이미지"
-                                            />
-                                        ) : (
-                                            <div className="img">
-                                                <img src="/images/camera.png" alt="광주시 킥보드 주정차 위반신고"
-                                                     className="list_img"/>
-                                            </div>
-                                        )}
-                                    </div>
+                            <div className="listconten">
+                                <div className="leftbox">
+                                    <dl>
+                                        <dt>신고일시</dt>
+                                        <dd>{item.regDt}</dd>
+                                    </dl>
+                                    <dl>
+                                        <dt>킥보드ID</dt>
+                                        <dd>{item.qrcdVl}</dd>
+                                    </dl>
+                                    <dl>
+                                        <dt>위반유형</dt>
+                                        <dd>{item.vltnType?.cdNm}</dd>
+                                    </dl>
+                                    <dl>
+                                        <dt>상세설명</dt>
+                                        <dd>{item.dclrCn}</dd>
+                                    </dl>
+                                    <dl>
+                                        <dt>처리일시</dt>
+                                        <dd className="blue">{item.prcsDt || "-"}</dd>
+                                    </dl>
                                 </div>
-                            </Link>
+
+                                <div className="img_area">
+                                    {item.imgUrls && item.imgUrls[0] && item.imgUrls[0] !== "data:image/jpeg;base64," ? (
+                                        <img
+                                            src={item.imgUrls[0]}
+                                            className="list_img"
+                                            alt="신고 이미지"
+                                        />
+                                    ) : (
+                                        <div className="img">
+                                            <img src="/images/camera.png" alt="광주시 킥보드 주정차 위반신고"
+                                                 className="list_img"/>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </li>
                     );
                 })}
