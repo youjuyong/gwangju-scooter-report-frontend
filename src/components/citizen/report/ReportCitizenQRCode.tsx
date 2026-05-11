@@ -5,6 +5,8 @@ import {useRouter} from "next/navigation";
 import {Scanner} from "@yudiel/react-qr-scanner";
 import {BusinessInfo} from "@/types/report";
 import {getBusinessList, getDeviceValid} from "@/services/report/reportApi";
+import {toast} from "react-hot-toast";
+import CustomPopup from "@/components/citizen/popup/CustomPopup";
 
 interface QRProps {
     formData: {
@@ -24,6 +26,8 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const isValid = formData.brand.trim() !== "" && formData.deviceId.trim() !== "";
     const [isValidated, setIsValidated] = useState<boolean>(false);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         const fetchBrands = async () => {
@@ -87,9 +91,9 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                 console.error("정규식 파싱 에러:", err);
             }
         }
-
-        if (!isMatched) {
-            alert("존재하지 않거나 유효하지 않은 기기 정보입니다.");
+         if (!isMatched) {
+             setMessage( "존재하지 않거나 유효하지 않은 기기 정보입니다.");
+             setIsPopupOpen(true);
             onUpdate({
                 brand: "",
                 brandId: "",
@@ -117,7 +121,8 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
 
     const checkValidated = async () => {
         if (!formData.brandId || !formData.deviceId) {
-            alert("브랜드와 킥보드 ID를 먼저 입력해주세요.");
+            setMessage("존재하지 않거나 유효하지 않은 기기 정보입니다.");
+            setIsPopupOpen(true);
             return false;
         }
         const selectedBiz = businessList.find(b => b.bzentyId === formData.brandId);
@@ -128,14 +133,17 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                 setIsValidated(true);
                 return true;
             } else {
-                alert("존재하지 않거나 유효하지 않은 기기 정보입니다.");
+                setMessage("존재하지 않거나 유효하지 않은 기기 정보입니다.");
+                setIsPopupOpen(true);
                 setIsValidated(false);
                 return false;
             }
         } catch (error: any) {
             setIsValidated(false);
             const errMessage = error?.response?.data?.resultMsg;
-            alert(errMessage || "해당 업체에 등록되지 않았거나 유효하지 않은 킥보드입니다.");
+            const msg = errMessage?.errMessage || "해당 업체에 등록되지 않았거나 유효하지 않은 킥보드입니다.";
+            setMessage(msg);
+            setIsPopupOpen(true); // 1. 여기서 팝업을 켬
             console.error("유효성 검사 중 에러:", error);
             return false;
         }
@@ -223,6 +231,11 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                     </div>
                 </div>
             </main>
+            <CustomPopup
+                msg={message}
+                showPopup={isPopupOpen}
+                onClose={() => setIsPopupOpen(false)}
+            />
         </div>
     );
 }
