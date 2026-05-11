@@ -9,7 +9,7 @@ import { useFcmToken } from "@/hooks/useFcmToken"; // 공통 FCM 훅
 import { setCookie } from "cookies-next";
 import { ApiResponse, UserData } from "@/types/auth"; 
 import RegisterForm from "@/components/RegisterForm";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore,MemberRole } from "@/store/authStore";
 import { toast } from "react-hot-toast";
 import {useSqlValidator} from "@/hooks/useSqlValidator";
 
@@ -19,11 +19,11 @@ export default function CitizenLoginForm() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   
   const router = useRouter();
-  const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const        setRole = useAuthStore((state) => state.setRole);
- const { handleAllowNotification, getDeviceInfo } = useFcmToken();
-    const { sqlValidate } = useSqlValidator(); // 훅 불러오기
-  // 일반 로그인 처리
+
+// ✅ 1. 시민(Reporter) 전용 액션 가져오기
+    const { setReporterAuth } = useAuthStore();
+    const { handleAllowNotification, getDeviceInfo, saveTokenToServer } = useFcmToken();
+    const { sqlValidate } = useSqlValidator();
 
   const handleLogin = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -50,14 +50,33 @@ export default function CitizenLoginForm() {
       if (!authHeader) throw new Error("인증 토큰이 없습니다.");
       if (!apiResponse.success) throw new Error(apiResponse.message || "로그인 실패");
 
-      const { role, name } = apiResponse.data;
+        const { role, name, userId: resUserId } = apiResponse.data;
 
-      setAccessToken(authHeader);
-      setCookie('accessToken', authHeader);
-      setRole(role);
+        const userInfo = { name: name, id: resUserId, role: role as MemberRole };
+        setReporterAuth(authHeader, userInfo);
+
+        setCookie('reporterAccessToken', authHeader, {
+            maxAge: 60 * 60 * 24,
+            path: '/',
+        });
 
       toast.success(`${name}님, 반갑습니다!`, { id: loginToast });
       router.replace("/");
+
+        const processFcm = async () => {
+            try {
+                const token = await handleAllowNotification();
+                if (token) {
+                    await saveTokenToServer(token, authHeader);
+                }
+            } catch (fcmErr) {
+                console.error("FCM 등록 실패:", fcmErr);
+            }
+        };
+        processFcm();
+
+        toast.success(`${name}님, 반갑습니다!`, { id: loginToast });
+        router.replace("/");
 
     } catch (err: any) {
       toast.dismiss(loginToast);

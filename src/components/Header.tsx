@@ -18,19 +18,23 @@ interface HeaderProps {
 export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const router = useRouter();
     const pathname = usePathname();
-    const pathSegments = pathname.split('/');
-    const prefix = pathSegments[1] === "admin" || pathSegments[1] === "pm"
-        ? `/${pathSegments[1]}`
-        : "";
-    const { getDeviceInfo, fetchFcmToken, saveTokenToServer,fetchFcmTokenForCallback,deleteTokenToServer } = useFcmToken();
-    const deviceType = getDeviceInfo();
-    const accessToken = useAuthStore((state) => state.accessToken);
-    const fcmToken = useAuthStore((state) => state.fcmToken);
-    const setAccessToken = useAuthStore((state) => state.setAccessToken);
-    const setFcmToken = useAuthStore((state) => state.setFcmToken);
-    const setRole = useAuthStore((state) => state.setRole);
     const [showLoginPopup, setShowLoginPopup] = useState(false);
-    const userName = useAuthStore((state) => state.userName);
+    const { getDeviceInfo } = useFcmToken();
+    const deviceType = getDeviceInfo();
+    // 1. 현재 경로 분석 (admin, pm, tow, reporter)
+    const getAuthType = () => {
+        if (pathname.startsWith("/admin")) return "admin";
+        if (pathname.startsWith("/pm")) return "pm";
+        if (pathname.startsWith("/tow")) return "tow";
+        return "reporter";
+    };
+    const authType = getAuthType();
+    const prefix = authType === "reporter" ? "" : `/${authType}`;
+
+    // 2. Zustand 스토어에서 현재 권한에 맞는 상태와 액션 가져오기
+    const state = useAuthStore();
+    const currentAuth = state[authType]; // 현재 권한 그룹 데이터 (accessToken, userInfo 등)
+    const { logout } = state;
 
 
 
@@ -40,7 +44,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
 
         const targetPath = path === "/" ? (prefix || "/") : `${prefix}${path}`;
 
-        if (isProtected && !accessToken) {
+        if (isProtected && !currentAuth.accessToken) {
             setShowLoginPopup(true);
         } else {
             router.push(targetPath);
@@ -54,17 +58,19 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
             await authApi.post("/logout", { deviceType });
 
             // 클라이언트 상태 및 쿠키 삭제
-            setAccessToken(null);
-            setRole(null);
-            deleteCookie("accessToken");
+            state.logout(authType);
+
+            deleteCookie(`${authType}AccessToken`);
+
             delete axios.defaults.headers.common["Authorization"];
 
             toast.success("로그아웃되었습니다.");
 
-            if(prefix){
-                router.push(prefix + "/login");
-            }else{
-                router.push( "/");
+            // 로그아웃 후 해당 서비스의 로그인 페이지 또는 메인으로 이동
+            if (prefix) {
+                router.push(`${prefix}/login`);
+            } else {
+                router.push("/");
             }
 
         } catch (error) {
@@ -95,8 +101,8 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                     />{prefix && " 방치 킥보드 회수 시스템"}
                 </h1>
                 {!prefix && (
-                    accessToken ? (
-                        <p className="login-msg">{userName}님 반갑습니다!</p>
+                    currentAuth.accessToken ? (
+                        <p className="login-msg">{currentAuth.userInfo?.name}님 반갑습니다!</p>
                     ) : (
                         <p className="login-msg" style={{ cursor: 'pointer' }} onClick={() => router.push("/login")}>
                             로그인 해주세요.
@@ -122,7 +128,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                             </a>
                         </li>
                         <li className={activeTab === "신고확인" ? "click" : ""}>
-                            <a href="#" className="menuReport" onClick={(e) => handleNavigation(e, "/reportList", false)}>
+                            <a href="#" className="menuReport" onClick={(e) => handleNavigation(e, "/userReport", true)}>
                                 신고확인
                             </a>
                         </li>

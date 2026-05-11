@@ -10,8 +10,8 @@ import Cookies from 'js-cookie';
 
 export default function SimpleDashboard() {
   const router = useRouter();
-  const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const setRole = useAuthStore((state) => state.setRole);
+  // const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  // const setRole = useAuthStore((state) => state.setRole);
   const { getDeviceInfo } = useFcmToken();
   const deviceType = getDeviceInfo();
 
@@ -22,8 +22,8 @@ export default function SimpleDashboard() {
       await authApi.post('/logout', {
         deviceType: deviceType // "WEB", "ANDROID", "IOS" 등
        });
-      setAccessToken(null); 
-      setRole(null);
+      // setAccessToken(null);
+      // setRole(null);
       //  Axios 공통 헤더도 같이 비워주기
       delete axios.defaults.headers.common['Authorization'];
       Cookies.remove('accessToken');

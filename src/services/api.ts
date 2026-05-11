@@ -1,6 +1,5 @@
 import axios from 'axios';
 import {useAuthStore} from '@/store/authStore';
-import {ROLE_REDIRECT_MAP} from "@/types/auth";
 
 // CSRF 및 기본 설정 전역 적용
 axios.defaults.withCredentials = true;
@@ -20,7 +19,14 @@ const processQueue = (error: any, token: string | null = null) => {
     });
     failedQueue = [];
 };
-
+const getAuthTypeByPath = () => {
+    if (typeof window === 'undefined') return 'reporter'; // SSR 환경 대비
+    const path = window.location.pathname;
+    if (path.startsWith('/admin')) return 'admin';
+    if (path.startsWith('/pm')) return 'pm';
+    if (path.startsWith('/tow')) return 'tow';
+    return 'reporter'; // 기본값
+};
 // 1. 인증/로그인 전용 인스턴스
 export const authApi = axios.create({
     baseURL: process.env.NEXT_PUBLIC_LOGIN_API_URL,
@@ -42,14 +48,16 @@ const api = axios.create({
 // 1. 요청 인터셉터
 api.interceptors.request.use(
     (config) => {
-        const token = useAuthStore.getState().accessToken;
-        const csrfToken = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('XSRF-TOKEN='))
-            ?.split('=')[1];
+        const authType = getAuthTypeByPath();
+        const token = useAuthStore.getState()[authType].accessToken;
+        const csrfToken = typeof document !== 'undefined'
+            ? document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='))?.split('=')[1]
+            : null;
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            console.log(config.headers.Authorization);
+            console.log(useAuthStore.getState()[authType]);
         }
         if (csrfToken) {
             config.headers['X-XSRF-TOKEN'] = csrfToken;
@@ -61,14 +69,16 @@ api.interceptors.request.use(
 
 authApi.interceptors.request.use(
     (config) => {
-        const token = useAuthStore.getState().accessToken;
-        const csrfToken = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('XSRF-TOKEN='))
-            ?.split('=')[1];
+        const authType = getAuthTypeByPath();
+        const token = useAuthStore.getState()[authType].accessToken;
+        const csrfToken = typeof document !== 'undefined'
+            ? document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='))?.split('=')[1]
+            : null;
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            console.log(config.headers.Authorization);
+            console.log(useAuthStore.getState()[authType]);
         }
         if (csrfToken) {
             config.headers['X-XSRF-TOKEN'] = csrfToken;
@@ -83,15 +93,13 @@ authApi.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        const { response, config: originalRequest } = error;
-
-        // 1. 중복 로그인 에러(E007) 처리
-        if (response?.status === 401 && response?.data?.code === "E007") {
-            const userRole = response.data.data?.role;
-            const clearAuth = useAuthStore.getState().clearAuth;
-
-            handleDuplicateLogin(userRole, clearAuth);
-            
+        const originalRequest = error.config;
+        const errorResponse = error.response;
+        const authType = getAuthTypeByPath();
+        const state = useAuthStore.getState();
+        if (errorResponse?.status === 401 && errorResponse?.data?.code === "A006") {
+            state.logout(authType);
+            alert("다른 기기에서 로그인되어 연결이 종료되었습니다.");
             return Promise.reject(error);
         }
 
@@ -124,20 +132,25 @@ api.interceptors.response.use(
 
                 const newAccessToken = response.data.data.accessToken;
 
-                useAuthStore.getState().setAccessToken(newAccessToken);
-                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                const currentGroup = state[authType];
+
+                // ✅ userInfo가 null일 경우를 대비해 기본 객체({ name: null, id: null, role: null })를 병합
+                const safeUserInfo = currentGroup.userInfo || { name: null, id: null, role: null };
+
+                if (authType === 'admin') state.setAdminAuth(newAccessToken, safeUserInfo);
+                else if (authType === 'pm') state.setPmAuth(newAccessToken, safeUserInfo);
+                else if (authType === 'tow') state.setTowAuth(newAccessToken, safeUserInfo);
+                else state.setReporterAuth(newAccessToken, safeUserInfo);
 
                 processQueue(null, newAccessToken);
 
                 return api(originalRequest);
             } catch (refreshError) {
                 processQueue(refreshError, null);
-                useAuthStore.getState().setAccessToken(null);
-                useAuthStore.getState().setRole(null);
+                state.logout(authType);
 
-                // 쿠키 삭제 및 홈 이동 로직 (window.location.href 사용 추천)
                 if (typeof window !== "undefined") {
-                    window.location.href = "/";
+                    window.location.href = `/${authType}/login`; // 해당 도메인 로그인 페이지로 이동
                 }
 
                 return Promise.reject(refreshError);
@@ -149,26 +162,5 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
-
-const ROLE_REDIRECT_PATH: Record<ROLE_REDIRECT_MAP, string> = {
-    [ROLE_REDIRECT_MAP.ADMIN]: "/admin/login",
-    [ROLE_REDIRECT_MAP.OPERATOR]: "/op/login",
-    [ROLE_REDIRECT_MAP.PM_CORP]: "/pm/login",
-    [ROLE_REDIRECT_MAP.TOW_CORP]: "/tow/login",
-    [ROLE_REDIRECT_MAP.REPORT_USER]: "/",
-};
-
-
-/**
- * 중복 로그인 공통 처리 함수
- */
-export const handleDuplicateLogin = (role: string | undefined, clearAuth: () => void) => {
-    clearAuth();
-    alert("다른 기기에서 로그인되어 연결이 종료되었습니다.");
-
-    const redirectPath = ROLE_REDIRECT_PATH[role as ROLE_REDIRECT_MAP] || "/";
-    
-    window.location.href = redirectPath;
-};
 
 export default api;

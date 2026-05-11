@@ -14,14 +14,16 @@ export default function SettingsPage() {
     const router = useRouter();
     const { getDeviceInfo, fetchFcmToken, saveTokenToServer,fetchFcmTokenForCallback,deleteTokenToServer } = useFcmToken();
     const deviceType = getDeviceInfo();
-    const accessToken = useAuthStore((state) => state.accessToken);
-    const fcmToken = useAuthStore((state) => state.fcmToken);
-    const setAccessToken = useAuthStore((state) => state.setAccessToken);
-    const setFcmToken = useAuthStore((state) => state.setFcmToken);
-    const setRole = useAuthStore((state) => state.setRole);
+    const authType = "reporter";
+    const state = useAuthStore();
+
+    const currentAuth = state[authType];
+    const { logout, updateFcmToken } = state;
+
     const [mounted, setMounted] = useState(false);
 
-    const isPushOn = mounted ? !!fcmToken : false;
+    // 현재 푸시 상태 확인
+    const isPushOn = mounted ? !!currentAuth.fcmToken : false;
 
     //토글 상태값
     useEffect(() => {
@@ -41,9 +43,8 @@ export default function SettingsPage() {
             await authApi.post("/logout", { deviceType });
 
             // 클라이언트 상태 및 쿠키 삭제
-            setAccessToken(null);
-            setRole(null);
-            deleteCookie("accessToken");
+            logout(authType);
+            deleteCookie(`${authType}AccessToken`);
             delete axios.defaults.headers.common["Authorization"];
 
             toast.success("로그아웃되었습니다.");
@@ -70,8 +71,8 @@ export default function SettingsPage() {
                     currentFcmToken = await fetchFcmToken();
                 }
                 if (currentFcmToken) {
-                    await saveTokenToServer(currentFcmToken, accessToken!);
-                    setFcmToken(currentFcmToken);
+                    await saveTokenToServer(currentFcmToken, currentAuth.accessToken!);
+                    updateFcmToken(authType, currentFcmToken);
                     // setIsPushOn(true);
                     toast.success("푸시 알림이 활성화되었습니다.", { id: toastId });
                 } else {
@@ -85,8 +86,8 @@ export default function SettingsPage() {
             if (confirm("알림을 끄시겠습니까? (기기 설정에서 권한을 차단해야 완전히 해제됩니다)")) {
                 try {
                     // fcmToken 토큰 삭제
-                    await deleteTokenToServer(accessToken!);
-                    setFcmToken(null);
+                    await deleteTokenToServer(currentAuth.accessToken!);
+                    updateFcmToken(authType, null);
                     // setIsPushOn(false);
                     toast.success("앱 내 알림 수신이 비활성화되었습니다.");
                 } catch (error) {

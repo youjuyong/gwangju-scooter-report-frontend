@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { handleApiError } from "@/hooks/errorHandler";
 import { useFcmToken } from "@/hooks/useFcmToken";
 import { setCookie } from "cookies-next";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore, MemberRole } from "@/store/authStore"; // MemberRole 타입 추가
 import { toast } from "react-hot-toast";
 import { loginService } from "@/services/auth/loginApi";
 import RegisterForm from "@/components/RegisterForm";
@@ -19,11 +19,27 @@ export default function LoginForm() {
     const router = useRouter();
     const pathname = usePathname(); // Next.js 권장 방식인 usePathname 사용
 
-    // URL에서 prefix 추출 (/pm 또는 /admin)
-    const prefix = pathname.startsWith("/pm") ? "/pm" : pathname.startsWith("/admin") ? "/admin" : "";
+    // 1. 현재 경로에 따른 타입 판별 (미들웨어 및 스토어 연동용)
+    const getAuthType = () => {
+        if (pathname.startsWith("/admin")) return "admin";
+        if (pathname.startsWith("/pm")) return "pm";
+        if (pathname.startsWith("/tow")) return "tow";
+        return "reporter";
+    };
+    const authType = getAuthType();
+    const prefix = authType === "reporter" ? "" : `/${authType}`;
 
-    const setAccessToken = useAuthStore((state) => state.setAccessToken);
-    const setRole = useAuthStore((state) => state.setRole);
+    // 2. 스토어 액션들을 개별적으로 가져오기 (가장 안전한 방식)
+    const { setAdminAuth, setPmAuth, setTowAuth, setReporterAuth } = useAuthStore();
+
+    // // 2. 스토어 액션 가져오기
+    // const state = useAuthStore.getState();
+    // const authActions = {
+    //     admin: state.setAdminAuth,
+    //     pm: state.setPmAuth,
+    //     tow: state.setTowAuth,
+    //     reporter: state.setReporterAuth,
+    // };
 
     const {
         handleAllowNotification,
@@ -47,18 +63,25 @@ export default function LoginForm() {
         try {
             const response = await loginService.login({ userId, pswd, forceLogin });
             const apiResponse = response;
-            const authHeader = apiResponse.data?.accessToken;
+            const accessToken = apiResponse.data?.accessToken;
 
-            if (!authHeader) throw new Error("인증 토큰이 없습니다.");
+            if (!accessToken) throw new Error("인증 토큰이 없습니다.");
             if (!apiResponse.success) throw new Error(apiResponse.message || "로그인 실패");
 
             const { data } = apiResponse;
-            const { role, userNm } = data.userInfo;
+            const { role, userNm, userId: resUserId } = data.userInfo;
+            const userInfo = { name: userNm, id: resUserId, role: role as MemberRole };
 
-            // 상태 저장
-            setAccessToken(authHeader);
-            setRole(role);
-            setCookie('accessToken', authHeader);
+            // 3. 경로에 맞는 스토어에 저장
+            if (authType === "admin") setAdminAuth(accessToken, userInfo);
+            else if (authType === "pm") setPmAuth(accessToken, userInfo);
+            else if (authType === "tow") setTowAuth(accessToken, userInfo);
+            else setReporterAuth(accessToken, userInfo);
+
+            setCookie(`${authType}AccessToken`, accessToken, {
+                maxAge: 60 * 60 * 24,
+                path: '/', // 전체 경로에서 접근 가능하도록 설정 권장
+            });
 
             // FCM 프로세스
             const processFcm = async () => {
@@ -71,7 +94,7 @@ export default function LoginForm() {
                         fcmToken = await handleAllowNotification();
                     }
                     if (fcmToken) {
-                        await saveTokenToServer(fcmToken, authHeader);
+                        await saveTokenToServer(fcmToken, accessToken);
                     }
                 } catch (fcmErr) {
                     console.error("FCM 동기화 실패:", fcmErr);
@@ -82,14 +105,14 @@ export default function LoginForm() {
             toast.success(`${userNm}님, 반갑습니다!`, { id: loginToast });
 
             // 동적 경로 이동
-            router.replace(`${prefix}/notice`);
+            router.replace(`${prefix}/`);
 
         } catch (err: any) {
             toast.dismiss(loginToast);
 
             if (err.response?.status === 409) {
                 const userRole = err.response.data?.role;
-                if (userRole === "USER") {
+                if (userRole) {
                     return handleLogin(undefined, true);
                 } else {
                     if (confirm("이미 다른 기기에서 로그인 중입니다. 기존 연결을 끊고 여기서 로그인하시겠습니까?")) {

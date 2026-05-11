@@ -8,6 +8,8 @@ import { Map, CustomOverlayMap, useKakaoLoader } from "react-kakao-maps-sdk";
 export default function MainHome() {
     const router = useRouter();
     const pathname = usePathname();
+    const Token = useAuthStore((state) => state.pm);
+    console.log(Token);
 
 
     // 1. 카카오 지도 스크립트 로드 (ReportLocation과 동일한 방식)

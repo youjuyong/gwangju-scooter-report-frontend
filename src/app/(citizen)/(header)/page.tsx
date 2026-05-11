@@ -7,7 +7,7 @@ import MainNotice from "@/components/notice/MainNotice";
 import {useRouter} from "next/navigation";
 
 export default function HomeContents() {
-    const accessToken = useAuthStore((state) => state.accessToken);
+    const accessToken = useAuthStore((state) => state.reporter.accessToken);
 
     return (
         <HomeSection accessToken={accessToken}/>
