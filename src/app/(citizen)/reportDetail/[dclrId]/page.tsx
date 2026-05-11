@@ -53,10 +53,9 @@ export default function ReportDetail() {
             </header>
 
             <main className="sub_article">
-                {/* 신고 상세 정보 섹션 */}
                 <div className="detailBox">
-                    <p className={`situation ${statusClass}`}>
-                        {report.dclrStts?.cdNm || "처리중"}
+                    <p className={`situation ${statusClass}`}> {/*.si1:처리중 , si2: 처리완료*/}
+                        {report.dclrStts?.cdNm || "처리중"} {/*도로명 주소만 나옴*/}
                     </p>
                     <p className="add">{report.dclrAddrTxt}</p>
                     <dl>
@@ -89,7 +88,6 @@ export default function ReportDetail() {
                     </dl>
                 </div>
 
-                {/* 결과 및 조치 섹션 */}
                 <div className="detailBox_re">
                     {/* 처리 완료시에만 노출 */}
                     {isCompleted && (
@@ -111,8 +109,7 @@ export default function ReportDetail() {
                                             </div>
                                         ))
                                     ) : (
-                                        <div className="no-img-text"
-                                             style={{padding: '10px 0', fontSize: '13px', color: '#999'}}>
+                                        <div>
                                             등록된 처리 사진이 없습니다.
                                         </div>
                                     )}

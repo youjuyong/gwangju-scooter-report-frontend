@@ -39,6 +39,10 @@ export default function ReportListPage() {
                 {reportList.map((item) => {
                     const isCompleted = ['DEST04', 'DEST08'].includes(item.dclrStts?.cdId);
                     const statusClass = isCompleted ? 'si2' : 'si1';
+                    // 이미지 수정 예정
+                    const firstImage = (item.imgUrls && item.imgUrls.length > 0 && !item.imgUrls[0].startsWith("data:image"))
+                        ? item.imgUrls[0]
+                        : "/images/camera.png";
 
                     return (
                         <li key={item.dclrId} onClick={() => getDetail(item.dclrId)}>
@@ -72,20 +76,11 @@ export default function ReportListPage() {
                                     </dl>
                                 </div>
 
-                                <div className="img_area">
-                                    {item.imgUrls && item.imgUrls[0] && item.imgUrls[0] !== "data:image/jpeg;base64," ? (
-                                        <img
-                                            src={item.imgUrls[0]}
-                                            className="list_img"
-                                            alt="신고 이미지"
-                                        />
-                                    ) : (
-                                        <div className="img">
-                                            <img src="/images/camera.png" alt="광주시 킥보드 주정차 위반신고"
-                                                 className="list_img"/>
-                                        </div>
-                                    )}
-                                </div>
+                                <img
+                                    src={firstImage}
+                                    className="list_img"
+                                    alt="신고된이미지"
+                                />
                             </div>
                         </li>
                     );
