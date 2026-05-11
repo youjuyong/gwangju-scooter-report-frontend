@@ -88,6 +88,15 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
         if (selectedFiles && selectedFiles[0]) {
             const file = selectedFiles[0];
 
+            // 파일 최소 크기 10KB 설정
+            const MIN_SIZE = 10 * 1024;
+            if (file.size < MIN_SIZE) {
+                alert("이미지 용량이 너무 작습니다. 10KB 이상의 사진을 등록해주세요");
+
+                e.target.value = "";
+                return;
+            }
+
             if (previews[id]) URL.revokeObjectURL(previews[id]);
 
             const previewUrl = URL.createObjectURL(file);
