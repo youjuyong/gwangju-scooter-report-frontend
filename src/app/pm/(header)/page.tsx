@@ -1,82 +1,69 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import { Map, CustomOverlayMap, useKakaoLoader } from "react-kakao-maps-sdk";
 
 export default function MainHome() {
     const router = useRouter();
     const pathname = usePathname();
-    const mapRef = useRef<HTMLDivElement>(null);
-    const [map, setMap] = useState<any>(null);
 
-    // URL Prefix 추출 (/pm 또는 /admin)
+
+    // 1. 카카오 지도 스크립트 로드 (ReportLocation과 동일한 방식)
+    const [loading, error] = useKakaoLoader({
+        appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
+        libraries: ["services"],
+    });
+
+    // URL Prefix 추출
     const prefix = pathname.startsWith("/pm") ? "/pm" : pathname.startsWith("/admin") ? "/admin" : "";
-    const logout = useAuthStore((state) => state.clearAuth);
 
-    // 1. 카카오 지도 초기화
-    useEffect(() => {
-        if (typeof window !== "undefined" && window.kakao && mapRef.current) {
-            const options = {
-                center: new window.kakao.maps.LatLng(36.191, 127.112), // 초기 좌표 (광주시 등 설정)
-                level: 3,
-            };
-            const kakaoMap = new window.kakao.maps.Map(mapRef.current, options);
-            setMap(kakaoMap);
+    // 지도 중심 좌표 상태
+    const [center, setCenter] = useState({ lat: 37.429, lng: 127.255 }); // 광주시청 근처 예시 좌표
 
-            // 샘플 마커 (Zone 표시 예시)
-            const markerPosition = new window.kakao.maps.LatLng(36.191, 127.112);
-
-            // 커스텀 오버레이로 HTML 구조 삽입 (HTML의 .zone 부분)
-            const content = `
-        <div class="zone">
-          <span class="spot"></span>
-          <span class="round"></span>
-        </div>
-      `;
-
-            const customOverlay = new window.kakao.maps.CustomOverlay({
-                position: markerPosition,
-                content: content,
-            });
-            customOverlay.setMap(kakaoMap);
-        }
-    }, []);
-
+    if (error) return <div>지도 로딩 에러</div>;
 
     return (
-        <div className="wrap">
+        <>
+            <button className="btn_result" onClick={() => router.push(`${prefix}/register`)}>
+                회수등록
+            </button>
 
-
-            <main className="main_article">
-                {/* 회수 등록 페이지로 이동 */}
-                <button className="btn_result" onClick={() => router.push(`${prefix}/register`)}>
-                    회수등록
-                </button>
-
-                {/* 상태별 현황판 */}
-                <div className="legend">
-                    <div className="item red">
-                        <span className="badge">20</span>
-                        <span className="label">미배정</span>
-                    </div>
-                    <div className="item blue">
-                        <span className="badge">7</span>
-                        <span className="label">처리중</span>
-                    </div>
-                    <div className="item gray">
-                        <span className="badge">10</span>
-                        <span className="label">완료</span>
-                    </div>
+            <div className="legend">
+                <div className="item red">
+                    <span className="badge">20</span>
+                    <span className="label">미배정</span>
                 </div>
-
-                {/* 지도 영역 */}
-                <div className="mainmap">
-                    <div ref={mapRef} style={{ width: "100%", height: "100%" }}>
-                        {/* 카카오 지도가 렌더링됩니다 */}
-                    </div>
+                <div className="item blue">
+                    <span className="badge">7</span>
+                    <span className="label">처리중</span>
                 </div>
-            </main>
-        </div>
+                <div className="item gray">
+                    <span className="badge">10</span>
+                    <span className="label">완료</span>
+                </div>
+            </div>
+
+            {/* 지도 영역 */}
+            <div className="mainmap" >
+                {/* 2. 로딩이 완료된 후 Map 컴포넌트 렌더링 */}
+                {!loading && (
+                    <Map
+                        center={center}
+                        style={{ width: "100%", height: "100%" }}
+                        level={3}
+                    >
+                        {/* 3. 커스텀 오버레이 (HTML 시안의 .zone 디자인 적용) */}
+                        <CustomOverlayMap position={center}>
+                            <div className="zone">
+                                <span className="spot"></span>
+                                <span className="round"></span>
+                            </div>
+                        </CustomOverlayMap>
+                    </Map>
+                )}
+            </div>
+        </>
     );
 }
