@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { handleApiError } from "@/hooks/errorHandler";
 import { useFcmToken } from "@/hooks/useFcmToken";
@@ -16,9 +16,15 @@ export default function LoginForm() {
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [saveId, setSaveId] = useState(false);
 
+    const [isMounted, setIsMounted] = useState(false);
     const router = useRouter();
     const pathname = usePathname(); // Next.js 권장 방식인 usePathname 사용
 
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const Token = useAuthStore((state) => state);
     // 1. 현재 경로에 따른 타입 판별 (미들웨어 및 스토어 연동용)
     const getAuthType = () => {
         if (pathname.startsWith("/admin")) return "admin";
@@ -29,17 +35,37 @@ export default function LoginForm() {
     const authType = getAuthType();
     const prefix = authType === "reporter" ? "" : `/${authType}`;
 
-    // 2. 스토어 액션들을 개별적으로 가져오기 (가장 안전한 방식)
-    const { setAdminAuth, setPmAuth, setTowAuth, setReporterAuth } = useAuthStore();
 
-    // // 2. 스토어 액션 가져오기
-    // const state = useAuthStore.getState();
-    // const authActions = {
-    //     admin: state.setAdminAuth,
-    //     pm: state.setPmAuth,
-    //     tow: state.setTowAuth,
-    //     reporter: state.setReporterAuth,
-    // };
+    useEffect(() => {
+        if (Token[authType].accessToken) {
+            console.log("✅ 스토어에 토큰 저장 완료됨:", Token[authType].accessToken);
+            console.log("✅ 스토어에 토큰 저장 완료됨:", Token);
+        }
+    }, [Token, authType]);
+
+    const accessToken = useAuthStore((state) => state[authType].accessToken);
+    const { setAdminAuth, setPmAuth, setTowAuth, setReporterAuth } = useAuthStore();
+    // useEffect(() => {
+    //     // 1. 브라우저 저장소(sessionStorage) 직접 확인
+    //     const rawStorage = sessionStorage.getItem('auth-storage');
+    //     if (rawStorage) {
+    //         try {
+    //             const parsed = JSON.parse(rawStorage);
+    //             const token = parsed.state[authType]?.accessToken;
+    //             if (token) {
+    //                 console.log("세션 스토리지에서 토큰 발견:", token);
+    //                 // 2. 토큰이 있다면 즉시 홈으로 이동
+    //                 router.replace(`${prefix}/`);
+    //                 return; // 이동 중이므로 로딩 상태 유지
+    //             }
+    //         } catch (e) {
+    //             console.error("저장소 파싱 에러:", e);
+    //         }
+    //     }
+    //
+    //     // 3. 토큰이 없으면 로그인 폼 보여주기
+    //
+    // }, [authType, prefix, router]);
 
     const {
         handleAllowNotification,
@@ -51,6 +77,7 @@ export default function LoginForm() {
     const ERROR_MESSAGES: Record<string, string> = {
         "E008": "비밀번호 오류 횟수 초과로 계정이 잠겼습니다. 관리자에게 문의하세요.",
     };
+
 
     const handleLogin = async (e?: React.FormEvent, forceLogin: boolean = false) => {
         if (e) e.preventDefault();
@@ -73,6 +100,7 @@ export default function LoginForm() {
             const userInfo = { name: userNm, id: resUserId, role: role as MemberRole };
 
             // 3. 경로에 맞는 스토어에 저장
+
             if (authType === "admin") setAdminAuth(accessToken, userInfo);
             else if (authType === "pm") setPmAuth(accessToken, userInfo);
             else if (authType === "tow") setTowAuth(accessToken, userInfo);
@@ -112,10 +140,11 @@ export default function LoginForm() {
 
             if (err.response?.status === 409) {
                 const userRole = err.response.data?.role;
-                if (userRole) {
+                if (userRole == "REPORT_USER") {
                     return handleLogin(undefined, true);
                 } else {
                     if (confirm("이미 다른 기기에서 로그인 중입니다. 기존 연결을 끊고 여기서 로그인하시겠습니까?")) {
+                        console.log("새로운 로그인 시작");
                         return handleLogin(undefined, true);
                     }
                 }
@@ -126,6 +155,8 @@ export default function LoginForm() {
             if (resultCode === "E008") {
                 toast.error(ERROR_MESSAGES[resultCode]);
                 return;
+            }else if(resultCode === "E005") {
+                toast.error(err.response?.data.resultMsg);
             }
 
             handleApiError(err, err.response?.data.resultMsg);

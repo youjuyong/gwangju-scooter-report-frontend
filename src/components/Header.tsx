@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import Link from "next/link";
 import {usePathname, useRouter} from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
@@ -29,20 +29,42 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
         return "reporter";
     };
     const authType = getAuthType();
+    console.log("현재 경로:", pathname, "판별된 타입:", authType);
+
     const prefix = authType === "reporter" ? "" : `/${authType}`;
+    const [isMounted, setIsMounted] = useState(false);
 
     // 2. Zustand 스토어에서 현재 권한에 맞는 상태와 액션 가져오기
     const state = useAuthStore();
-    const currentAuth = state[authType]; // 현재 권한 그룹 데이터 (accessToken, userInfo 등)
-    const { logout } = state;
+    const currentAuth = useAuthStore((state) => state[authType]);
+    const logout = useAuthStore((state) => state.logout);
 
+    // 3. Hydration 대기 (클라이언트에서 스토리지 데이터를 다 읽었는지 확인)
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
+    useEffect(() => {
+        if (isMounted && authType) {
+            console.log(`✅ [${authType}] 헤더 토큰 감지:`, currentAuth.accessToken);
+            console.log(`✅ [${authType}] 헤더 토큰 감지:`, currentAuth);
+        }
+    }, [isMounted, currentAuth.accessToken, authType]);
 
     // 2. 권한 체크 및 '페이지 이동' 처리
     const handleNavigation = (e: React.MouseEvent, path: string, isProtected: boolean) => {
         e.preventDefault();
+        // 1. 클릭 시점의 최신 스토어 데이터를 직접 찌릅니다.
+        const latestState = useAuthStore.getState();
+        const latestAuth = latestState[authType]; // 여기서 authType은 'pm' 등
 
         const targetPath = path === "/" ? (prefix || "/") : `${prefix}${path}`;
+        console.log(authType);
+        console.log(latestAuth);
+        console.log(currentAuth.accessToken);
+        console.log(isProtected);
+        console.log(isMounted);
+        console.log(targetPath);
 
         if (isProtected && !currentAuth.accessToken) {
             setShowLoginPopup(true);
@@ -127,14 +149,22 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                                 홈
                             </a>
                         </li>
-                        <li className={activeTab === "신고확인" ? "click" : ""}>
+                        {prefix == "" ?
+                            (<li className={activeTab === "신고확인" ? "click" : ""}>
                             <a href="#" className="menuReport" onClick={(e) => handleNavigation(e, "/reportList", true)}>
                                 신고확인
                             </a>
-                        </li>
+                        </li>)
+                            : (<li className={activeTab === "회수관리" ? "click" : ""}>
+                                    <a href="#" className="menuReport"
+                                       onClick={(e) => handleNavigation(e, "/reportList", true)}>
+                                        회수관리
+                                    </a>
+                                </li>)
+                        }
                         <li className={activeTab === "공지사항" ? "click" : ""}>
                             <a href="#" className="menuBoard" onClick={(e) => handleNavigation(e, "/notice", false)}>
-                                공지사항
+                            공지사항
                             </a>
                         </li>
                     </ul>
