@@ -4,11 +4,11 @@ import {LoginData, LoginResponseData} from "@/types/login";
 
 export const loginService = {
     /*
-    * 서비스 관리자 로그인 API
+    *  pm 로그인 API
     * */
     login: async (data: LoginData): Promise<ApiResponse<LoginResponseData>> => {
         const response = await authApi.post<ApiResponse<LoginResponseData>>(
-            "/admin/login",
+            "/pm/login",
             data
         );
 

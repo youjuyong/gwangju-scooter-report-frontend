@@ -126,11 +126,9 @@ export default function LoginForm() {
             if (resultCode === "E008") {
                 toast.error(ERROR_MESSAGES[resultCode]);
                 return;
-            }else if(resultCode === "E005") {
-                toast.error(err.response?.data.resultMsg);
             }
 
-            handleApiError(err, "로그인 정보가 올바르지 않습니다.");
+            handleApiError(err, err.response?.data.resultMsg);
         }
     };
 
