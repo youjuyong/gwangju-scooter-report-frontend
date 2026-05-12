@@ -29,7 +29,6 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
         return "reporter";
     };
     const authType = getAuthType();
-    console.log("현재 경로:", pathname, "판별된 타입:", authType);
 
     const prefix = authType === "reporter" ? "" : `/${authType}`;
     const [isMounted, setIsMounted] = useState(false);
@@ -44,27 +43,13 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
         setIsMounted(true);
     }, []);
 
-    useEffect(() => {
-        if (isMounted && authType) {
-            console.log(`✅ [${authType}] 헤더 토큰 감지:`, currentAuth.accessToken);
-            console.log(`✅ [${authType}] 헤더 토큰 감지:`, currentAuth);
-        }
-    }, [isMounted, currentAuth.accessToken, authType]);
 
     // 2. 권한 체크 및 '페이지 이동' 처리
     const handleNavigation = (e: React.MouseEvent, path: string, isProtected: boolean) => {
         e.preventDefault();
-        // 1. 클릭 시점의 최신 스토어 데이터를 직접 찌릅니다.
-        const latestState = useAuthStore.getState();
-        const latestAuth = latestState[authType]; // 여기서 authType은 'pm' 등
+
 
         const targetPath = path === "/" ? (prefix || "/") : `${prefix}${path}`;
-        console.log(authType);
-        console.log(latestAuth);
-        console.log(currentAuth.accessToken);
-        console.log(isProtected);
-        console.log(isMounted);
-        console.log(targetPath);
 
         if (isProtected && !currentAuth.accessToken) {
             setShowLoginPopup(true);
@@ -72,7 +57,6 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
             router.push(targetPath);
         }
     };
-    console.log(prefix);
     const handleLogout = async () => {
         if (!confirm("로그아웃 하시겠습니까?")) return;
         try {
