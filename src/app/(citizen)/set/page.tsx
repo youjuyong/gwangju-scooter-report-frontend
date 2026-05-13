@@ -23,11 +23,11 @@ export default function SettingsPage() {
     const [mounted, setMounted] = useState(false);
 
     // 현재 푸시 상태 확인
-    const isPushOn = mounted ? !!currentAuth.fcmToken : false;
-
+    const isPushOn = mounted
+        ? (Notification.permission === 'granted' && !!currentAuth.fcmToken)
+        : false;
     //토글 상태값
     useEffect(() => {
-
         const raf = requestAnimationFrame(() => {
             setMounted(true);
         });
