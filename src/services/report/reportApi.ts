@@ -1,5 +1,14 @@
 import api from "@/services/api";
-import {ApiResponse, BusinessInfo, BusinessType, DeviceInfo, ReportStatus} from "@/types/report";
+import {
+    ApiResponse,
+    BusinessInfo,
+    BusinessType,
+    DeviceInfo,
+    pmDcleReportRequestForm,
+    pmDcleReportResponse,
+    ReportStatus, staffsResponse
+} from "@/types/report";
+import {NoticeRequestForm, NoticeResponse} from "@/types/notice";
 
 export const updateReportStatus = async (reportId: number, status: ReportStatus) => {
     const response = await api.patch<ApiResponse<any>>(`/report/${reportId}/status`, {
@@ -55,5 +64,29 @@ export const getReportList = async () => {
 * */
 export const getReportDetail = async (dclrId: string) => {
     const response = await api.get<ApiResponse<any>>(`/dclr/${dclrId}`);
+    return response.data;
+}
+/*
+* pm 신고 내역 전체 조회
+* */
+export const getPmDclrListApi = async (request: pmDcleReportRequestForm): Promise<pmDcleReportResponse[]> => {
+    const response = await api.get('/dclr/pm/list' , {
+        params: request
+    });
+    return response.data.data;
+}
+/**
+ * 처리자 조회
+ */
+export const getStaffsList = async ():Promise<staffsResponse[]> => {
+    const response = await api.get(`/admin/user/pm-staffs`);
+    return response.data.data;
+};
+
+/*
+* 회수 진행 처리
+* */
+export const getPmDclrCollect = async (dclrId: string) => {
+    const response = await api.patch(`/dclr/${dclrId}/pm/collect`);
     return response.data;
 }

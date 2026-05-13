@@ -80,3 +80,54 @@ export interface ApiResponse<T> {
     message: string;
     data: T;
 }
+export interface CommonCode {
+    cdId: string;
+    cdNm: string;
+}
+
+export interface pmDcleReportResponse {
+    dclrId: string;           // 신고 ID
+    bzenty: {
+        bzentyId: string;
+        bzentyNm: string;
+        bzentyType: CommonCode;
+    };
+    pmDvc: any | null;
+    qrcdVl: string;           // 킥보드 ID
+    zone: any | null;
+    latVl: number | null;
+    lotVl: number | null;
+    dclrAddrTxt: string;      // 신고 주소
+    dclrCn: string;           // 상세 설명
+    vltnType: CommonCode;     // 위반 유형 (cdNm: "버스 정류소...")
+    dclrUserType: CommonCode; // 신고자 유형
+    dclrStts: CommonCode;     // 처리 상태 (cdId: DEST01, DEST02...)
+    imgUrls: string[];        // 이미지 배열
+    regDt: string;            // 등록 일시 (2026-05-11 21:02:58)
+    prcr: any | null;         // 처리자 정보
+}
+
+export interface pmDcleReportRequestForm {
+    searchMonth: string,
+    searchDate: string,
+    prcsUserId: string,
+    dclrSttsCd: string
+}
+
+export interface staffsResponse {
+    userId: string;        // 아이디 (admin2)
+    userNm: string;        // 이름 (관리자)
+    deptNm: {
+        deptId: string;
+        deptNm: string; // 실제 부서 이름
+        deptTypeCd?: {
+            cdId: string;
+            cdNm: string;
+        };
+    } | null; // 데이터가 없을 경우를 대비해 null 허용        // 부서 (운영팀)
+    authrtGroupNm: string; // 권한 그룹 (시스템 관리자)
+    emlAddr: string;       // 이메일
+    telno: string;         // 전화번호
+    sttsNm: string;        // 상태 명칭
+    lgnDt: string;         // 로그인/처리 일시 (ISO 8601)
+}
