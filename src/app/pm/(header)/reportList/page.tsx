@@ -97,7 +97,7 @@ export default function ReportList() {
     };
 
     return (
-        <main className="sub_article sub_article_padding">
+       <>
             <article className="subBoard">
                 <h2>회수관리</h2>
 
@@ -194,6 +194,6 @@ export default function ReportList() {
                     )}
                 </ul>
             </article>
-        </main>
+       </>
     );
 }

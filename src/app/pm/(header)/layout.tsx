@@ -8,6 +8,7 @@ const emptySubscribe = () => () => {};
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    console.log(pathname);
    // const [activeTab, setActiveTab] = useState("홈");
 
     let activeTab = "홈";
@@ -27,11 +28,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <div className={`wrap ${pathname === "/" ? "main-wrap" : "sub-wrap"}`}>
+        <div className={`wrap ${pathname === "/pm" ? "main-wrap" : "sub-wrap"}`}>
             {/* 이 그룹에 속한 페이지들 상단에만 헤더가 나타납니다 */}
             <Header activeTab={activeTab} setActiveTab={() => {}} />
 
-            <main className={pathname === "/notice" ? "sub_article sub_article_padding" : "main_article"}>
+            <main className={pathname === "/pm" ?  "main_article" :"sub_article sub_article_padding"}>
                 {children}
             </main>
         </div>
