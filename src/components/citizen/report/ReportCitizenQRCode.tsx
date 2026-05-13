@@ -129,7 +129,8 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
         if (!selectedBiz) return false;
         try {
             const res = await getDeviceValid(selectedBiz.bzentyId, formData.deviceId);
-            if (res.success && res.data) {
+
+            if (res.success) {
                 setIsValidated(true);
                 return true;
             } else {
@@ -141,7 +142,7 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
         } catch (error: any) {
             setIsValidated(false);
             const errMessage = error?.response?.data?.resultMsg;
-            const msg = errMessage?.errMessage || "해당 업체에 등록되지 않았거나 유효하지 않은 킥보드입니다.";
+            const msg = errMessage || "해당 업체에 등록되지 않았거나 유효하지 않은 킥보드입니다.";
             setMessage(msg);
             setIsPopupOpen(true); // 1. 여기서 팝업을 켬
             console.error("유효성 검사 중 에러:", error);
