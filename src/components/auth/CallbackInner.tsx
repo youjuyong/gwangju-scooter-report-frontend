@@ -14,6 +14,8 @@ export default function OAuth2Callback() {
     // 1. 스토어 액션들 가져오기
     const { setAdminAuth, setPmAuth, setTowAuth, setReporterAuth } = useAuthStore();
     const { fetchFcmToken, saveTokenToServer, getDeviceInfo, fetchFcmTokenForCallback } = useFcmToken();
+    const state = useAuthStore();
+    const { updateFcmToken } = state;
 
     useEffect(() => {
         const accessToken = searchParams.get("accessToken");
@@ -60,6 +62,7 @@ export default function OAuth2Callback() {
                     }
 
                     if (fcmToken) {
+                        updateFcmToken(authType, fcmToken);
                         await saveTokenToServer(fcmToken, accessToken);
                         toast.success("로그인 및 알림 설정 완료", { id: toastId });
                     } else {

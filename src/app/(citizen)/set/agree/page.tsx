@@ -18,7 +18,6 @@ export default async function TermsPage() {
         if (response.ok) {
             const result = await response.json();
             // 백엔드 응답 구조가 { success: true, data: { cnData: '...' } } 인 경우
-            console.log(result);
             termsContent = result.data?.cnData || "등록된 내용이 없습니다.";
         }
 

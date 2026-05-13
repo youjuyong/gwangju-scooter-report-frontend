@@ -20,6 +20,9 @@ export default function LoginForm() {
     const router = useRouter();
     const pathname = usePathname(); // Next.js 권장 방식인 usePathname 사용
 
+    const state = useAuthStore();
+    const { logout, updateFcmToken } = state;
+
     useEffect(() => {
         setIsMounted(true);
     }, []);
@@ -95,6 +98,7 @@ export default function LoginForm() {
                         fcmToken = await handleAllowNotification();
                     }
                     if (fcmToken) {
+                        updateFcmToken(authType, fcmToken);
                         await saveTokenToServer(fcmToken, accessToken);
                     }
                 } catch (fcmErr) {
