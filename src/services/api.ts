@@ -56,8 +56,7 @@ api.interceptors.request.use(
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            console.log(config.headers.Authorization);
-            console.log(useAuthStore.getState()[authType]);
+            // console.log(config.headers.Authorization);
         }
         if (csrfToken) {
             config.headers['X-XSRF-TOKEN'] = csrfToken;
@@ -77,8 +76,8 @@ authApi.interceptors.request.use(
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            console.log(config.headers.Authorization);
-            console.log(useAuthStore.getState()[authType]);
+            // console.log(config.headers.Authorization);
+            // console.log(useAuthStore.getState()[authType]);
         }
         if (csrfToken) {
             config.headers['X-XSRF-TOKEN'] = csrfToken;
@@ -97,9 +96,12 @@ api.interceptors.response.use(
         const errorResponse = error.response;
         const authType = getAuthTypeByPath();
         const state = useAuthStore.getState();
-        if (errorResponse?.status === 401 && errorResponse?.data?.code === "A006") {
-            state.logout(authType);
+        if (errorResponse?.status === 401 && errorResponse?.data?.code === "E007") {
             alert("다른 기기에서 로그인되어 연결이 종료되었습니다.");
+            state.logout(authType);
+            if (typeof window !== 'undefined') {
+                    window.location.href = '/';
+                }
             return Promise.reject(error);
         }
 
@@ -150,7 +152,7 @@ api.interceptors.response.use(
                 state.logout(authType);
 
                 if (typeof window !== "undefined") {
-                    window.location.href = `/${authType}/login`; // 해당 도메인 로그인 페이지로 이동
+                    // window.location.href = `/${authType}/login`; // 해당 도메인 로그인 페이지로 이동
                 }
 
                 return Promise.reject(refreshError);

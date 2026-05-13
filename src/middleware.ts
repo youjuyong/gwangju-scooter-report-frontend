@@ -23,7 +23,7 @@ export function middleware(request: NextRequest) {
 
     // 2. 일반 시민(Reporter) 보호 경로 체크
     // 로그인이 반드시 필요한 시민용 페이지 리스트
-    const reporterProtectedPaths = ['/set', '/reportList', '/alarm'];
+    const reporterProtectedPaths = ['/set', '/reportList', '/alarm','/report'];
 
     // 현재 경로가 보호 목록에 포함되는지 확인
     const isReporterProtected = reporterProtectedPaths.some(path => pathname.startsWith(path));
