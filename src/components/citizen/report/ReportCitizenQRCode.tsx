@@ -129,7 +129,8 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
         if (!selectedBiz) return false;
         try {
             const res = await getDeviceValid(selectedBiz.bzentyId, formData.deviceId);
-            if (res.success && res.data) {
+            
+            if (res.success) {
                 setIsValidated(true);
                 return true;
             } else {

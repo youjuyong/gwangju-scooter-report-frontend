@@ -145,14 +145,6 @@ export default function LoginForm() {
                 return;
             }
 
-            const resultCode = err.response?.data.resultCode;
-            if (resultCode === "E008") {
-                toast.error(ERROR_MESSAGES[resultCode]);
-                return;
-            }else if(resultCode === "E005") {
-                toast.error(err.response?.data.resultMsg);
-            }
-
             handleApiError(err, err.response?.data.resultMsg);
         }
     };
