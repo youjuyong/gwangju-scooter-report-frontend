@@ -8,8 +8,6 @@ const emptySubscribe = () => () => {};
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    console.log(pathname);
-   // const [activeTab, setActiveTab] = useState("홈");
 
     let activeTab = "홈";
     if (pathname.includes("/notice")) activeTab = "공지사항";

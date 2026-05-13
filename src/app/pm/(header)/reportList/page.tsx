@@ -32,9 +32,7 @@ export default function ReportList() {
                 prcsUserId: workerFilter,
                 dclrSttsCd: statusFilter
             };
-            console.log(requestParams);
             const data = await getPmDclrListApi(requestParams);
-            console.log(data);
             setReports(data || []);
         } catch (error) {
             console.error("데이터 로드 실패:", error);
@@ -47,7 +45,6 @@ export default function ReportList() {
     const fetchStaffs = async () => {
         try {
             const data = await getStaffsList();
-            console.log(data);
             setStaffs(data || []);
         } catch (error) {
             console.error("처리자 목록 로드 실패:", error);
