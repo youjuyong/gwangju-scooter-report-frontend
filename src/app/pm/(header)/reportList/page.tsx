@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "react-hot-toast";
 import {pmDcleReportRequestForm, pmDcleReportResponse, staffsResponse} from "@/types/report";
-import {getPmDclrCollect, getPmDclrListApi, getStaffsList} from "@/services/report/reportApi";
+import {getPmDclrCollect, getPmDclrComplete, getPmDclrListApi, getStaffsList} from "@/services/report/reportApi";
 
 export default function ReportList() {
     const router = useRouter();
@@ -95,6 +95,19 @@ export default function ReportList() {
             toast.error("처리 중 오류가 발생했습니다.");
         }
     };
+    // 회수진행 처리 함수
+    const handleComplete = async (dclrId: string) => {
+        if (!confirm("회수완료 처리를 하시겠습니까?")) return;
+
+        try {
+            await getPmDclrComplete(dclrId); // API 호출
+            toast.success("회수완료 처리가 완료되었습니다.");
+            fetchReports(); // 🚀 성공 후 리스트 다시 불러오기
+        } catch (error) {
+            console.error("회수완료 실패:", error);
+            toast.error("처리 중 오류가 발생했습니다.");
+        }
+    };
 
     return (
        <>
@@ -172,17 +185,18 @@ export default function ReportList() {
 
                                     <div className="listbtnset" onClick={(e) => e.stopPropagation()}>
                                         {item.dclrStts.cdId === "DEST03" && (
-                                            <button className="btn_complete" onClick={() => alert('완료처리 API 호출')}>완료처리</button>
+                                            <button className="btn_complete"
+                                                    onClick={() => handleComplete(item.dclrId)}>완료처리
+                                            </button>
                                         )}
                                         {item.dclrStts.cdId === "DEST02" && (
                                             <>
-                                                <button className="btn_complete"
-                                                        onClick={() => alert('완료처리 API 호출')}>완료처리
+                                            <button className="btn_complete"
+                                                        onClick={() => handleComplete(item.dclrId)}>완료처리
                                                 </button>
                                                 <button
                                                     className="btn_acc"
-                                                    onClick={() => handleCollect(item.dclrId)} // 🚀 API 연동
-                                                >
+                                                    onClick={() => handleCollect(item.dclrId)}>
                                                     회수진행
                                                 </button>
                                             </>

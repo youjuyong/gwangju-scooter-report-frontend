@@ -90,3 +90,10 @@ export const getPmDclrCollect = async (dclrId: string) => {
     const response = await api.patch(`/dclr/${dclrId}/pm/collect`);
     return response.data;
 }
+/*
+* 회수 완료 처리 /api/dclr/{dclrId}/pm/complete
+* */
+export const getPmDclrComplete = async (dclrId: string) => {
+    const response = await api.patch(`/dclr/${dclrId}/pm/complete`);
+    return response.data;
+}
