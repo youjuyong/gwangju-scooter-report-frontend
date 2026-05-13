@@ -39,27 +39,6 @@ export default function LoginForm() {
     const accessToken = useAuthStore((state) => state[authType].accessToken);
     const { setAdminAuth, setPmAuth, setTowAuth, setReporterAuth } = useAuthStore();
 
-    useEffect(() => {
-        // 1. 브라우저 저장소(sessionStorage) 직접 확인
-        const rawStorage = sessionStorage.getItem('auth-storage');
-        if (rawStorage) {
-            try {
-                const parsed = JSON.parse(rawStorage);
-                const token = parsed.state[authType]?.accessToken;
-                if (token) {
-                    console.log("세션 스토리지에서 토큰 발견:", token);
-                    // 2. 토큰이 있다면 즉시 홈으로 이동
-                    router.replace(`${prefix}/`);
-                    return; // 이동 중이므로 로딩 상태 유지
-                }
-            } catch (e) {
-                console.error("저장소 파싱 에러:", e);
-            }
-        }
-
-        // 3. 토큰이 없으면 로그인 폼 보여주기
-
-    }, [authType, prefix, router]);
 
     const {
         handleAllowNotification,
