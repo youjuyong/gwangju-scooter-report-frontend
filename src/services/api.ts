@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {useAuthStore} from '@/store/authStore';
+import { MemberRole } from '@/store/authStore';
 
 // CSRF 및 기본 설정 전역 적용
 axios.defaults.withCredentials = true;
@@ -8,6 +9,7 @@ axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
 
 let isRefreshing = false;
 let failedQueue: any[] = [];
+let isSessionExpiredAlertShown = false;
 
 const processQueue = (error: any, token: string | null = null) => {
     failedQueue.forEach((prom) => {
@@ -27,6 +29,30 @@ const getAuthTypeByPath = () => {
     if (path.startsWith('/tow')) return 'tow';
     return 'reporter'; // 기본값
 };
+const handleDuplicateLogin = (errorResponse: any, state: any, authType: string) => {
+    if (isSessionExpiredAlertShown) return;
+
+    isSessionExpiredAlertShown = true;
+    
+    const userRole = errorResponse.data?.data?.role as MemberRole;
+    const serverMessage = errorResponse.data?.message || "다른 기기에서 로그인되어 연결이 종료되었습니다.";
+
+    alert(serverMessage);
+    state.logout(authType);
+
+    if (typeof window !== 'undefined') {
+        const pathMap: Record<string, string> = {
+            'PM_CORP': '/pm/login',
+            'TOW_CORP': '/tow/login',
+            'REPORT_USER': '/',
+            'ADMIN': '/admin/login',
+        };
+        window.location.href = pathMap[userRole] || '/';
+    }
+
+    setTimeout(() => { isSessionExpiredAlertShown = false; }, 5000);
+};
+
 // 1. 인증/로그인 전용 인스턴스
 export const authApi = axios.create({
     baseURL: process.env.NEXT_PUBLIC_LOGIN_API_URL,
@@ -96,19 +122,18 @@ api.interceptors.response.use(
         const errorResponse = error.response;
         const authType = getAuthTypeByPath();
         const state = useAuthStore.getState();
+       
+        // 중복 로그인 처리
         if (errorResponse?.status === 401 && errorResponse?.data?.code === "E007") {
-            alert("다른 기기에서 로그인되어 연결이 종료되었습니다.");
-            state.logout(authType);
-            if (typeof window !== 'undefined') {
-                    window.location.href = '/';
-                }
+            handleDuplicateLogin(errorResponse, state, authType);
             return Promise.reject(error);
         }
 
         if (originalRequest.url?.includes("api/auth/login")) {
             return Promise.reject(error);
         }
-
+        
+        // 토큰 재발급
         if (error.response?.status === 401 && !originalRequest._retry) {
 
             if (isRefreshing) {
