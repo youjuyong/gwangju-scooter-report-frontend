@@ -31,7 +31,6 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
         if (pathname.startsWith("/tow")) return "tow";
         return "reporter";
     };
-    console.log(getAuthType());
     const authType = getAuthType();
 
     const prefix = authType === "reporter" ? "" : `/${authType}`;
@@ -57,6 +56,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                 console.error("알람 리스트 로딩 실패: ", error);
             }
         };
+        checkNewAlarm();
     })
 
     // 읽지 않은 알람이 있는지 확인
@@ -137,9 +137,8 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                 )}
 
                 <div className="header_right">
-                    {hasNewAlarm ?
-                        ( <a href="#" className="btnalarm" onClick={(e) => handleNavigation(e, "/alarm", true)}>알림</a>)
-                        : (<a href="alarm.html" className="btnalarm"  onClick={(e) => handleNavigation(e, "/alarm", true)}><span className="new">읽지 않은 알림 있음</span>알림</a>)
+                    {hasNewAlarm ? (<a href="alarm.html" className="btnalarm"  onClick={(e) => handleNavigation(e, "/alarm", true)}><span className="new">읽지 않은 알림 있음</span>알림</a>)
+                        :   ( <a href="#" className="btnalarm" onClick={(e) => handleNavigation(e, "/alarm", true)}>알림</a>)
                     }
                     {/* 🚀 핵심: prefix가 있으면(admin/pm) 로그아웃 버튼, 없으면 환경설정 버튼 */}
                     {prefix ? (
