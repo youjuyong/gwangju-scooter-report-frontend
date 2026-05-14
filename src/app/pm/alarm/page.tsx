@@ -7,9 +7,10 @@ export default function AlarmPage(){
             <header>
                 <h1>알림</h1>
                 <button type="button" className="back" onClick={() => window.history.back()}>뒤로 가기</button>
+                <button type="button" className="alarmok">모두 읽음 처리</button>
             </header>
             <main className="sub_article">
-                <div className="alarmbox">
+            <div className="alarmbox">
                     <ul>
 
                         <li>

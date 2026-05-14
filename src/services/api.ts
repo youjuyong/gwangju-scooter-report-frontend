@@ -60,6 +60,8 @@ export const authApi = axios.create({
         'Content-Type': 'application/json',
     },
     withCredentials: true,
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN'
 });
 
 // 2. 일반 API 인스턴스
@@ -69,6 +71,8 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
     withCredentials: true,
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN'
 });
 
 // 1. 요청 인터셉터
