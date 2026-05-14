@@ -3,6 +3,7 @@
 import React, {useEffect, useState} from "react";
 import "@/css/base_style.css";
 import "@/css/style.css";
+import { handleApiError } from "@/hooks/errorHandler";
 import ReportLocation from "@/components/citizen/report/ReportLocation";
 import {getCodeType} from "@/services/common/commonApi";
 import {registerReport} from "@/services/report/reportApi";
@@ -148,9 +149,9 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             } else {
                 alert(res.message || "신고 등록에 실패했습니다.");
             }
-        } catch (error) {
+        } catch (error:any) {
             console.error("신고 전송 에러:", error);
-            alert("서버 통신 중 오류가 발생했습니다.");
+            handleApiError(error, error.response?.data.resultMsg);
         }
     };
 
