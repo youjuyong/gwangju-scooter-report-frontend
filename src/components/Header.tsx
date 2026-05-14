@@ -133,7 +133,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                     currentAuth.accessToken ? (
                         <p className="login-msg">{currentAuth.userInfo?.name}님 반갑습니다!</p>
                     ) : (
-                        <p className="login-msg" style={{ cursor: 'pointer' }} onClick={() => router.push("/login")}>
+                        <p className="login-msg"  >
                             로그인 해주세요.
                         </p>
                     )
@@ -143,7 +143,6 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                     {hasNewAlarm ? (<a href="alarm.html" className="btnalarm"  onClick={(e) => handleNavigation(e, "/alarm", true)}><span className="new">읽지 않은 알림 있음</span>알림</a>)
                         :   ( <a href="#" className="btnalarm" onClick={(e) => handleNavigation(e, "/alarm", true)}>알림</a>)
                     }
-                    {/* 🚀 핵심: prefix가 있으면(admin/pm) 로그아웃 버튼, 없으면 환경설정 버튼 */}
                     {prefix ? (
                         <a href="#" className="btnlogout" onClick={handleLogout}>로그아웃</a>
                     ) : (
