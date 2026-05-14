@@ -1,5 +1,7 @@
 "use client";
 
+import AlarmList from "@/components/alarm/AlarmList";
+
 export default function AlarmPage(){
 
     return (
@@ -11,21 +13,7 @@ export default function AlarmPage(){
             <main className="sub_article">
                 <div className="alarmbox">
                     <ul>
-
-                        <li>
-                            <a href="result_detail.html">
-                                <p className="noticeTitle">민원 처리 완료</p>
-                                <p className="noticeDay">2026-01-05 11:30</p>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="result_detail.html">
-                                <p className="noticeTitle">민원 처리 완료</p>
-                                <p className="noticeDay">2026-01-05 11:30</p>
-                            </a>
-                        </li>
-
+                    <AlarmList/>
                     </ul>
                 </div>
             </main>

@@ -1,10 +1,13 @@
 {
-  "short_name": "광주킥보드신고",
-  "name": "경기도 광주시 공유 킥보드 신고 시스템",
-  "description": "방치된 공유 킥보드를 신속하게 신고하여 보행 환경을 개선합니다.",
+  "short_name": "광주킥보드(운영)",
+  "name": "경기도 광주시 공유 킥보드 신고 시스템 (운영자)",
+  "description": "공유 킥보드 신고 시스템 통합 관리자 페이지입니다.",
   "display": "standalone",
-  "start_url": ".",
-  "scope": "/",
+  "start_url": "/admin/login",
+  "scope": "/admin",
+  "lang": "ko-KR",
+  "background_color": "#ffffff",
+  "theme_color": "#1a237e",
   "icons": [
     {
       "src": "/push-icon-192.png", 
