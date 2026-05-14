@@ -124,7 +124,6 @@ export default function LoginForm() {
                     return handleLogin(undefined, true);
                 } else {
                     if (confirm("이미 다른 기기에서 로그인 중입니다. 기존 연결을 끊고 여기서 로그인하시겠습니까?")) {
-                        console.log("새로운 로그인 시작");
                         return handleLogin(undefined, true);
                     }
                 }
