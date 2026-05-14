@@ -1,9 +1,11 @@
 "use client";
 
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useState, useMemo} from "react";
 import {Map, MapMarker} from "react-kakao-maps-sdk";
+import {CityOutline} from "@/components/dashboard/CityOutline";
 import "@/css/base_style.css";
 import "@/css/style.css";
+import { getOutlineType } from "@/services/common/commonApi";
 
 interface MapProps {
     onSelect: (location: { address: string; lat: number; lng: number, zoneId: string }) => void;
@@ -14,6 +16,7 @@ export default function ReportLocation({onSelect, onBack}: MapProps) {
     const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
     const [address, setAddress] = useState<string>("위치를 선택해 주세요");
     const [zoneId, setZoneId] = useState<string>("");
+    const [outlinePath, setOutlinePath] = useState([]);
 
     const fetchAddressInfo = useCallback((lat: number, lng: number) => {
         const {kakao} = window;
@@ -65,7 +68,33 @@ export default function ReportLocation({onSelect, onBack}: MapProps) {
             },
             {enableHighAccuracy: true, timeout: 10000}
         );
+
+        const initData = async () => {
+             try {
+                const [outlineRes]:any = await Promise.all([
+                    getOutlineType()
+                ]);
+                    
+                if (outlineRes && Array.isArray(outlineRes)) {
+                    const formattedPath:any = outlineRes
+                        .sort((a: any, b: any) => a.ord - b.ord)
+                        .map((item: any) => ({
+                            lat: Number(item.ycrdn),
+                            lng: Number(item.xcrdn)
+                        }));
+                    setOutlinePath(formattedPath);
+                }
+            } catch (err) {
+                console.error("초기 데이터 로드 실패:", err);
+            }
+        };
+        initData();
     }, [fetchAddressInfo]);
+
+     const optimizedPath = useMemo(() => {
+            if (!outlinePath || outlinePath.length === 0) return [];
+            return outlinePath.filter((_: any, index: number) => index % 10 === 0);
+    }, [outlinePath]);
 
     const handleLocationSubmit = () => {
         if (!position || !zoneId || address === "위치를 선택해 주세요") {
@@ -107,6 +136,9 @@ export default function ReportLocation({onSelect, onBack}: MapProps) {
                                 }}
                             >
                                 <MapMarker position={position}/>
+                                 {outlinePath.length > 0 && (
+                                               <CityOutline path={optimizedPath}/>
+                                            )}
                             </Map>
                         )}
                     </div>

@@ -69,9 +69,10 @@ export const getReportDetail = async (dclrId: string) => {
 /*
 * pm 신고 내역 전체 조회
 * */
-export const getPmDclrListApi = async (request: pmDcleReportRequestForm): Promise<pmDcleReportResponse[]> => {
-    const response = await api.get('/dclr/pm/list' , {
-        params: request
+export const getPmDclrListApi = async (request: pmDcleReportRequestForm, token?: string): Promise<pmDcleReportResponse[]> => {
+    const response = await api.get('/dclr/pm/list', {
+        params: request,
+        headers: token ? {Authorization: `Bearer ${token}`} : undefined
     });
     return response.data.data;
 }

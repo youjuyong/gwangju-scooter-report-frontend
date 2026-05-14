@@ -13,7 +13,6 @@ export function middleware(request: NextRequest) {
         if (pathname.endsWith('/login')) {
             return NextResponse.next();
         }
-
         const token = request.cookies.get(`${firstSegment}AccessToken`)?.value;
         if (!token) {
             return NextResponse.redirect(new URL(`/${firstSegment}/login`, request.url));

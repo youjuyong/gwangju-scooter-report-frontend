@@ -21,6 +21,7 @@ interface QRProps {
 
 export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRProps) {
     const [isMapOpen, setIsMapOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [violationTypes, setViolationTypes] = useState<any[]>([]);
     const [previews, setPreviews] = useState<{ [key: string]: string }>({
         firstImg: "",
@@ -127,6 +128,7 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
         }
 
         try {
+            setIsLoading(true);
             const formDataPayload = new FormData();
 
             formDataPayload.append("bzenty.bzentyId", formData.brandId);
@@ -152,6 +154,9 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
         } catch (error:any) {
             console.error("신고 전송 에러:", error);
             handleApiError(error, error.response?.data.resultMsg);
+        } finally {
+            // 3. 성공하든 실패하든 로딩 종료
+            setIsLoading(false);
         }
     };
 
@@ -161,6 +166,43 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
 
     return (
         <div className={`wrap noMenubody`}>
+                    {isLoading && (
+            <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 검정
+                backdropFilter: 'blur(5px)',          // 배경 흐리게
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 9999,
+            }}>
+                {/* 빙글빙글 스피너 */}
+                <div className="loading-spinner" />
+                <p style={{ color: '#fff', marginTop: '15px', fontWeight: 'bold' }}>
+                    신고를 접수 중입니다...
+                </p>
+                
+                <style>{`
+                    .loading-spinner {
+                        width: 50px;
+                        height: 50px;
+                        border: 5px solid rgba(255, 255, 255, 0.3);
+                        border-top: 5px solid #ffffff;
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                    }
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                `}</style>
+            </div>
+        )}
             <header>
                 <h1>킥보드 방치 신고</h1>
                 <button type="button" className="back" onClick={onBack}>뒤로 가기</button>

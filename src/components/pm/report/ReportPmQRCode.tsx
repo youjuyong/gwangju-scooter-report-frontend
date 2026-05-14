@@ -123,8 +123,6 @@ export default function ReportPmQRCode({formData, onUpdate, onComplete}: QRProps
         const selectedBiz = businessList.find(b => b.bzentyId === formData.brandId);
         if (!selectedBiz) return false;
         try {
-            console.log(selectedBiz, 'bix');
-            console.log(formData.qrValue, 'id', formData.deviceId, 'did');
             // 회수등록으로 변경
             // const res = await getDeviceValid(selectedBiz.bzentyId, formData.deviceId);
             // if (res.success && res.data) {
