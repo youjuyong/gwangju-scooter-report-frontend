@@ -17,18 +17,22 @@ export default function AlarmList(){
     const alarmStatusUpdate = async (logId: string) =>{
        try{
            await UpdateAlarmStatus(logId);
-           toast.error("처리 되었습니다.");
        } catch (error: any) {
-           console.error("읽음 처리 실패:", error);
+           console.error("리스트 업데이트 실패:", error);
        }
     }
 
     const alarmStatusAllUpdate = async () =>{
         try{
-            await readAllNotifications();
-            window.location.reload();
+            const res = await readAllNotifications();
+            if(res.success){
+                toast.success("처리 되었습니다.");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
         } catch (error: any) {
-            console.error("읽음 처리 실패:", error);
+            console.error("리스트 업데이트 실패:", error);
         }
     }
 

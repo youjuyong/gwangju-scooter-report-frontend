@@ -41,6 +41,11 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const currentAuth = useAuthStore((state) => state[authType]);
     const logout = useAuthStore((state) => state.logout);
 
+    // 읽지 않은 알람이 있는지 확인
+    const checkNewAlarmStatus = (alarms: AlarmResponse[]): boolean => {
+        return alarms.some(alarm => alarm.readYn === 'N');
+    };
+
     // 3. Hydration 대기 (클라이언트에서 스토리지 데이터를 다 읽었는지 확인)
     useEffect(() => {
         setIsMounted(true);
@@ -56,13 +61,11 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                 console.error("알람 리스트 로딩 실패: ", error);
             }
         };
-        checkNewAlarm();
+        if(currentAuth.userInfo){
+            checkNewAlarm();
+        }
     })
 
-    // 읽지 않은 알람이 있는지 확인
-    const checkNewAlarmStatus = (alarms: AlarmResponse[]): boolean => {
-        return alarms.some(alarm => alarm.readYn === 'N');
-    };
 
     // 2. 권한 체크 및 '페이지 이동' 처리
     const handleNavigation = (e: React.MouseEvent, path: string, isProtected: boolean) => {
