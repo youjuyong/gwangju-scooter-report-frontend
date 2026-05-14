@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "react-hot-toast";
 import {pmDcleReportRequestForm, pmDcleReportResponse, staffsResponse} from "@/types/report";
@@ -12,11 +12,13 @@ export default function ReportList() {
 
     // 1. 상태 관리 (필터 및 데이터)
     const [reports, setReports] = useState<pmDcleReportResponse[]>([]);
+    const pathname = usePathname();
     const [searchDate, setSearchDate] = useState("");
     const [statusFilter, setStatusFilter] = useState(""); // dclrSttsCd
     const [workerFilter, setWorkerFilter] = useState(""); // prcsUserId
     const [loading, setLoading] = useState(false);
     const [staffs, setStaffs] = useState<staffsResponse[]>([]); // 처리자 목록 상태 추가
+    const prefix = pathname.startsWith("/pm") ? "/pm" : pathname.startsWith("/tow") ? "/tow" : "";
     // 2. 데이터 페칭 함수
     const fetchReports = async () => {
         setLoading(true);
@@ -77,7 +79,7 @@ export default function ReportList() {
 
     const goDetail = (item: pmDcleReportResponse) => {
         const path = item.dclrStts.cdId === "DEST04" ? "detail_2" : "detail";
-        router.push(`/pm/reportList/${path}?id=${item.dclrId}`);
+        router.push(`${prefix}/reportDetail/${item.dclrId}`);
     };
     // 회수진행 처리 함수
     const handleCollect = async (dclrId: string) => {
