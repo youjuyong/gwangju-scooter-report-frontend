@@ -8,3 +8,12 @@ export const getCodeType = async (code: string) => {
 
     return response.data;
 };
+
+
+
+
+export const getOutlineType = async () => {
+    const response = await api.get(`system/outline`);
+
+    return response.data.data;
+};

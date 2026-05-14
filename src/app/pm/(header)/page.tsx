@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import {Map, CustomOverlayMap, useKakaoLoader, MapMarker} from "react-kakao-maps-sdk";
+import {Map, CustomOverlayMap, useKakaoLoader, MapMarker, Polygon} from "react-kakao-maps-sdk";
 import {getPmDclrListApi} from "@/services/report/reportApi";
 import {pmDcleReportRequestForm, pmDcleReportResponse} from "@/types/report";
+import {getOutlineType} from "@/services/common/commonApi";
 
 export default function MainHome() {
     const router = useRouter();
@@ -19,6 +20,7 @@ export default function MainHome() {
         appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
         libraries: ["services"],
     });
+    const [outlinePath, setOutlinePath] = useState<{ lat: number; lng: number }[]>([]);
 
     // 1. 상태 코드에 따른 마커 이미지 매핑 (데이터의 dclrStts.cdId 기준)
     const markerImages: { [key: string]: string } = {
@@ -44,15 +46,36 @@ export default function MainHome() {
                 dclrSttsCd: ""
             };
             const response = await getPmDclrListApi(requestParams);
-            console.log(response);
             setReports(response || [] );
         } catch (error) {
             console.error("데이터 로드 실패:", error);
         }
     };
+    useEffect(() => {
+        const fetchOutline = async () => {
+            try {
+                const ousLine = await getOutlineType();
+                if (ousLine && Array.isArray(ousLine)) {
+                    // [개선 2] ord(순서) 기준 정렬 및 데이터 변환
+                    const formattedPath = ousLine
+                        .sort((a: any, b: any) => a.ord - b.ord)
+                        .map((item: any) => ({
+                            lat: Number(item.ycrdn),
+                            lng: Number(item.xcrdn)
+                        }));
+                    setOutlinePath(formattedPath);
+                }
+            } catch (error) {
+                console.error("외곽선 로드 실패:", error);
+            }
+        };
+
+        fetchOutline();
+    }, []); // 빈 배열이므로 최초 1회만 실행됨
 
     useEffect(() => {
         fetchReports();
+
     }, []);
 
     const companyLogos: { [key: string]: string } = {
@@ -89,6 +112,18 @@ export default function MainHome() {
             <div className="mainmap">
                 {!loading && (
                     <Map center={center} style={{width: "100%", height: "100%"}} level={3}>
+                        {outlinePath.length > 0 && (
+                            <Polygon
+                                path={outlinePath} // 위에서 변환한 좌표 배열
+                                strokeWeight={3}
+                                strokeColor={"#2524FF"}
+                                strokeOpacity={0.9}
+                                strokeStyle={"shortdash"}
+                                fillColor={"#B3B1B1"}
+                                fillOpacity={0.2}
+                                zIndex={1}
+                            />
+                        )}
                         {/* 4. 데이터 기반 마커 렌더링 */}
                         {reports.map((report) => (
                             report.latVl && report.lotVl && (
