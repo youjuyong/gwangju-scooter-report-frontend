@@ -61,7 +61,8 @@ export default function LoginForm() {
         if (!userId) return toast.error("아이디를 입력해주세요.");
         if (!pswd) return toast.error("비밀번호를 입력해주세요.");
 
-        const loginToast = toast.loading("로그인 중...");
+        const toastId = "login-process-toast";
+        toast.loading("로그인 정보 확인 중...", { id: toastId });
 
         try {
             const response = await loginService.login({ userId, pswd, forceLogin });
@@ -90,7 +91,9 @@ export default function LoginForm() {
             // FCM 프로세스
             const processFcm = async () => {
                 try {
+                    toast.loading("알림 설정을 동기화 중입니다...", { id: toastId });
                     const deviceType = getDeviceInfo();
+                    
                     let fcmToken = null;
                     if (deviceType === "iOS") {
                         fcmToken = await fetchFcmTokenForCallback();
@@ -107,13 +110,13 @@ export default function LoginForm() {
             };
             await processFcm();
 
-            toast.success(`${userNm}님, 반갑습니다!`, { id: loginToast });
+            toast.success(`${userNm}님, 반갑습니다!`, { id: toastId });
 
             // 동적 경로 이동
             router.replace(`${prefix}/`);
 
         } catch (err: any) {
-            toast.dismiss(loginToast);
+            toast.dismiss(toastId);
 
             if (err.response?.status === 409) {
                 const userRole = err.response.data?.role;
