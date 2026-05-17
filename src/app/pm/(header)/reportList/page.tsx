@@ -3,13 +3,16 @@
 import React, { useState, useEffect } from "react";
 import {usePathname, useRouter} from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import {pmDcleReportRequestForm, pmDcleReportResponse, staffsResponse} from "@/types/report";
 import {getPmDclrCollect, getPmDclrComplete, getPmDclrListApi, getStaffsList} from "@/services/report/reportApi";
 
+const pmtoken = Cookies.get("pmAccessToken");
+
 export default function ReportList() {
     const router = useRouter();
-
+   
     // 1. 상태 관리 (필터 및 데이터)
     const [reports, setReports] = useState<pmDcleReportResponse[]>([]);
     const pathname = usePathname();
@@ -34,7 +37,7 @@ export default function ReportList() {
                 prcsUserId: workerFilter,
                 dclrSttsCd: statusFilter
             };
-            const data = await getPmDclrListApi(requestParams);
+            const data = await getPmDclrListApi(requestParams,pmtoken);
             setReports(data || []);
         } catch (error) {
             console.error("데이터 로드 실패:", error);

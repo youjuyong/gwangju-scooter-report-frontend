@@ -5,7 +5,9 @@ import { useRouter, usePathname } from "next/navigation";
 import { useKakaoLoader } from "react-kakao-maps-sdk";
 import { getPmDclrListApi } from "@/services/report/reportApi";
 import { getOutlineType } from "@/services/common/commonApi";
+import Cookies from "js-cookie";
 import KakaoMapSection from "@/components/dashboard/KakaoMapContainer";
+const pmtoken = Cookies.get("pmAccessToken");
 
 export default function MainHome() {
     const router = useRouter();
@@ -18,7 +20,6 @@ export default function MainHome() {
         appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
         libraries: ["services"],
     });
-
     const prefix = useMemo(() => (pathname.startsWith("/pm") ? "/pm" : "/tow"), [pathname]);
     const center = useMemo(() => ({ lat: 37.429, lng: 127.255 }), []);
 
@@ -26,7 +27,7 @@ export default function MainHome() {
         const initData = async () => {
             try {
                 const [reportRes, outlineRes]:any = await Promise.all([
-                    getPmDclrListApi({ searchMonth: "", searchDate: "", prcsUserId: "", dclrSttsCd: "" }),
+                    getPmDclrListApi({ searchMonth: "", searchDate: "", prcsUserId: "", dclrSttsCd: "" },pmtoken),
                     getOutlineType()
                 ]);
                     
