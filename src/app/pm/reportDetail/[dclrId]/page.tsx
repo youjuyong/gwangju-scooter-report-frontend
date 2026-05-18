@@ -44,7 +44,6 @@ export default function ReportDetail() {
             default: return "si3";
         }
     };
-    console.log(report);
     const getStatusText = (cdId: string) => {
         switch (cdId) {
             case "DEST02": return "미배정";

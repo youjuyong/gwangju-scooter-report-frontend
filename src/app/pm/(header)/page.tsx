@@ -27,10 +27,9 @@ export default function MainHome() {
         const initData = async () => {
             try {
                 const [reportRes, outlineRes]:any = await Promise.all([
-                    getPmDclrListApi({ searchMonth: "", searchDate: "", prcsUserId: "", dclrSttsCd: "" },pmtoken),
+                    getPmDclrListApi({ searchMonth: "", searchDate: "", prcsUserId: "", dclrSttsCd: "" ,isMap :"Y"},pmtoken),
                     getOutlineType()
                 ]);
-                    
                 if (reportRes) setReports(reportRes);
                 
                 if (outlineRes && Array.isArray(outlineRes)) {

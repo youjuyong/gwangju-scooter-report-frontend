@@ -111,7 +111,8 @@ export interface pmDcleReportRequestForm {
     searchMonth: string,
     searchDate: string,
     prcsUserId: string,
-    dclrSttsCd: string
+    dclrSttsCd: string,
+    isMap? : string | null
 }
 
 export interface staffsResponse {
