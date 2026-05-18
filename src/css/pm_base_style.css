@@ -44,6 +44,8 @@ input,textarea,select{ font-size:16px; font-family: 'NanumSquare'; color: #000; 
 	outline:none;
 }
 
+input[type=password]{font-family:'Malgun gothic', dotum, sans-serif;}
+
 select option {
   font-size: 16px;
 }
