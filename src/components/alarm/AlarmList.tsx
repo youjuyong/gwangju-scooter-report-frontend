@@ -3,15 +3,17 @@
 import {useEffect, useState} from "react";
 import {getAlarmListApi, readAllNotifications, UpdateAlarmStatus} from "@/services/alarm/alarmApi";
 import {AlarmResponse} from "@/types/alarm";
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {toast} from "react-hot-toast";
 
 export default function AlarmList(){
     const [alarmList , setAlarmList] = useState<AlarmResponse[]>([]);
-    const router = useRouter()
+    const router = useRouter();
+    const pathname = usePathname();
+    const prefix = pathname.startsWith("/pm") ? "/pm" : pathname.startsWith("/tow") ? "/tow" : "";
 
     const getDetail = (id: string) => {
-        router.push(`/reportDetail/${id}`);
+       router.push(`${prefix}/reportDetail/${id}`);
     };
 
     const alarmStatusUpdate = async (logId: string) =>{
