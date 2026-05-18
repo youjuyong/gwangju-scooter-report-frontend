@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {Scanner} from "@yudiel/react-qr-scanner";
 import {BusinessInfo} from "@/types/report";
-import {getBusinessList, getDeviceValid} from "@/services/report/reportApi";
+import {getBusinessList, getReportStatus} from "@/services/report/reportApi";
 
 interface QRProps {
     formData: {
@@ -14,16 +14,16 @@ interface QRProps {
         brandId: string;
     };
     onUpdate: (data: any) => void;
-    onComplete: () => void;
 }
 
-export default function ReportPmQRCode({formData, onUpdate, onComplete}: QRProps) {
+export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
     const router = useRouter();
     const [isCamera, setIsCamera] = useState<boolean>(true);
     const [businessList, setBusinessList] = useState<BusinessInfo[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const isValid = formData.brand.trim() !== "" && formData.deviceId.trim() !== "";
     const [isValidated, setIsValidated] = useState<boolean>(false);
+    const [dclrId, setDclrId] = useState<string>("");
 
     useEffect(() => {
         const fetchBrands = async () => {
@@ -104,36 +104,40 @@ export default function ReportPmQRCode({formData, onUpdate, onComplete}: QRProps
         e.preventDefault();
 
         if (isValidated) {
-            onComplete();
+            if (dclrId) {
+                router.push(`/reportDetail/${dclrId}`);
+            } else {
+                const retryDclrId = await checkValidated();
+                if (retryDclrId && isValid) router.push(`/reportDetail/${retryDclrId}`);
+            }
             return;
         }
 
-        const isSuccess = await checkValidated();
+        const selectedDclrId = await checkValidated();
 
-        if (isSuccess && isValid) {
-            onComplete();
+        if (selectedDclrId && isValid) {
+            router.push(`/reportDetail/${selectedDclrId}`);
         }
     };
 
-    const checkValidated = async () => {
+    const checkValidated = async (): Promise<string | false> => {
         if (!formData.brandId || !formData.deviceId) {
             alert("브랜드와 킥보드 ID를 먼저 입력해주세요.");
             return false;
         }
         const selectedBiz = businessList.find(b => b.bzentyId === formData.brandId);
         if (!selectedBiz) return false;
+
         try {
-            // 회수등록으로 변경
-            // const res = await getDeviceValid(selectedBiz.bzentyId, formData.deviceId);
-            // if (res.success && res.data) {
-            //     setIsValidated(true);
-            //     return true;
-            // } else {
-            //     alert("존재하지 않거나 유효하지 않은 기기 정보입니다.");
-            //     setIsValidated(false);
-            //     return false;
-            // }
-            router.push(`/reportRegist/${formData.brandId}`);
+            const res = await getReportStatus(formData.deviceId);
+            if (res.success && res.data.dclrId) {
+                setIsValidated(true);
+                setDclrId(res.data.dclrId);
+                return res.data.dclrId;
+            } else {
+                setIsValidated(false);
+                return false;
+            }
 
         } catch (error: any) {
             setIsValidated(false);

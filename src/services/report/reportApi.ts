@@ -6,9 +6,9 @@ import {
     DeviceInfo,
     pmDcleReportRequestForm,
     pmDcleReportResponse,
-    ReportStatus, staffsResponse
+    ReportStatus,
+    staffsResponse
 } from "@/types/report";
-import {NoticeRequestForm, NoticeResponse} from "@/types/notice";
 
 export const updateReportStatus = async (reportId: number, status: ReportStatus) => {
     const response = await api.patch<ApiResponse<any>>(`/report/${reportId}/status`, {
@@ -59,16 +59,17 @@ export const getReportList = async () => {
     return response.data;
 };
 
-/*
-* 신고내역 단건 조회
-* */
+/**
+ * 신고내역 단건 조회
+ * */
 export const getReportDetail = async (dclrId: string) => {
     const response = await api.get<ApiResponse<any>>(`/dclr/${dclrId}`);
     return response.data;
 }
-/*
-* pm 신고 내역 전체 조회
-* */
+
+/**
+ * pm 신고 내역 전체 조회
+ * */
 export const getPmDclrListApi = async (request: pmDcleReportRequestForm, token?: string): Promise<pmDcleReportResponse[]> => {
     const response = await api.get('/dclr/pm/list', {
         params: request,
@@ -76,25 +77,38 @@ export const getPmDclrListApi = async (request: pmDcleReportRequestForm, token?:
     });
     return response.data.data;
 }
+
 /**
  * 처리자 조회
  */
-export const getStaffsList = async ():Promise<staffsResponse[]> => {
+export const getStaffsList = async (): Promise<staffsResponse[]> => {
     const response = await api.get(`/admin/user/pm-staffs`);
     return response.data.data;
 };
 
-/*
-* 회수 진행 처리
-* */
+/**
+ * 회수 진행 처리
+ * */
 export const getPmDclrCollect = async (dclrId: string) => {
     const response = await api.patch(`/dclr/${dclrId}/pm/collect`);
     return response.data;
 }
-/*
-* 회수 완료 처리 /api/dclr/{dclrId}/pm/complete
-* */
+
+/**
+ * 회수 완료 처리 /api/dclr/{dclrId}/pm/complete
+ * */
 export const getPmDclrComplete = async (dclrId: string) => {
     const response = await api.patch(`/dclr/${dclrId}/pm/complete`);
+    return response.data;
+}
+
+/**
+ * 킥보드 pm 신고 진행 장비 검증
+ */
+export const getReportStatus = async (qrId: string): Promise<ApiResponse<any>> => {
+    const response = await api.get<ApiResponse<any>>(`/pm/device/verify/report-status`, {
+        params: {qrcdVl: qrId}
+    });
+
     return response.data;
 }
