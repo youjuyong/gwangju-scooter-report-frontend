@@ -38,7 +38,7 @@ export default async function NoticeListPage() {
                 {notices.length > 0 ? (
                     notices.map((notice: any) => (
                         <li key={notice.ntcId}>
-                            <Link href={`/notice/${notice.ntcId}`} prefetch={false}>
+                            <Link href={`/pm/notice/${notice.ntcId}`} prefetch={false}>
                                 <p className="noticeTitle">{notice.ttlNm}</p>
                                 <p className="noticeDay">{notice.regDt}</p>
                             </Link>
