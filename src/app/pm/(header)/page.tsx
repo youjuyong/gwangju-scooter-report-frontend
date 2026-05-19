@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useKakaoLoader } from "react-kakao-maps-sdk";
-import { getPmDclrListApi } from "@/services/report/reportApi";
+import {getMyBachList, getPmDclrListApi} from "@/services/report/reportApi";
 import { getOutlineType } from "@/services/common/commonApi";
 import Cookies from "js-cookie";
 import KakaoMapSection from "@/components/dashboard/KakaoMapContainer";
@@ -22,6 +22,7 @@ export default function MainHome() {
     });
     const prefix = useMemo(() => (pathname.startsWith("/pm") ? "/pm" : "/tow"), [pathname]);
     const center = useMemo(() => ({ lat: 37.429, lng: 127.255 }), []);
+    const [bachList, setBachList] = useState<any[]>([]);
 
     useEffect(() => {
         const initData = async () => {
@@ -48,6 +49,21 @@ export default function MainHome() {
 
         if (!loading) initData();
     }, [loading]);
+
+    useEffect(() => {
+        const getMyCompanyBach = async () => {
+            try {
+                const res = await getMyBachList();
+                if (res && res.success && Array.isArray(res.data)) {
+                    setBachList(res.data);
+                }
+
+            } catch (e) {
+                console.error('Error : ', e);
+            }
+        };
+        getMyCompanyBach();
+    }, []);
 
     const handleMarkerClick = useCallback((id: string) => {
         router.push(`${prefix}/reportDetail/${id}`);
@@ -82,11 +98,12 @@ export default function MainHome() {
 
             <div className="mainmap">
                 {!loading && (
-                    <KakaoMapSection 
-                        reports={reports} 
-                        outlinePath={outlinePath} 
-                        center={center} 
+                    <KakaoMapSection
+                        reports={reports}
+                        outlinePath={outlinePath}
+                        center={center}
                         onMarkerClick={handleMarkerClick}
+                        bachList={bachList}
                     />
                 )}
             </div>

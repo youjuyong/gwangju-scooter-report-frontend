@@ -1,8 +1,9 @@
 "use client";
 
-import React, { memo, useMemo} from "react";
-import { Map, MapMarker, CustomOverlayMap, Polygon } from "react-kakao-maps-sdk";
+import React, {memo, useMemo} from "react";
+import {Circle, CustomOverlayMap, Map, MapMarker} from "react-kakao-maps-sdk";
 import {CityOutline} from "@/components/dashboard/CityOutline";
+
 const MARKER_CONFIG = {
     images: {
         "DEST02": "/images/le_red.png",
@@ -16,35 +17,44 @@ const MARKER_CONFIG = {
     } as Record<string, string>
 };
 
-const KakaoMapSection = memo(({ reports, outlinePath, center, onMarkerClick }: any) => {
+const KakaoMapSection = memo(({reports, outlinePath, center, onMarkerClick, bachList = []}: any) => {
 
     const optimizedPath = useMemo(() => {
         if (!outlinePath || outlinePath.length === 0) return [];
         return outlinePath.filter((_: any, index: number) => index % 10 === 0);
     }, [outlinePath]);
-   
+
     return (
-        <Map center={center} style={{ width: "100%", height: "100%" }} level={3}>
+        <Map center={center} style={{width: "100%", height: "100%"}} level={3}>
             {reports.map((report: any) => (
                 report.latVl && report.lotVl && (
                     <React.Fragment key={report.dclrId}>
                         <MapMarker
-                            position={{ lat: report.latVl, lng: report.lotVl }}
+                            position={{lat: report.latVl, lng: report.lotVl}}
                             image={{
                                 src: MARKER_CONFIG.images[report.dclrStts?.cdId] || "/images/mark.png",
-                                size: { width: 39, height: 44 },
+                                size: {width: 39, height: 44},
                             }}
                             onClick={() => onMarkerClick(report.dclrId)}
                         />
-                        <CustomOverlayMap position={{ lat: report.latVl, lng: report.lotVl }} yAnchor={1.32}>
-                            <div 
-                                onClick={() => onMarkerClick(report.dclrId)} 
-                                style={{ width: "29px", height: "29px", borderRadius: "50%", overflow: "hidden", border: "2px solid white", backgroundColor: "white", boxShadow: "0 2px 2px rgba(0,0,0,0.2)", cursor: "pointer" }}
+                        <CustomOverlayMap position={{lat: report.latVl, lng: report.lotVl}} yAnchor={1.32}>
+                            <div
+                                onClick={() => onMarkerClick(report.dclrId)}
+                                style={{
+                                    width: "29px",
+                                    height: "29px",
+                                    borderRadius: "50%",
+                                    overflow: "hidden",
+                                    border: "2px solid white",
+                                    backgroundColor: "white",
+                                    boxShadow: "0 2px 2px rgba(0,0,0,0.2)",
+                                    cursor: "pointer"
+                                }}
                             >
                                 <img
                                     src={MARKER_CONFIG.logos[report.bzenty.bzentyNm] || "/images/mark.png"}
                                     alt="logo"
-                                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                                    style={{width: "100%", height: "100%", objectFit: "contain"}}
                                 />
                             </div>
                         </CustomOverlayMap>
@@ -52,12 +62,40 @@ const KakaoMapSection = memo(({ reports, outlinePath, center, onMarkerClick }: a
                 )
             ))}
             {outlinePath.length > 0 && (
-               <CityOutline path={optimizedPath}/>
+                <CityOutline path={optimizedPath}/>
             )}
             {/* 3. 중심점 표시 */}
-            <CustomOverlayMap position={center}>
-                <div className="zone"><span className="spot"></span><span className="round"></span></div>
-            </CustomOverlayMap>
+            {bachList.map((item: any) => {
+                const centerLatLng = {
+                    lat: Number(item.lat),
+                    lng: Number(item.lot),
+                };
+
+                return (
+                    <React.Fragment key={item.btchZoneId}>
+                        <Circle
+                            center={centerLatLng}
+                            radius={15}
+                            strokeWeight={1}
+                            strokeColor={"rgba(255, 0, 255, 0.4)"}
+                            strokeOpacity={0.8}
+                            strokeStyle={"solid"}
+                            fillColor={"rgba(255, 0, 255, 0.2)"}
+                            fillOpacity={0.5}
+                        />
+
+                        <Circle
+                            center={centerLatLng}
+                            radius={1}
+                            strokeWeight={1}
+                            strokeColor={"#ff00dc"}
+                            strokeOpacity={0.1}
+                            fillColor={"#ff00dc"}
+                            fillOpacity={1}
+                        />
+                    </React.Fragment>
+                );
+            })}
         </Map>
     );
 });

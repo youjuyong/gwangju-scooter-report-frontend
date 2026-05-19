@@ -12,7 +12,15 @@ interface QRProps {
     formData: {
         deviceId: string;
         brandId: string;
+        brand: string;
         qrValue: string;
+        location: string;
+        lat: number;
+        lng: number;
+        zoneId: string;
+        detail: string;
+        typeCode: string;
+        agreeChk: boolean;
     };
     onNext: (data: any) => void;
     onBack: () => void;
@@ -20,7 +28,6 @@ interface QRProps {
 }
 
 export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRProps) {
-    const [isMapOpen, setIsMapOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [violationTypes, setViolationTypes] = useState<any[]>([]);
     const [previews, setPreviews] = useState<{ [key: string]: string }>({
@@ -33,14 +40,14 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
     })
 
     const [fData, setFData] = useState({
-        location: "",
-        lat: 0,
-        lng: 0,
-        typeCode: "",
-        detail: "",
-        deviceId: "",
-        agreeChk: false,
-        zoneId: "",
+        location: formData.location || "",
+        lat: formData.lat || 0,
+        lng: formData.lng || 0,
+        typeCode: formData.typeCode || "",
+        detail: formData.detail || "",
+        deviceId: formData.deviceId || "",
+        agreeChk: formData.agreeChk || false,
+        zoneId: formData.zoneId || "",
     });
 
     useEffect(() => {
@@ -69,20 +76,15 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
     };
 
     const openMap = () => {
-        setIsMapOpen(true);
-    };
-
-    const handleLocation = (data: { address: string; lat: number; lng: number, zoneId: string }) => {
-        if (data.address) {
-            setFData(prev => ({
-                ...prev,
-                location: data.address,
-                lat: data.lat,
-                lng: data.lng,
-                zoneId: data.zoneId,
-            }));
-        }
-        setIsMapOpen(false);
+        onNext({
+            location: fData.location,
+            lat: fData.lat,
+            lng: fData.lng,
+            typeCode: fData.typeCode,
+            detail: fData.detail,
+            agreeChk: fData.agreeChk,
+            zoneId: fData.zoneId
+        });
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,10 +161,6 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             setIsLoading(false);
         }
     };
-
-    if (isMapOpen) {
-        return <ReportLocation onSelect={handleLocation} onBack={() => setIsMapOpen(false)}/>;
-    }
 
     return (
         <div className={`wrap noMenubody`}>
