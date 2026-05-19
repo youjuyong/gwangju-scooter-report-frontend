@@ -7,6 +7,7 @@ import { handleApiError } from "@/hooks/errorHandler";
 import ReportLocation from "@/components/citizen/report/ReportLocation";
 import {getCodeType} from "@/services/common/commonApi";
 import {registerReport} from "@/services/report/reportApi";
+import imageCompression from "browser-image-compression";
 
 interface QRProps {
     formData: {
@@ -87,10 +88,10 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
         });
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const {id, files: selectedFiles} = e.target;
         if (selectedFiles && selectedFiles[0]) {
-            const file = selectedFiles[0];
+            let file = selectedFiles[0];
 
             // 파일 최소 크기 10KB 설정
             const MIN_SIZE = 10 * 1024;
@@ -99,6 +100,21 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
 
                 e.target.value = "";
                 return;
+            }
+
+            const options = {
+                maxSizeMB: 10,
+                maxWidthOrHeight: 1920,
+                useWebWorker: true,
+                initialQuality: 0.8,
+            };
+
+            try {
+                const compressedFile = await imageCompression(file, options);
+
+                file = new File([compressedFile], file.name, {type: file.type});
+            } catch (error) {
+                console.error("이미지 처리 실패:", error);
             }
 
             if (previews[id]) URL.revokeObjectURL(previews[id]);
@@ -164,28 +180,28 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
 
     return (
         <div className={`wrap noMenubody`}>
-                    {isLoading && (
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 검정
-                backdropFilter: 'blur(5px)',          // 배경 흐리게
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: 9999,
-            }}>
-                {/* 빙글빙글 스피너 */}
-                <div className="loading-spinner" />
-                <p style={{ color: '#fff', marginTop: '15px', fontWeight: 'bold' }}>
-                    신고를 접수 중입니다...
-                </p>
-                
-                <style>{`
+            {isLoading && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 검정
+                    backdropFilter: 'blur(5px)',          // 배경 흐리게
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 9999,
+                }}>
+                    {/* 빙글빙글 스피너 */}
+                    <div className="loading-spinner"/>
+                    <p style={{color: '#fff', marginTop: '15px', fontWeight: 'bold'}}>
+                        신고를 접수 중입니다...
+                    </p>
+
+                    <style>{`
                     .loading-spinner {
                         width: 50px;
                         height: 50px;
@@ -199,8 +215,8 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
                         100% { transform: rotate(360deg); }
                     }
                 `}</style>
-            </div>
-        )}
+                </div>
+            )}
             <header>
                 <h1>킥보드 방치 신고</h1>
                 <button type="button" className="back" onClick={onBack}>뒤로 가기</button>
