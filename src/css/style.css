@@ -280,4 +280,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 .alarmbox .new:hover a{background: url(../images/arrow.png) right 15px center #f8f2e5 no-repeat;}
 
 
+.none{width: 100%; padding: 20px 0; text-align: center; padding-top: 93px; font-size: 14px; color: #7f7f7f}
+.alnone{background: url(../images/none.png)center 30px no-repeat;}
+
 

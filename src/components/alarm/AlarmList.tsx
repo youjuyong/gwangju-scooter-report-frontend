@@ -43,6 +43,7 @@ export default function AlarmList(){
             try{
                 const result = await getAlarmListApi();
                 setAlarmList(result);
+
             }catch (error){
                 console.error("알람 리스트 로딩 실패: ", error);
             }
@@ -60,18 +61,21 @@ export default function AlarmList(){
             <main className="sub_article">
                 <div className="alarmbox">
                     <ul>
-            {alarmList && alarmList.length > 0 && alarmList.map((item) => (
-                <li key={item.pushLogId} className={item.readYn === 'N' ? 'new' : ''}>
-                    <a onClick={() => {
-                        getDetail(item.dclrId)
-                        alarmStatusUpdate(item.pushLogId)
-                    }}>
-                        <p className="noticeTitle">{item.pushCn}</p>
-                        <p className="noticeDay">{item.sndngDt}</p>
-                    </a>
-                </li>
-            ))
-            }
+                        {alarmList && alarmList.length > 0 ? (
+                            alarmList.map((item) => (
+                                <li key={item.pushLogId} className={item.readYn === 'N' ? 'new' : ''}>
+                                    <a onClick={() => {
+                                        getDetail(item.dclrId);
+                                        alarmStatusUpdate(item.pushLogId);
+                                    }}>
+                                        <p className="noticeTitle">{item.pushCn}</p>
+                                        <p className="noticeDay">{item.sndngDt}</p>
+                                    </a>
+                                </li>
+                            ))
+                        ) : (
+                            <p className="none alnone">소식이 없습니다.</p>
+                        )}
                     </ul>
                 </div>
             </main>
