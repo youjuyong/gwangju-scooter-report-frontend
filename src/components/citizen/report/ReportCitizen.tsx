@@ -75,7 +75,17 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             firstImg: formData.firstImgFile || null,
             secondImg: formData.secondImgFile || null,
         });
-    }, [formData]);
+    }, [
+        formData.location,
+        formData.lat,
+        formData.lng,
+        formData.zoneId,
+        formData.firstImgPreview,
+        formData.secondImgPreview,
+        formData.typeCode,
+        formData.detail,
+        formData.agreeChk
+    ]);
 
     useEffect(() => {
         const fetchCodes = async () => {
@@ -148,6 +158,14 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
 
             setPreviews(prev => ({...prev, [id]: previewUrl}));
             setFiles(prev => ({...prev, [id]: file}));
+
+            if (id === "firstImg") {
+                formData.firstImgFile = file;
+                formData.firstImgPreview = previewUrl;
+            } else {
+                formData.secondImgFile = file;
+                formData.secondImgPreview = previewUrl;
+            }
         }
     };
 
@@ -155,6 +173,14 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
         if (previews[id]) URL.revokeObjectURL(previews[id]);
         setPreviews(prev => ({...prev, [id]: ""}));
         setFiles(prev => ({...prev, [id]: null}));
+
+        if (id === "firstImg") {
+            formData.firstImgFile = null;
+            formData.firstImgPreview = "";
+        } else {
+            formData.secondImgFile = null;
+            formData.secondImgPreview = "";
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
