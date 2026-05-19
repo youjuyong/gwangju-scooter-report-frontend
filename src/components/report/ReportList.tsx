@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import { pmDcleReportRequestForm, pmDcleReportResponse, staffsResponse } from "@/types/report";
 import { getPmDclrCollect, getPmDclrComplete, getPmDclrListApi, getStaffsList } from "@/services/report/reportApi";
 import {useAuthStore} from "@/store/authStore";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 interface ReportBoardListProps {
     prefix: "/pm" | "/tow" | ""; // 이동할 상세 페이지의 URL Prefix
@@ -167,9 +168,11 @@ export default function ReportList({
 
             <ul className="listBody">
                 {loading ? (
-                    <li style={{ textAlign: "center", padding: "20px" }}>로딩 중...</li>
+                    <LoadingOverlay
+                        message={"데이터를 로딩 중입니다..."}
+                    />
                 ) : reports.length === 0 ? (
-                    <li style={{ textAlign: "center", padding: "20px" }}>데이터가 없습니다.</li>
+                    <p className="none renone">신고 내역이 없습니다.</p>
                 ) : (
                     reports.map((item) => (
                         <li key={item.dclrId}>

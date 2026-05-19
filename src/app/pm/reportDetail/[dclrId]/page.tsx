@@ -6,6 +6,7 @@ import {getPmDclrCollect, getPmDclrComplete, getReportDetail} from "@/services/r
 import {toast} from "react-hot-toast";
 import {useAuthStore} from "@/store/authStore";
 import imageCompression from "browser-image-compression";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 export default function ReportDetail() {
     const params = useParams();
@@ -171,41 +172,9 @@ export default function ReportDetail() {
     return (
         <div className="noMenubody noMenubodyLine">
             {isLoading && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 검정
-                    backdropFilter: 'blur(5px)',          // 배경 흐리게
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 9999,
-                }}>
-                    {/* 빙글빙글 스피너 */}
-                    <div className="loading-spinner" />
-                    <p style={{ color: '#fff', marginTop: '15px', fontWeight: 'bold' }}>
-                        처리중입니다...
-                    </p>
-
-                    <style>{`
-                    .loading-spinner {
-                        width: 50px;
-                        height: 50px;
-                        border: 5px solid rgba(255, 255, 255, 0.3);
-                        border-top: 5px solid #ffffff;
-                        border-radius: 50%;
-                        animation: spin 1s linear infinite;
-                    }
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                `}</style>
-                </div>
+                <LoadingOverlay
+                    message={status === "DEST02" || status === "DEST03" ? "처리 결과를 저장 중입니다..." : "데이터를 로딩 중입니다..."}
+                />
             )}
             <header>
                 <h1>{getMainText(report.dclrStts?.cdId)}</h1>
