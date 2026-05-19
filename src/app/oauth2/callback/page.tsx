@@ -4,7 +4,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function OAuthCallbackPage() {
   return (
-    <Suspense fallback={<LoadingSpinner />}>
+    <Suspense >
       <OAuth2Callback />
     </Suspense>
   );
