@@ -43,7 +43,8 @@ export default function ReportPage() {
                         updateFormData({
                             location: data.address,
                             lat: data.lat,
-                            lng: data.lng
+                            lng: data.lng,
+                            zoneId: data.zoneId
                         });
                         setStep("FORM");
                     }}

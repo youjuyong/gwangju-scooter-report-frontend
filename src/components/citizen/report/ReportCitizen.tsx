@@ -3,8 +3,7 @@
 import React, {useEffect, useState} from "react";
 import "../../../assets/style/css/base_style.css";
 import "../../../assets/style/css/style.css";
-import { handleApiError } from "@/hooks/errorHandler";
-import ReportLocation from "@/components/citizen/report/ReportLocation";
+import {handleApiError} from "@/hooks/errorHandler";
 import {getCodeType} from "@/services/common/commonApi";
 import {registerReport} from "@/services/report/reportApi";
 import imageCompression from "browser-image-compression";
@@ -78,6 +77,7 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
 
     const openMap = () => {
         onNext({
+            ...formData,
             location: fData.location,
             lat: fData.lat,
             lng: fData.lng,
@@ -87,6 +87,19 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             zoneId: fData.zoneId
         });
     };
+
+    useEffect(() => {
+        setFData({
+            location: formData.location || "",
+            lat: formData.lat || 0,
+            lng: formData.lng || 0,
+            typeCode: formData.typeCode || fData.typeCode,
+            detail: formData.detail || fData.detail,
+            deviceId: formData.deviceId || "",
+            agreeChk: formData.agreeChk || fData.agreeChk,
+            zoneId: formData.zoneId || "",
+        });
+    }, [formData]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const {id, files: selectedFiles} = e.target;
@@ -169,7 +182,7 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             } else {
                 alert(res.message || "신고 등록에 실패했습니다.");
             }
-        } catch (error:any) {
+        } catch (error: any) {
             console.error("신고 전송 에러:", error);
             handleApiError(error, error.response?.data.resultMsg);
         } finally {
