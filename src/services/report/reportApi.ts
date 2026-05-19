@@ -97,8 +97,12 @@ export const getPmDclrCollect = async (dclrId: string) => {
 /**
  * 회수 완료 처리 /api/dclr/{dclrId}/pm/complete
  * */
-export const getPmDclrComplete = async (dclrId: string) => {
-    const response = await api.patch(`/dclr/${dclrId}/pm/complete`);
+export const getPmDclrComplete = async (formData: FormData) => {
+    const response = await api.patch(`/dclr/pm/complete`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
     return response.data;
 }
 

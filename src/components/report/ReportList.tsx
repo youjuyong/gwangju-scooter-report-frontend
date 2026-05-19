@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { pmDcleReportRequestForm, pmDcleReportResponse, staffsResponse } from "@/types/report";
 import { getPmDclrCollect, getPmDclrComplete, getPmDclrListApi, getStaffsList } from "@/services/report/reportApi";
+import {useAuthStore} from "@/store/authStore";
 
 interface ReportBoardListProps {
     prefix: "/pm" | "/tow" | ""; // 이동할 상세 페이지의 URL Prefix
@@ -28,6 +29,9 @@ export default function ReportList({
     const [loading, setLoading] = useState(false);
     const [staffs, setStaffs] = useState<staffsResponse[]>([]); // 처리자 목록
 
+    const pmUserInfo = useAuthStore((state) => state.pm.userInfo);
+    const currentUserName = pmUserInfo?.id; // 로그인한 유저의 name
+
     // 2. 데이터 페칭 함수
     const fetchReports = async () => {
         setLoading(true);
@@ -44,6 +48,7 @@ export default function ReportList({
                 dclrSttsCd: statusFilter
             };
             const data = await getPmDclrListApi(requestParams, token);
+            console.log(data);
             setReports(data || []);
         } catch (error) {
             console.error(`${title} 데이터 로드 실패:`, error);
@@ -108,15 +113,15 @@ export default function ReportList({
 
     // 회수완료 처리 함수
     const handleComplete = async (dclrId: string) => {
-        if (!confirm("회수완료 처리를 하시겠습니까?")) return;
-        try {
-            await getPmDclrComplete(dclrId);
-            toast.success("회수완료 처리가 완료되었습니다.");
-            fetchReports();
-        } catch (error) {
-            console.error("회수완료 실패:", error);
-            toast.error("처리 중 오류가 발생했습니다.");
-        }
+        router.push(`${prefix}/reportDetail/${dclrId}`);
+        // try {
+        //     await getPmDclrComplete(dclrId);
+        //     toast.success("회수완료 처리가 완료되었습니다.");
+        //     fetchReports();
+        // } catch (error) {
+        //     console.error("회수완료 실패:", error);
+        //     toast.error("처리 중 오류가 발생했습니다.");
+        // }
     };
 
     return (
@@ -190,7 +195,7 @@ export default function ReportList({
                                 </div>
 
                                 <div className="listbtnset" onClick={(e) => e.stopPropagation()}>
-                                    {item.dclrStts.cdId === "DEST03" && (
+                                    {item.dclrStts?.cdId === "DEST03" && currentUserName && currentUserName === item.prcr?.userId&& (
                                         <button className="btn_complete" onClick={() => handleComplete(item.dclrId)}>
                                             완료처리
                                         </button>

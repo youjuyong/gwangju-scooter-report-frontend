@@ -1,9 +1,10 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useParams, useRouter} from "next/navigation";
 import {getPmDclrCollect, getPmDclrComplete, getReportDetail} from "@/services/report/reportApi";
 import {toast} from "react-hot-toast";
+import {useAuthStore} from "@/store/authStore";
 
 export default function ReportDetail() {
     const params = useParams();
@@ -11,6 +12,21 @@ export default function ReportDetail() {
     const [report, setReport] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const {dclrId} = useParams<{ dclrId: string }>();
+    const [previews, setPreviews] = useState<{ [key: string]: string }>({
+        firstImg: "",
+        secondImg: "",
+    });
+    const [files, setFiles] = useState<{ [key: string]: File | null }>({
+        firstImg: null,
+        secondImg: null
+    })
+    //상태확인용
+    const pmUserInfo = useAuthStore((state) => state.pm.userInfo);
+    const currentUserName = pmUserInfo?.id;
+    const status = report?.dclrStts.cdId;
+    const isProcessorMe = currentUserName && currentUserName === report?.prcr?.userId;
+    const isEditableMode = status === "DEST02" || (status === "DEST03" && isProcessorMe);
+    const isReadOnlyMode = status === "DEST04" || (status === "DEST03" && !isProcessorMe);
 
     const fetchDetail = async () => {
         if (!dclrId) {
@@ -82,17 +98,67 @@ export default function ReportDetail() {
     };
     // 회수진행 처리 함수
     const handleComplete = async (dclrId: string) => {
+        // ⭐ DOM 대신 상태(state)에 저장된 파일 객체를 바로 가져옵니다.
+        const file1 = files.firstImg;
+        const file2 = files.secondImg;
+
+        if (!file1 && !file2) {
+            toast.error("최소 1장 이상의 현장 사진을 등록해 주세요.");
+            return;
+        }
+
         if (!confirm("회수완료 처리를 하시겠습니까?")) return;
 
+        // 1. FormData 객체 생성
+        const formData = new FormData();
+
+        // 2. dclrId 텍스트 데이터 추가
+        formData.append("dclrId", dclrId);
+
+        // 3. dclrImages 파일 데이터 추가
+        if (file1) formData.append("dclrImages", file1);
+        if (file2) formData.append("dclrImages", file2);
+
         try {
-            await getPmDclrComplete(dclrId); // API 호출
+            // 4. API 호출
+            await getPmDclrComplete( formData);
+
             toast.success("회수완료 처리가 완료되었습니다.");
-            fetchDetail(); // 🚀 성공 후 리스트 다시 불러오기
+            fetchDetail(); // 성공 후 상세 화면 갱신
         } catch (error) {
             console.error("회수완료 실패:", error);
             toast.error("처리 중 오류가 발생했습니다.");
         }
     };
+
+    const handleRemoveImage = (id: string) => {
+        if (previews[id]) URL.revokeObjectURL(previews[id]);
+        setPreviews(prev => ({...prev, [id]: ""}));
+        setFiles(prev => ({...prev, [id]: null}));
+    };
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const {id, files: selectedFiles} = e.target;
+        if (selectedFiles && selectedFiles[0]) {
+            const file = selectedFiles[0];
+
+            // 파일 최소 크기 10KB 설정
+            const MIN_SIZE = 10 * 1024;
+            if (file.size < MIN_SIZE) {
+                alert("이미지 용량이 너무 작습니다. 10KB 이상의 사진을 등록해주세요");
+
+                e.target.value = "";
+                return;
+            }
+
+            if (previews[id]) URL.revokeObjectURL(previews[id]);
+
+            const previewUrl = URL.createObjectURL(file);
+
+            setPreviews(prev => ({...prev, [id]: previewUrl}));
+            setFiles(prev => ({...prev, [id]: file}));
+        }
+    };
+
     return (
         <div className="noMenubody noMenubodyLine">
             <header>
@@ -105,7 +171,7 @@ export default function ReportDetail() {
             <main className="sub_article">
                 <div className="detailBox">
                     <p className={`situation ${statusClass}`}> {/*.si1:처리중 , si2: 처리완료*/}
-                        { getStatusText(report.dclrStts?.cdId)} {/*도로명 주소만 나옴*/}
+                        {getStatusText(report.dclrStts?.cdId)} {/*도로명 주소만 나옴*/}
                     </p>
                     <p className="add">{report.dclrAddrTxt}</p>
                     <dl>
@@ -139,80 +205,138 @@ export default function ReportDetail() {
                 </div>
 
                 <div className="detailBox_re">
-                    {report.dclrStts?.cdId && (
+                    {status && (
                         <div className="re_con">
-                            <dl>
-                                <dt>처리일시</dt>
-                                <dd>{report.prcsDt || "-"}</dd>
-                            </dl>
-                            <dl>
-                                <dt className="result_photo_title">업체에서 등록한 사진</dt>
-                                <dd className="result_meimg">
-                                    {report.prcsImgUrls && report.prcsImgUrls.length > 0 ? (
-                                        report.prcsImgUrls.map((url: string, index: number) => (
-                                            <div key={`prcs-img-${index}`}
-                                                 className={`imgli ${index === 1 ? "lastimgli" : ""}`}>
+                            {isEditableMode && (
+                                <>
+                                    <dl>
+                                        <dt>처리자</dt>
+                                        {/* DEST02일 땐 배정이 안 되었으니 배정 전 표기, 내 작업일 땐 이름 출력 */}
+                                        <dd>{report.prcr?.userNm || "배정 전"}</dd>
+                                    </dl>
+                                    <span className="listtitle" id="photo-label">사진등록</span>
+                                    <div className="pic-list" role="group" aria-labelledby="photo-label"
+                                         aria-describedby="photo-help">
+                                        <ul>
+                                            {["firstImg", "secondImg"].map((id, index) => (
+                                                <li key={id}>
+                                                    <div className="imgsize">
+                                                        {previews[id] ? (
+                                                            <>
+                                                                <button
+                                                                    type="button"
+                                                                    className="pic-del"
+                                                                    onClick={() => handleRemoveImage(id)}
+                                                                >
+                                                                    삭제
+                                                                </button>
+                                                                <img src={previews[id]} alt={`신고 사진 ${index + 1}`}/>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <input
+                                                                    type="file"
+                                                                    id={id}
+                                                                    className="visually-hidden"
+                                                                    accept="image/*"
+                                                                    capture="environment"
+                                                                    onChange={handleFileChange}
+                                                                />
+                                                                <label htmlFor={id} className="camerain">
+                                                                    {index === 0 ? "첫 번째 촬영" : "두 번째 촬영"}
+                                                                </label>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <dl>
+                                        <dt>처리일시</dt>
+                                        <dd>{report.prcsDt || "-"}</dd>
+                                    </dl>
+                                </>
+                            )}
+
+                            {/* ==========================================
+                        CASE B. 읽기 전용 이미지 표출 모드
+                        (DEST04 전체 / DEST03 + 타인 작업)
+                       ========================================== */}
+                            {isReadOnlyMode && (
+                                <>
+                                    <dl>
+                                        <dt>처리자</dt>
+                                        <dd>{report.prcr?.userNm || "-"}</dd>
+                                    </dl>
+                                    <span className="listtitle">등록된 사진</span>
+                                    <div className="pic-list">
+                                        <div className="result_meimg">
+                                            {/* 1. 첫 번째 사진 칸 */}
+                                            <div className="imgli">
                                                 <div className="imgsize">
-                                                    <img src={url} alt={`처리 사진${index + 1}`}/>
+                                                    {report.completeImgUrls && report.completeImgUrls[0] ? (
+                                                        <img src={report.completeImgUrls[0]} alt="업체 처리 완료 사진1"/>
+                                                    ) : null}
                                                 </div>
                                             </div>
-                                        ))
-                                    ) : (
-                                        <div>
-                                            등록된 처리 사진이 없습니다.
+
+                                            {/* 2. 두 번째 사진 칸 */}
+                                            <div className="imgli lastimgli">
+                                                <div className="imgsize">
+                                                    {report.completeImgUrls && report.completeImgUrls[1] ? (
+                                                        <img src={report.completeImgUrls[1]} alt="업체 처리 완료 사진2"/>
+                                                    ) : null}
+                                                </div>
+                                            </div>
                                         </div>
-                                    )}
-                                </dd>
-                            </dl>
+                                    </div>
+                                    <dl>
+                                        <dt>처리일시</dt>
+                                        <dd>{report.prcsDt || "-"}</dd>
+                                    </dl>
+                                </>
+                            )}
                         </div>
                     )}
 
+                    {/* ==========================================
+                CASE C. 하단 버튼 영역 분기 제어
+               ========================================== */}
                     <div className="btn_area">
                         {(() => {
-                            const status = report.dclrStts?.cdId;
-
-                            switch (status) {
-                                case "DEST02": // 미배정 -> 회수진행 API 호출
-                                    return (
-                                        <button
-                                            type="button"
-                                            className="btn_ok"
-                                            onClick={() => handleCollect(report.dclrId)}
-                                        >
-                                            회수진행
-                                        </button>
-                                    );
-                                case "DEST03": // 처리중 -> 회수완료 API 호출
-                                    return (
-                                        <button
-                                            type="button"
-                                            className="btn_ok"
-                                            onClick={() => handleComplete(report.dclrId)}
-                                        >
-                                            회수완료
-                                        </button>
-                                    );
-                                case "DEST04": // 처리완료 -> 뒤로가기
-                                    return (
-                                        <button
-                                            type="button"
-                                            className="btn_ok"
-                                            onClick={() => router.back()}
-                                        >
-                                            확인
-                                        </button>
-                                    );
-                                default:
-                                    return (
-                                        <button
-                                            type="button"
-                                            className="btn_ok"
-                                            onClick={() => router.back()}
-                                        >
-                                            닫기
-                                        </button>
-                                    );
+                            // 편집 모드(내 작업 혹은 미배정)일 때만 '완료처리' 노출
+                            if (isEditableMode) {
+                                return (
+                                    <button
+                                        type="button"
+                                        className="btn_ok"
+                                        onClick={() => handleComplete(report.dclrId)}
+                                    >
+                                        완료처리
+                                    </button>
+                                );
                             }
+
+                            // 읽기 전용 모드(DEST04이거나 남이 처리 중인 DEST03)일 때는 '확인' 노출
+                            if (isReadOnlyMode) {
+                                return (
+                                    <button
+                                        type="button"
+                                        className="btn_ok"
+                                        onClick={() => router.back()}
+                                    >
+                                        확인
+                                    </button>
+                                );
+                            }
+
+                            // 기본값 방어 코드
+                            return (
+                                <button type="button" className="btn_ok" onClick={() => router.back()}>
+                                    확인
+                                </button>
+                            );
                         })()}
                     </div>
                 </div>
