@@ -17,7 +17,13 @@ export default function MainHome() {
     });
 
     // URL Prefix 추출
-    const prefix = pathname.startsWith("/pm") ? "/pm" : pathname.startsWith("/admin") ? "/admin" : "";
+    const prefix = pathname.startsWith("/pm")
+        ? "/pm"
+        : pathname.startsWith("/admin")
+        ? "/admin"
+        : pathname.startsWith("/tow")
+        ? "/tow"
+        : "";
 
     // 지도 중심 좌표 상태
     const [center, setCenter] = useState({ lat: 37.429, lng: 127.255 }); // 광주시청 근처 예시 좌표
@@ -26,7 +32,7 @@ export default function MainHome() {
 
     return (
         <>
-            <button className="btn_result" onClick={() => router.push(`${prefix}/register`)}>
+            <button className="btn_result" onClick={() => router.push(`${prefix}/report`)}>
                 회수등록
             </button>
 
