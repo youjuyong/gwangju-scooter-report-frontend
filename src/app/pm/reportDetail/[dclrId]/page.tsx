@@ -5,6 +5,7 @@ import {useParams, useRouter} from "next/navigation";
 import {getPmDclrCollect, getPmDclrComplete, getReportDetail} from "@/services/report/reportApi";
 import {toast} from "react-hot-toast";
 import {useAuthStore} from "@/store/authStore";
+import imageCompression from "browser-image-compression";
 
 export default function ReportDetail() {
     const params = useParams();
@@ -49,7 +50,7 @@ export default function ReportDetail() {
         fetchDetail();
     }, [dclrId]);
 
-    if (isLoading) return <div className="loading_box">로딩 중...</div>;
+    // if (isLoading) return <div className="loading_box">로딩 중...</div>;
     if (!report) return <div className="loading_box">내역을 찾을 수 없습니다.</div>;
 
     const getStatusStyle = (cdId: string) => {
@@ -84,18 +85,6 @@ export default function ReportDetail() {
         router.back();
     };
 
-    const handleCollect = async (dclrId: string) => {
-        if (!confirm("회수진행 처리를 하시겠습니까?")) return;
-
-        try {
-            await getPmDclrCollect(dclrId); // API 호출
-            toast.success("회수진행 처리가 완료되었습니다.");
-            fetchDetail(); // 🚀 성공 후 리스트 다시 불러오기
-        } catch (error) {
-            console.error("회수진행 실패:", error);
-            toast.error("처리 중 오류가 발생했습니다.");
-        }
-    };
     // 회수진행 처리 함수
     const handleComplete = async (dclrId: string) => {
         // ⭐ DOM 대신 상태(state)에 저장된 파일 객체를 바로 가져옵니다.
@@ -108,6 +97,8 @@ export default function ReportDetail() {
         }
 
         if (!confirm("회수완료 처리를 하시겠습니까?")) return;
+
+        setIsLoading(true);
 
         // 1. FormData 객체 생성
         const formData = new FormData();
@@ -136,31 +127,86 @@ export default function ReportDetail() {
         setPreviews(prev => ({...prev, [id]: ""}));
         setFiles(prev => ({...prev, [id]: null}));
     };
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const {id, files: selectedFiles} = e.target;
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, files: selectedFiles } = e.target;
         if (selectedFiles && selectedFiles[0]) {
-            const file = selectedFiles[0];
+            let file = selectedFiles[0];
 
-            // 파일 최소 크기 10KB 설정
+            // 파일 최소 크기 10KB 체크
             const MIN_SIZE = 10 * 1024;
             if (file.size < MIN_SIZE) {
                 alert("이미지 용량이 너무 작습니다. 10KB 이상의 사진을 등록해주세요");
-
                 e.target.value = "";
                 return;
             }
 
+            // 🚀 browser-image-compression을 이용한 회전 방지 및 압축 옵션
+            const options = {
+                maxSizeMB: 10,          // 최대 파일 용량 2MB로 제한 (원하는 대로 조절 가능)
+                maxWidthOrHeight: 1920, // 최대 해상도 제한
+                useWebWorker: true,
+                initialQuality: 0.8,   // 화질 유지 비율
+            };
+
+            try {
+                // 이 과정에서 EXIF Orientation을 체크해 이미지를 올바른 방향으로 회전시켜 줍니다.
+                const compressedFile = await imageCompression(file, options);
+
+                // 기존 file 객체 대신 회전 정렬 및 압축이 완료된 파일로 대체
+                file = new File([compressedFile], file.name, { type: file.type });
+            } catch (error) {
+                console.error("이미지 처리 실패:", error);
+            }
+
+            // 기존 프리뷰/파일 등록 로직 진행
             if (previews[id]) URL.revokeObjectURL(previews[id]);
 
             const previewUrl = URL.createObjectURL(file);
 
-            setPreviews(prev => ({...prev, [id]: previewUrl}));
-            setFiles(prev => ({...prev, [id]: file}));
+            setPreviews(prev => ({ ...prev, [id]: previewUrl }));
+            setFiles(prev => ({ ...prev, [id]: file }));
         }
     };
 
     return (
         <div className="noMenubody noMenubodyLine">
+            {isLoading && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 검정
+                    backdropFilter: 'blur(5px)',          // 배경 흐리게
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 9999,
+                }}>
+                    {/* 빙글빙글 스피너 */}
+                    <div className="loading-spinner" />
+                    <p style={{ color: '#fff', marginTop: '15px', fontWeight: 'bold' }}>
+                        처리중입니다...
+                    </p>
+
+                    <style>{`
+                    .loading-spinner {
+                        width: 50px;
+                        height: 50px;
+                        border: 5px solid rgba(255, 255, 255, 0.3);
+                        border-top: 5px solid #ffffff;
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                    }
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                `}</style>
+                </div>
+            )}
             <header>
                 <h1>{getMainText(report.dclrStts?.cdId)}</h1>
                 <button type="button" className="back" onClick={handleBack}>
