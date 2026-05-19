@@ -16,7 +16,7 @@ export default function ReportPage() {
         qrValue: "",
         lat: 0,
         lng: 0,
-        type: "",
+        typeCode: "",
         detail: "",
         agreeChk: false,
         zoneId: "",
@@ -38,6 +38,7 @@ export default function ReportPage() {
         case "MAP":
             return (
                 <ReportLocation
+                    brandId={formData.brandId}
                     onSelect={(data) => {
                         updateFormData({
                             location: data.address,
@@ -54,7 +55,13 @@ export default function ReportPage() {
                 <ReportCitizen
                     formData={formData}
                     onNext={(data) => {
-                        updateFormData(data);
+                        updateFormData({
+                            ...data,
+                            brandId: formData.brandId,
+                            deviceId: formData.deviceId,
+                            qrValue: formData.qrValue,
+                            brand: formData.brand
+                        });
                         setStep("MAP");
                     }}
                     onBack={() => setStep("QR")}
@@ -62,7 +69,7 @@ export default function ReportPage() {
                 />
             );
         case "SUCCESS":
-            return <ReportSuccess />;
+            return <ReportSuccess/>;
         default:
             return null;
     }

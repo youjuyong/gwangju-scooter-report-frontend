@@ -116,3 +116,23 @@ export const getReportStatus = async (qrId: string): Promise<ApiResponse<any>> =
 
     return response.data;
 }
+
+/**
+ * 소속 업체 배치존 목록 조회(신고자용)
+ */
+export const getBachList = async (bzeId: string): Promise<ApiResponse<any>> => {
+    const response = await api.get<ApiResponse<any>>(`/pm/bach/company`, {
+        params: {bzentyId: bzeId}
+    });
+
+    return response.data;
+}
+
+/**
+ * 소속 업체 배치존 목록 조회(pm용)
+ */
+export const getMyBachList = async (): Promise<ApiResponse<any>> => {
+    const response = await api.get<ApiResponse<any>>(`/pm/bach/my-company`);
+
+    return response.data;
+}
