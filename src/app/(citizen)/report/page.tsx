@@ -8,7 +8,8 @@ import ReportSuccess from "@/components/citizen/report/ReportSuccess";
 
 export default function ReportPage() {
     const [step, setStep] = useState<"QR" | "FORM" | "MAP" | "SUCCESS">("QR");
-    const [formData, setFormData] = useState({
+
+    const initialFormData = {
         deviceId: "",
         brand: "",
         brandId: "",
@@ -20,10 +21,22 @@ export default function ReportPage() {
         detail: "",
         agreeChk: false,
         zoneId: "",
-    });
+        firstImgFile: null as File | null,
+        secondImgFile: null as File | null,
+        firstImgPreview: "",
+        secondImgPreview: "",
+    };
+
+    const [formData, setFormData] = useState(initialFormData);
 
     const updateFormData = (newData: Partial<typeof formData>) => {
         setFormData((prev) => ({...prev, ...newData}));
+    };
+
+    const resetFormData = () => {
+        if (formData.firstImgPreview) URL.revokeObjectURL(formData.firstImgPreview);
+        if (formData.secondImgPreview) URL.revokeObjectURL(formData.secondImgPreview);
+        setFormData(initialFormData);
     };
 
     switch (step) {
@@ -56,16 +69,13 @@ export default function ReportPage() {
                 <ReportCitizen
                     formData={formData}
                     onNext={(data) => {
-                        updateFormData({
-                            ...data,
-                            brandId: formData.brandId,
-                            deviceId: formData.deviceId,
-                            qrValue: formData.qrValue,
-                            brand: formData.brand
-                        });
+                        updateFormData(data);
                         setStep("MAP");
                     }}
-                    onBack={() => setStep("QR")}
+                    onBack={() => {
+                        resetFormData();
+                        setStep("QR")
+                    }}
                     onSuccess={() => setStep("SUCCESS")}
                 />
             );

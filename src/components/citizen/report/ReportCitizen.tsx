@@ -21,6 +21,10 @@ interface QRProps {
         detail: string;
         typeCode: string;
         agreeChk: boolean;
+        firstImgFile: File | null;
+        secondImgFile: File | null;
+        firstImgPreview: string;
+        secondImgPreview: string;
     };
     onNext: (data: any) => void;
     onBack: () => void;
@@ -31,12 +35,12 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
     const [isLoading, setIsLoading] = useState(false);
     const [violationTypes, setViolationTypes] = useState<any[]>([]);
     const [previews, setPreviews] = useState<{ [key: string]: string }>({
-        firstImg: "",
-        secondImg: "",
+        firstImg: formData.firstImgPreview || "",
+        secondImg: formData.secondImgPreview || "",
     });
     const [files, setFiles] = useState<{ [key: string]: File | null }>({
-        firstImg: null,
-        secondImg: null
+        firstImg: formData.firstImgFile || null,
+        secondImg: formData.secondImgFile || null,
     })
 
     const [fData, setFData] = useState({
@@ -51,6 +55,29 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
     });
 
     useEffect(() => {
+        setFData(prev => ({
+            ...prev,
+            location: formData.location || "",
+            lat: formData.lat || 0,
+            lng: formData.lng || 0,
+            zoneId: formData.zoneId || "",
+            deviceId: formData.deviceId || "",
+            typeCode: prev.typeCode || formData.typeCode || "",
+            detail: prev.detail || formData.detail || "",
+            agreeChk: prev.agreeChk || formData.agreeChk || false,
+        }));
+
+        setPreviews({
+            firstImg: formData.firstImgPreview || "",
+            secondImg: formData.secondImgPreview || "",
+        });
+        setFiles({
+            firstImg: formData.firstImgFile || null,
+            secondImg: formData.secondImgFile || null,
+        });
+    }, [formData]);
+
+    useEffect(() => {
         const fetchCodes = async () => {
             try {
                 const res = await getCodeType("VLTN");
@@ -61,12 +88,6 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
         };
 
         fetchCodes();
-
-        return () => {
-            Object.values(previews).forEach(url => {
-                if (url) URL.revokeObjectURL(url);
-            });
-        };
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -84,22 +105,13 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             typeCode: fData.typeCode,
             detail: fData.detail,
             agreeChk: fData.agreeChk,
-            zoneId: fData.zoneId
+            zoneId: fData.zoneId,
+            firstImgFile: files.firstImg,
+            secondImgFile: files.secondImg,
+            firstImgPreview: previews.firstImg,
+            secondImgPreview: previews.secondImg
         });
     };
-
-    useEffect(() => {
-        setFData({
-            location: formData.location || "",
-            lat: formData.lat || 0,
-            lng: formData.lng || 0,
-            typeCode: formData.typeCode || fData.typeCode,
-            detail: formData.detail || fData.detail,
-            deviceId: formData.deviceId || "",
-            agreeChk: formData.agreeChk || fData.agreeChk,
-            zoneId: formData.zoneId || "",
-        });
-    }, [formData]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const {id, files: selectedFiles} = e.target;
