@@ -72,7 +72,11 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
                 const match = qrValue.match(regex);
 
                 if (match) {
-                    const extractedId = match[1] || match[0];
+                    let extractedId = match[1] || match[0];
+
+                    if (business.bzentyNm.toLowerCase().includes("gbike")) {
+                        extractedId = extractedId.slice(-6);
+                    }
 
                     onUpdate({
                         brand: business.bzentyNm,

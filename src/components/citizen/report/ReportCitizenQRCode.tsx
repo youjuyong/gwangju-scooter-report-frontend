@@ -5,7 +5,6 @@ import {useRouter} from "next/navigation";
 import {Scanner} from "@yudiel/react-qr-scanner";
 import {BusinessInfo} from "@/types/report";
 import {getBusinessList, getDeviceValid} from "@/services/report/reportApi";
-import {toast} from "react-hot-toast";
 import CustomPopup from "@/components/citizen/popup/CustomPopup";
 
 interface QRProps {
@@ -64,6 +63,7 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
 
     const handleScan = (result: any) => {
         const qrValue = result?.[0]?.rawValue;
+
         if (!qrValue) return;
         let isMatched = false;
         setIsValidated(false);
@@ -76,7 +76,11 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                 const match = qrValue.match(regex);
 
                 if (match) {
-                    const extractedId = match[1] || match[0];
+                    let extractedId = match[1] || match[0];
+
+                    if (business.bzentyNm.toLowerCase().includes("gbike")) {
+                        extractedId = extractedId.slice(-6);
+                    }
 
                     onUpdate({
                         brand: business.bzentyNm,
@@ -91,9 +95,9 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                 console.error("정규식 파싱 에러:", err);
             }
         }
-         if (!isMatched) {
-             setMessage( "존재하지 않거나 유효하지 않은 기기 정보입니다.");
-             setIsPopupOpen(true);
+        if (!isMatched) {
+            setMessage("존재하지 않거나 유효하지 않은 기기 정보입니다.");
+            setIsPopupOpen(true);
             onUpdate({
                 brand: "",
                 brandId: "",
