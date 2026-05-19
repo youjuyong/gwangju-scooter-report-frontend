@@ -1,8 +1,8 @@
 "use client";
 
 import React, {useEffect, useState} from "react";
-import "@/css/base_style.css";
-import "@/css/style.css";
+import "../../../assets/style/css/base_style.css";
+import "../../../assets/style/css/style.css";
 import { handleApiError } from "@/hooks/errorHandler";
 import ReportLocation from "@/components/citizen/report/ReportLocation";
 import {getCodeType} from "@/services/common/commonApi";

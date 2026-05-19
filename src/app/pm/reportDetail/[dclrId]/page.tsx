@@ -51,8 +51,13 @@ export default function ReportDetail() {
         fetchDetail();
     }, [dclrId]);
 
-    // if (isLoading) return <div className="loading_box">로딩 중...</div>;
-    if (!report) return <div className="loading_box">내역을 찾을 수 없습니다.</div>;
+
+    if (isLoading && !report) {
+        return <LoadingOverlay message="상세 내역을 불러오는 중입니다..." />;
+    }
+    if (!report) {
+        return <p className="none renone">신고 내역이 없습니다.</p>;
+    }
 
     const getStatusStyle = (cdId: string) => {
         switch (cdId) {

@@ -3,8 +3,8 @@
 import {useCallback, useEffect, useState, useMemo} from "react";
 import {Map, MapMarker} from "react-kakao-maps-sdk";
 import {CityOutline} from "@/components/dashboard/CityOutline";
-import "@/css/base_style.css";
-import "@/css/style.css";
+import "../../../assets/style/css/base_style.css";
+import "../../../assets/style/css/style.css";
 import { getOutlineType } from "@/services/common/commonApi";
 
 interface MapProps {

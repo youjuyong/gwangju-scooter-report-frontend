@@ -115,14 +115,6 @@ export default function ReportList({
     // 회수완료 처리 함수
     const handleComplete = async (dclrId: string) => {
         router.push(`${prefix}/reportDetail/${dclrId}`);
-        // try {
-        //     await getPmDclrComplete(dclrId);
-        //     toast.success("회수완료 처리가 완료되었습니다.");
-        //     fetchReports();
-        // } catch (error) {
-        //     console.error("회수완료 실패:", error);
-        //     toast.error("처리 중 오류가 발생했습니다.");
-        // }
     };
 
     return (

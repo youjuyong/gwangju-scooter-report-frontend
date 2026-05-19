@@ -138,13 +138,13 @@ export default function LoginForm() {
         <div className="wrap loginWrap">
             <header>
                 <h1>
-                    <img src="/images/simbol_s.png" alt="simbol" /> 방치 킥보드 회수 시스템
+                    <img src="/assets/style/images/simbol_s.png" alt="simbol" /> 방치 킥보드 회수 시스템
                 </h1>
             </header>
 
             <div className="loginback">
                 <div className="login_img">
-                    <img src="/images/main_all_img.png" alt="광주시 방치킥보드 회수 시스템" className="mainImg" />
+                    <img src="/assets/style/images/main_all_img.png" alt="광주시 방치킥보드 회수 시스템" className="mainImg" />
                 </div>
 
                 <div className="loginBox">

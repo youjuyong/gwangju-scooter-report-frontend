@@ -123,7 +123,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
             <header>
                 <h1>
                     <img
-                        src="/images/simbol_s.png"
+                        src="/assets/style/images/simbol_s.png"
                         alt="킥보드주정차위반신고"
                         onClick={() => router.push(prefix || "/")}
                         style={{ cursor: 'pointer' }}

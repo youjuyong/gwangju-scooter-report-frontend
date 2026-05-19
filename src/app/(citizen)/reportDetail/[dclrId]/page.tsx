@@ -2,8 +2,8 @@
 
 import {useEffect, useState} from "react";
 import {useParams, useRouter} from "next/navigation";
-import "@/css/base_style.css";
-import "@/css/style.css";
+import "../../../../assets/style/css/base_style.css";
+import "../../../../assets/style/css/style.css";
 import {getReportDetail} from "@/services/report/reportApi";
 
 export default function ReportDetail() {

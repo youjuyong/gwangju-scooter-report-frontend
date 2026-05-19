@@ -47,7 +47,7 @@ function HomeSection({accessToken}: { accessToken: string | null }) {
 
             <div className="mainImgBox">
                 <div className="img">
-                    <img src="/images/main_all_img.png" alt="광주시 킥보드 주정차 위반신고" className="mainImg"/>
+                    <img src="/assets/style/images/main_all_img.png" alt="광주시 킥보드 주정차 위반신고" className="mainImg"/>
                 </div>
             </div>
 
