@@ -171,9 +171,6 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
                         ) : (
                             <div className="camera_on">
                                 <div className="camera_bg"></div>
-                                <p className="ex">
-                                    QR코드를<br/>사각 테두리 안에 맞춰 스캔해 주세요.
-                                </p>
                                 <div className="camera_box" aria-label="QR코드 스캔 영역">
                                     <Scanner
                                         onScan={handleScan}
