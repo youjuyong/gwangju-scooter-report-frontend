@@ -103,7 +103,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 
 .camera_on{width: 100%; height: 100%; text-align: center; position: relative;}
 .camera_on .ex{color: #fff; font-size: 13px;width: 300px; height: 50px; position: absolute; left: 50%; top: 50%; margin:95px 0 0 -150px; line-height: 17px; z-index: 3}
-.camera_bg{width: 100%; height: 100%; /*background: url(../images/qr.png)center no-repe*/position: absolute; z-index: 2;}
+.camera_bg{width: 100%; height: 100%; background: url(../images/qr.png)center no-repeat; position: absolute; z-index: 2;}
 .camera_box{width: 100%; height: 100%; position: absolute; z-index: 1;}
 
 .sub_article_padding{padding: 15px;}
@@ -207,7 +207,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 
 .detailBox_re .result_meimg .imgli{background: url(../images/img_none.png)center #f3f2f2 no-repeat;}
 
-.btn_ok{width: 100%; background: #e03400; color: #fff; height: 43px; border-radius: 5px; font-size: 14px; margin: 15px 0}
+.btn_ok{width: 100%!important; background: #e03400; color: #fff; height: 43px; border-radius: 5px; font-size: 14px; margin: 15px 0}
 
 /*공지사항*/
 .noticount{position: absolute; right:0px; top: 0; height: 25px; line-height: 25px; font-size: 14px; color: #000; font-weight: 300;}
@@ -222,7 +222,9 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 .notiTable{width: 100%; }
 .notiTable th{font-size: 13px; font-weight: 300; color: #000; text-align:left; width: 0; position: absolute; top: -99999px;}
 .notiTable td{font-size: 14px; font-weight: 300; color: #000; text-align:left; padding:5px 0; line-height: 21px;}
-.notiTable td.borderBottom{border-bottom: 1px solid #eaeaea; color: #747474; padding:5px 0 20px 0;}
+.notiTable td.borderBottom{border-bottom: 1px solid #eaeaea; padding:5px 0 20px 0;}
+.notiTable td.notiday{color: #747474; }
+.notiTable td a{color:#0065ea; padding-left: 20px; background: url(../images/file.png)left center no-repeat; height: 18px; line-height: 18px; display: inline-block}
 
 .notiTable .title{font-size: 16px; font-weight: 500; line-height: 21px;}
 
@@ -281,3 +283,29 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 .alnone{background: url(../images/none.png)center 30px no-repeat;}
 
 .listconten dd{overflow: hidden; text-overflow:ellipsis; white-space: nowrap;}
+
+.popupconten.camerapop{background:#fff; padding: 10px 0 20px 0; font-size: 0;}
+.camerapop button{width:70px; height:70px; display: inline-block;margin: 4px; padding-top: 30px;}
+.camerapop button.btnal{background: url(../images/album.png)center 14px no-repeat}
+.camerapop button.btnca{background: url(../images/camera.png)center 14px no-repeat}
+.camerapop .popuptxt {margin-bottom: 10px;}
+
+.reasonBox{width: 100%; margin-top: 10px;}
+.reasonBox label {color: #e03400;font-size: 13px;height: 22px; line-height: 22px;font-weight: 300;display: block; text-align: left;}
+.reasonBox input{width: 100%;}
+
+.detailBox_re .listbtnset{margin-top: 18px;}
+.detailBox_re .listbtnset button{width: 49%; height: 43px; margin:0 2% 0 0;}
+.detailBox_re .listbtnset button.btn_acc{margin:0;}
+
+
+
+
+
+
+
+
+
+
+
+
