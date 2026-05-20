@@ -65,7 +65,7 @@ export default async function NoticeBoardDetail({
                         </tr>
                         <tr>
                             <th scope="row">작성일</th>
-                            <td className="borderBottom">
+                            <td className="notiday">
                                 <time dateTime={notice.regDt?.split(' ')[0]}>{notice.regDt}</time>
                             </td>
                         </tr>

@@ -272,10 +272,7 @@ export default function ReportDetail() {
                                             ))}
                                         </ul>
                                     </div>
-                                    <dl>
-                                        <dt>처리일시</dt>
-                                        <dd>{report.prcrHis?.prcsDt || "-"}</dd>
-                                    </dl>
+
                                 </>
                             )}
 
@@ -289,7 +286,10 @@ export default function ReportDetail() {
                                         <dt>처리자</dt>
                                         <dd>{report.prcrHis?.prcr?.userNm || "-"}</dd>
                                     </dl>
-                                    <span className="listtitle">등록된 사진</span>
+                                    <dl>
+                                        <dt>처리일시</dt>
+                                        <dd>{report.prcrHis?.prcsDt || "-"}</dd>
+                                    </dl>
                                     <div className="pic-list">
                                         <div className="result_meimg">
                                             {/* 1. 첫 번째 사진 칸 */}
@@ -311,10 +311,6 @@ export default function ReportDetail() {
                                             </div>
                                         </div>
                                     </div>
-                                    <dl>
-                                        <dt>처리일시</dt>
-                                        <dd>{report.prcsDt || "-"}</dd>
-                                    </dl>
                                 </>
                             )}
                         </div>
