@@ -25,6 +25,13 @@ export default function LoginForm() {
 
     useEffect(() => {
         setIsMounted(true);
+
+        // localStorage에서 저장된 아이디 확인
+        const savedUserId = localStorage.getItem("savedUserId");
+        if (savedUserId) {
+            setUserId(savedUserId);
+            setSaveId(true); // ID저장 체크박스 활성화
+        }
     }, []);
 
     const Token = useAuthStore((state) => state);
@@ -75,6 +82,13 @@ export default function LoginForm() {
             const { data } = apiResponse;
             const { role, userNm, userId: resUserId } = data.userInfo;
             const userInfo = { name: userNm, id: resUserId, role: role as MemberRole };
+
+            // 🚀 2. 로그인 성공 시 ID 저장 로직 실행
+            if (saveId) {
+                localStorage.setItem("savedUserId", userId);
+            } else {
+                localStorage.removeItem("savedUserId");
+            }
 
             // 3. 경로에 맞는 스토어에 저장
 
