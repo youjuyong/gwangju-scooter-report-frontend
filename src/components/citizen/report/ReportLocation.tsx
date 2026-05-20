@@ -6,7 +6,8 @@ import {CityOutline} from "@/components/dashboard/CityOutline";
 import {getBachList} from "@/services/report/reportApi";
 import "../../../assets/style/css/base_style.css";
 import "../../../assets/style/css/style.css";
-import { getOutlineType } from "@/services/common/commonApi";
+import {getOutlineType} from "@/services/common/commonApi";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 interface MapProps {
     brandId: string;
@@ -155,8 +156,6 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
         });
     };
 
-    if (!position) return <div className="loading_box">내 위치를 찾는 중...</div>;
-
     return (
         <div className="wrap noMenubody">
             <header>
@@ -164,79 +163,84 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
                 <button type="button" className="back" onClick={onBack}>뒤로 가기</button>
             </header>
 
-            <main className="sub_article">
-                <div className="min">
-                    <div className="mapbox" style={{position: 'relative'}}>
-                        {typeof window !== "undefined" && window.kakao && position && (
-                            <Map
-                                center={position}
-                                style={{width: "100%", height: "80vh", minHeight: "300px"}}
-                                level={3}
-                                onIdle={(map) => {
-                                    const center = map.getCenter();
-                                    const lat = center.getLat();
-                                    const lng = center.getLng();
+            {!position ? (
+                <LoadingOverlay message={"사용자의 위치를 찾는중입니다.."}/>
+            ) : (
+                <main className="sub_article">
+                    <div className="min">
+                        <div className="mapbox" style={{position: 'relative'}}>
+                            {typeof window !== "undefined" && window.kakao && position && (
+                                <Map
+                                    center={position}
+                                    style={{width: "100%", height: "80vh", minHeight: "300px"}}
+                                    level={3}
+                                    onIdle={(map) => {
+                                        const center = map.getCenter();
+                                        const lat = center.getLat();
+                                        const lng = center.getLng();
 
-                                    setPosition({lat, lng});
-                                    fetchAddressInfo(lat, lng);
-                                }}
+                                        setPosition({lat, lng});
+                                        fetchAddressInfo(lat, lng);
+                                    }}
+                                >
+                                    <MapMarker position={position}/>
+
+                                    {bachList.map((item) => {
+                                        const centerLatLng = {
+                                            lat: Number(item.lat),
+                                            lng: Number(item.lot),
+                                        };
+
+                                        return (
+                                            <React.Fragment key={item.btchZoneId}>
+                                                <Circle
+                                                    center={centerLatLng}
+                                                    radius={15}
+                                                    strokeWeight={1}
+                                                    strokeColor={"rgba(255, 0, 255, 0.4)"}
+                                                    strokeOpacity={0.8}
+                                                    strokeStyle={"solid"}
+                                                    fillColor={"rgba(255, 0, 255, 0.2)"}
+                                                    fillOpacity={0.5}
+                                                />
+
+                                                <Circle
+                                                    center={centerLatLng}
+                                                    radius={1}
+                                                    strokeWeight={1}
+                                                    strokeColor={"#ff00dc"}
+                                                    strokeOpacity={0.1}
+                                                    fillColor={"#ff00dc"}
+                                                    fillOpacity={1}
+                                                />
+                                            </React.Fragment>
+                                        );
+                                    })}
+                                    {outlinePath.length > 0 && (
+                                        <CityOutline path={optimizedPath}/>
+                                    )}
+                                </Map>
+                            )}
+                        </div>
+
+                        <div className="mapBottom">
+                            <p className="address_road">{address}</p>
+                            <p className="address" style={{fontSize: '12px', color: '#888'}}>
+                                (지도를 움직여 정확한 위치를 선택해 주세요)
+                            </p>
+
+                            <button
+                                type="button"
+                                className="go_report"
+                                onClick={handleLocationSubmit}
                             >
-                                <MapMarker position={position}/>
-
-                                {bachList.map((item) => {
-                                    const centerLatLng = {
-                                        lat: Number(item.lat),
-                                        lng: Number(item.lot),
-                                    };
-
-                                    return (
-                                        <React.Fragment key={item.btchZoneId}>
-                                            <Circle
-                                                center={centerLatLng}
-                                                radius={15}
-                                                strokeWeight={1}
-                                                strokeColor={"rgba(255, 0, 255, 0.4)"}
-                                                strokeOpacity={0.8}
-                                                strokeStyle={"solid"}
-                                                fillColor={"rgba(255, 0, 255, 0.2)"}
-                                                fillOpacity={0.5}
-                                            />
-
-                                            <Circle
-                                                center={centerLatLng}
-                                                radius={1}
-                                                strokeWeight={1}
-                                                strokeColor={"#ff00dc"}
-                                                strokeOpacity={0.1}
-                                                fillColor={"#ff00dc"}
-                                                fillOpacity={1}
-                                            />
-                                        </React.Fragment>
-                                    );
-                                })}
-                                {outlinePath.length > 0 && (
-                                    <CityOutline path={optimizedPath}/>
-                                )}
-                            </Map>
-                        )}
+                                이 위치로 등록
+                            </button>
+                        </div>
                     </div>
+                </main>
+            )}
 
-                    <div className="mapBottom">
-                        <p className="address_road">{address}</p>
-                        <p className="address" style={{fontSize: '12px', color: '#888'}}>
-                            (지도를 움직여 정확한 위치를 선택해 주세요)
-                        </p>
-
-                        <button
-                            type="button"
-                            className="go_report"
-                            onClick={handleLocationSubmit}
-                        >
-                            이 위치로 등록
-                        </button>
-                    </div>
-                </div>
-            </main>
         </div>
     );
 }
