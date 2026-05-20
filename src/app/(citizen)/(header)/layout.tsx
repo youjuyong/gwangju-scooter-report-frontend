@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     console.log("targetUrl 경로 : ", targetUrl);
                     
                     if (targetUrl.startsWith('/reportList') || targetUrl.startsWith('/citizen')) {
-                        router.push(targetUrl);
+                        window.location.href = targetUrl; 
                     }
                 }
             };
