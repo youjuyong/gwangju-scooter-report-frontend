@@ -63,26 +63,48 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   
   const relativeUrl = event.notification.data?.url || "/";
-  console.log("알림 클릭 relativeUrl:", relativeUrl);
   const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
-
+  console.log(absoluteUrl);
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
-        
-        if (clientList.length > 0) {
-          const client = clientList[0]; 
-          
-          if ("focus" in client) {
-            return client.focus().then((focusedClient) => {
-              if (focusedClient) {
-                focusedClient.postMessage({ type: "NAVIGATE", url: relativeUrl });
-              }
-            });
-          }
+        const matchingClient = clientList.find(client => {
+          return client.url.startsWith(self.location.origin);
+        });
+
+        if (matchingClient) {
+          matchingClient.postMessage({ type: "NAVIGATE", url: relativeUrl });
+          return matchingClient.focus();
         }
-        
+
         return clients.openWindow(absoluteUrl);
       })
   );
 });
+// self.addEventListener("notificationclick", (event) => {
+//   event.notification.close();
+  
+//   const relativeUrl = event.notification.data?.url || "/";
+//   console.log("알림 클릭 relativeUrl:", relativeUrl);
+//   const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
+
+//   event.waitUntil(
+//     clients.matchAll({ type: "window", includeUncontrolled: true })
+//       .then((clientList) => {
+        
+//         if (clientList.length > 0) {
+//           const client = clientList[0]; 
+          
+//           if ("focus" in client) {
+//             return client.focus().then((focusedClient) => {
+//               if (focusedClient) {
+//                 focusedClient.postMessage({ type: "NAVIGATE", url: relativeUrl });
+//               }
+//             });
+//           }
+//         }
+        
+//         return clients.openWindow(absoluteUrl);
+//       })
+//   );
+// });
