@@ -61,26 +61,25 @@ self.addEventListener("push" , function (e) {
  */
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+  
   const relativeUrl = event.notification.data?.url || "/";
-  console.log(relativeUrl);
+  console.log("알림 클릭 relativeUrl:", relativeUrl);
   const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
 
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
+        
         if (clientList.length > 0) {
-          let focused = false;
-
-          for (const client of clientList) {
-            console.log("client : ", client);
-            client.postMessage({ type: "NAVIGATE", url: relativeUrl });
-
-            if (!focused && "focus" in client) {
-              client.focus();
-              focused = true;
-            }
+          const client = clientList[0]; 
+          
+          if ("focus" in client) {
+            return client.focus().then((focusedClient) => {
+              if (focusedClient) {
+                focusedClient.postMessage({ type: "NAVIGATE", url: relativeUrl });
+              }
+            });
           }
-          return;
         }
         
         return clients.openWindow(absoluteUrl);
