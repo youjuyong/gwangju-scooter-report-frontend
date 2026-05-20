@@ -6,14 +6,14 @@ import {CityOutline} from "@/components/dashboard/CityOutline";
 
 const MARKER_CONFIG = {
     images: {
-        "DEST02": "/images/le_red.png",
-        "DEST03": "/images/le_blue.png",
-        "DEST04": "/images/le_gray.png",
+        "DEST02": "/assets/style_pm/images/le_red.png",
+        "DEST03": "/assets/style_pm/images/le_blue.png",
+        "DEST04": "/assets/style_pm/images/le_gray.png",
     } as Record<string, string>,
     logos: {
-        "빔(BEAM)": "/images/logo_beam.png",
-        "스윙(SWING)": "/images/simbol.png",
-        "카카오 T 바이크": "/images/logo_dear.png",
+        "빔(BEAM)": "/assets/style_pm/images/logo_beam.png",
+        "스윙(SWING)": "/assets/style_pm/images/simbol.png",
+        "카카오 T 바이크": "/assets/style_pm/images/logo_dear.png",
     } as Record<string, string>
 };
 
@@ -32,7 +32,7 @@ const KakaoMapSection = memo(({reports, outlinePath, center, onMarkerClick, bach
                         <MapMarker
                             position={{lat: report.latVl, lng: report.lotVl}}
                             image={{
-                                src: MARKER_CONFIG.images[report.dclrStts?.cdId] || "/images/mark.png",
+                                src: MARKER_CONFIG.images[report.dclrStts?.cdId] || "/assets/style_pm/images/mark.png",
                                 size: {width: 39, height: 44},
                             }}
                             onClick={() => onMarkerClick(report.dclrId)}
@@ -52,7 +52,7 @@ const KakaoMapSection = memo(({reports, outlinePath, center, onMarkerClick, bach
                                 }}
                             >
                                 <img
-                                    src={MARKER_CONFIG.logos[report.bzenty.bzentyNm] || "/images/mark.png"}
+                                    src={MARKER_CONFIG.logos[report.bzenty.bzentyNm] || "/assets/style_pm/images/mark.png"}
                                     alt="logo"
                                     style={{width: "100%", height: "100%", objectFit: "contain"}}
                                 />
