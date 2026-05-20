@@ -64,7 +64,7 @@ self.addEventListener("notificationclick", (event) => {
   
   const relativeUrl = event.notification.data?.url || "/";
   const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
-  console.log(absoluteUrl);
+
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
@@ -74,13 +74,44 @@ self.addEventListener("notificationclick", (event) => {
 
         if (matchingClient) {
           matchingClient.postMessage({ type: "NAVIGATE", url: relativeUrl });
+          
+          if (matchingClient.url !== absoluteUrl && "navigate" in matchingClient) {
+            matchingClient.navigate(absoluteUrl);
+          }
+          
           return matchingClient.focus();
         }
 
-        return clients.openWindow(absoluteUrl);
+        return clients.openWindow(absoluteUrl).then((windowClient) => {
+          if (windowClient && "navigate" in windowClient) {
+            return windowClient.navigate(absoluteUrl);
+          }
+        });
       })
   );
 });
+// self.addEventListener("notificationclick", (event) => {
+//   event.notification.close();
+  
+//   const relativeUrl = event.notification.data?.url || "/";
+//   const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
+//   console.log(absoluteUrl);
+//   event.waitUntil(
+//     clients.matchAll({ type: "window", includeUncontrolled: true })
+//       .then((clientList) => {
+//         const matchingClient = clientList.find(client => {
+//           return client.url.startsWith(self.location.origin);
+//         });
+
+//         if (matchingClient) {
+//           matchingClient.postMessage({ type: "NAVIGATE", url: relativeUrl });
+//           return matchingClient.focus();
+//         }
+
+//         return clients.openWindow(absoluteUrl);
+//       })
+//   );
+// });
 // self.addEventListener("notificationclick", (event) => {
 //   event.notification.close();
   
