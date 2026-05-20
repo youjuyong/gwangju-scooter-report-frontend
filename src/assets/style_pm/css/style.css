@@ -279,3 +279,5 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 
 .none{width: 100%; padding: 20px 0; text-align: center; padding-top: 93px; font-size: 14px; color: #7f7f7f}
 .alnone{background: url(../images/none.png)center 30px no-repeat;}
+
+.listconten dd{overflow: hidden; text-overflow:ellipsis; white-space: nowrap;}
