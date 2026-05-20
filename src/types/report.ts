@@ -105,6 +105,7 @@ export interface pmDcleReportResponse {
     imgUrls: string[];        // 이미지 배열
     regDt: string;            // 등록 일시 (2026-05-11 21:02:58)
     prcr: any | null;         // 처리자 정보
+    prcrHis : any | null;
 }
 
 export interface pmDcleReportRequestForm {

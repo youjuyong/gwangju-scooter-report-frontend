@@ -26,7 +26,7 @@ export default function ReportDetail() {
     const pmUserInfo = useAuthStore((state) => state.pm.userInfo);
     const currentUserName = pmUserInfo?.id;
     const status = report?.dclrStts.cdId;
-    const isProcessorMe = currentUserName && currentUserName === report?.prcr?.userId;
+    const isProcessorMe = currentUserName && currentUserName === report?.prcrHis?.prcr?.userId;
     const isEditableMode = status === "DEST02" || (status === "DEST03" && isProcessorMe);
     const isReadOnlyMode = status === "DEST04" || (status === "DEST03" && !isProcessorMe);
 
@@ -232,7 +232,7 @@ export default function ReportDetail() {
                                     <dl>
                                         <dt>처리자</dt>
                                         {/* DEST02일 땐 배정이 안 되었으니 배정 전 표기, 내 작업일 땐 이름 출력 */}
-                                        <dd>{report.prcr?.userNm || "배정 전"}</dd>
+                                        <dd>{report.prcrHis?.prcr?.userNm || "배정 전"}</dd>
                                     </dl>
                                     <span className="listtitle" id="photo-label">사진등록</span>
                                     <div className="pic-list" role="group" aria-labelledby="photo-label"
@@ -274,7 +274,7 @@ export default function ReportDetail() {
                                     </div>
                                     <dl>
                                         <dt>처리일시</dt>
-                                        <dd>{report.prcsDt || "-"}</dd>
+                                        <dd>{report.prcrHis?.prcsDt || "-"}</dd>
                                     </dl>
                                 </>
                             )}
@@ -287,7 +287,7 @@ export default function ReportDetail() {
                                 <>
                                     <dl>
                                         <dt>처리자</dt>
-                                        <dd>{report.prcr?.userNm || "-"}</dd>
+                                        <dd>{report.prcrHis?.prcr?.userNm || "-"}</dd>
                                     </dl>
                                     <span className="listtitle">등록된 사진</span>
                                     <div className="pic-list">

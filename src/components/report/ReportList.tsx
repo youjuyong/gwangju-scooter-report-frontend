@@ -49,7 +49,7 @@ export default function ReportList({
                 dclrSttsCd: statusFilter
             };
             const data = await getPmDclrListApi(requestParams, token);
-            console.log(data);
+            // console.log(data);
             setReports(data || []);
         } catch (error) {
             console.error(`${title} 데이터 로드 실패:`, error);
@@ -179,8 +179,8 @@ export default function ReportList({
                                         <dl><dt>킥보드ID</dt><dd>{item.qrcdVl}</dd></dl>
                                         <dl><dt>위반유형</dt><dd>{item.vltnType.cdNm}</dd></dl>
                                         <dl><dt>상세설명</dt><dd>{item.dclrCn}</dd></dl>
-                                        <dl><dt>처리자</dt><dd>{item.prcr?.userNm || "-"}</dd></dl>
-                                        <dl><dt>처리일시</dt><dd className="blue">{item.prcr?.prcDt || "-"}</dd></dl>
+                                        <dl><dt>처리자</dt><dd>{item.prcrHis?.prcr?.userNm || "-"}</dd></dl>
+                                        <dl><dt>처리일시</dt><dd className="blue">{item.prcrHis?.prcsDt || "-"}</dd></dl>
                                     </div>
                                     <img
                                         src={item.imgUrls?.[0] || "/images/main_all_img.png"}
@@ -190,7 +190,7 @@ export default function ReportList({
                                 </div>
 
                                 <div className="listbtnset" onClick={(e) => e.stopPropagation()}>
-                                    {item.dclrStts?.cdId === "DEST03" && currentUserName && currentUserName === item.prcr?.userId&& (
+                                    {item.dclrStts?.cdId === "DEST03" && currentUserName && currentUserName === item.prcrHis?.prcr?.userId&& (
                                         <button className="btn_complete" onClick={() => handleComplete(item.dclrId)}>
                                             완료처리
                                         </button>
