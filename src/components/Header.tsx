@@ -8,7 +8,7 @@ import { useFcmToken } from "@/hooks/useFcmToken";
 import { authApi } from "@/services/api";
 import { toast } from "react-hot-toast";
 import axios from "axios";
-import {deleteCookie} from "cookies-next";
+import {deleteCookie, setCookie} from "cookies-next";
 import {getAlarmListApi} from "@/services/alarm/alarmApi";
 import {AlarmResponse} from "@/types/alarm";
 
@@ -40,6 +40,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const state = useAuthStore();
     const currentAuth = useAuthStore((state) => state[authType]);
     const logout = useAuthStore((state) => state.logout);
+    const accessToken = useAuthStore((state) => state[authType].accessToken);
 
     // 읽지 않은 알람이 있는지 확인
     const checkNewAlarmStatus = (alarms: AlarmResponse[]): boolean => {
@@ -48,6 +49,10 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
 
     // 3. Hydration 대기 (클라이언트에서 스토리지 데이터를 다 읽었는지 확인)
     useEffect(() => {
+        setCookie(`${authType}AccessToken`, accessToken, {
+            maxAge: 60 * 60 * 24,
+            path: '/', // 전체 경로에서 접근 가능하도록 설정 권장
+        });
         setIsMounted(true);
     }, []);
 

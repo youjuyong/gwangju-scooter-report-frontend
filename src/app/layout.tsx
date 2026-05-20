@@ -43,6 +43,13 @@ export default function RootLayout({
     return (
         <html lang="ko">
         <head>
+            {/* iOS 전용 전체화면 설정 */}
+            <meta name="apple-mobile-web-app-capable" content="yes"/>
+            {/* 안드로이드 전용 전체화면 설정 */}
+            <meta name="mobile-web-app-capable" content="yes"/>
+            {/* 상태바 스타일 */}
+            <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+            {/* 화면 비율 및 확대 축소 제어  */}
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
             <Script
                 src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_API_KEY}&libraries=services&autoload=false`}
