@@ -65,25 +65,25 @@ self.addEventListener("notificationclick", (event) => {
   console.log(relativeUrl);
   const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
 
-event.waitUntil(
-  clients.matchAll({ type: "window", includeUncontrolled: true })
-    .then((clientList) => {
-      if (clientList.length > 0) {
-        let focused = false;
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        if (clientList.length > 0) {
+          let focused = false;
 
-        for (const client of clientList) {
-          console.log("client : ", client);
-          client.postMessage({ type: "NAVIGATE", url: relativeUrl });
+          for (const client of clientList) {
+            console.log("client : ", client);
+            client.postMessage({ type: "NAVIGATE", url: relativeUrl });
 
-          if (!focused && "focus" in client) {
-            client.focus();
-            focused = true;
+            if (!focused && "focus" in client) {
+              client.focus();
+              focused = true;
+            }
           }
+          return;
         }
-        return;
-      }
-      
-      return clients.openWindow(absoluteUrl);
-    })
-);
+        
+        return clients.openWindow(absoluteUrl);
+      })
+  );
 });
