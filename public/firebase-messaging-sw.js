@@ -61,18 +61,29 @@ self.addEventListener("push" , function (e) {
  */
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = event.notification.data?.url || "/";
+  const relativeUrl = event.notification.data?.url || "/";
+  console.log(relativeUrl);
+  const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
 
-  event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true })
-      .then((clientList) => {
+event.waitUntil(
+  clients.matchAll({ type: "window", includeUncontrolled: true })
+    .then((clientList) => {
+      if (clientList.length > 0) {
+        let focused = false;
+
         for (const client of clientList) {
-          if ("focus" in client) {
-            client.postMessage({ url });
-            return client.focus();
+          console.log("client : ", client);
+          client.postMessage({ type: "NAVIGATE", url: relativeUrl });
+
+          if (!focused && "focus" in client) {
+            client.focus();
+            focused = true;
           }
         }
-        return clients.openWindow(url);
-      })
-  );
+        return;
+      }
+      
+      return clients.openWindow(absoluteUrl);
+    })
+);
 });
