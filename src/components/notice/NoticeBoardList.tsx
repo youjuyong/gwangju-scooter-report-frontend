@@ -14,11 +14,19 @@ export default async function NoticeBoardList({
                                                   title = "공지사항"
                                               }: NoticeBoardListProps) {
     let notices: NoticeResponse[] = [];
+    let noticesMain: NoticeResponse[] = [];
 
     try {
         const baseUrl = process.env.NEXT_PUBLIC_INTERNAL_API_URL;
         // Props로 받은 apiEndpoint를 활용해 동적으로 데이터를 가져옵니다.
-        const response = await fetch(`${baseUrl}${apiEndpoint}?page=0&size=999`, {
+        const response = await fetch(`${baseUrl}${apiEndpoint}?page=0&size=999&mainExpsrYn=N`, {
+            method: 'GET',
+            cache: 'no-store',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const responseMain = await fetch(`${baseUrl}${apiEndpoint}?page=0&size=999&mainExpsrYn=Y`, {
             method: 'GET',
             cache: 'no-store',
             headers: {
@@ -31,12 +39,17 @@ export default async function NoticeBoardList({
         }
         const result = await response.json();
         notices = Array.isArray(result) ? result : (result.data?.content || []);
+        if (!responseMain.ok) {
+            throw new Error(`API 호출 실패: ${responseMain.status}`);
+        }
+        const resultMain = await responseMain.json();
+        noticesMain = Array.isArray(resultMain) ? resultMain : (resultMain.data?.content || []);
 
     } catch (error) {
         console.error(`${title} 서버 페칭 에러:`, error);
     }
 
-    const totalCount = notices.length;
+    const totalCount = notices.length + noticesMain.length;
 
     return (
         <article className="subBoard">
@@ -46,6 +59,19 @@ export default async function NoticeBoardList({
             </div>
 
             <ul className="notilistBody">
+                {noticesMain.length > 0 ? (
+                    noticesMain.map((noticeMain: any) => (
+                        <li key={noticeMain.ntcId}>
+                            {/* Props로 받은 linkPrefix를 활용해 유연하게 주소를 생성합니다 */}
+                            <Link href={`${linkPrefix}/${noticeMain.ntcId}`} prefetch={false}>
+                                <p className="noticeTitle"><span className="fix">고정소식</span>{noticeMain.ttlNm}</p>
+                                <p className="noticeDay">{noticeMain.regDt}</p>
+                            </Link>
+                        </li>
+                    ))
+                ) : (
+                    <li className="text-center py-10">등록된 공지사항이 없습니다.</li>
+                )}
                 {notices.length > 0 ? (
                     notices.map((notice: any) => (
                         <li key={notice.ntcId}>
