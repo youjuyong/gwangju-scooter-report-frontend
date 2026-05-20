@@ -70,8 +70,13 @@ export default async function NoticeBoardDetail({
                             </td>
                         </tr>
                         <tr>
+                            <th scope="row">첨부파일</th>
+                            <td className="borderBottom"><a href="" download aria-label="파일이름이 나옵니다">파일이름이
+                                나옵니다.</a></td>
+                        </tr>
+                        <tr>
                             <th scope="row">내용</th>
-                            <td className="content" style={{ whiteSpace: 'pre-wrap', verticalAlign: 'top' }}>
+                            <td className="content" style={{whiteSpace: 'pre-wrap', verticalAlign: 'top'}}>
                                 {notice.cnData}
                             </td>
                         </tr>

@@ -192,7 +192,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 .detailBox_re .result_meimg .imgli{background: url(../images/img_none.png)center #f3f2f2 no-repeat;}
 
 /*공지사항*/
-.noticount{position: absolute; right:0px; top: 0; height:height: 25px; line-height: 25px; font-size: 14px; color: #000; font-weight: 300;}
+.noticount{position: absolute; right:0px; top: 0; height: 25px; line-height: 25px; font-size: 14px; color: #000; font-weight: 300;}
 .noticount span{color: #e03400; font-weight: 500; margin-right:3px}
 .notilistBody{display: block; width: 100%; border-top: 1px solid #ccc}
 .notilistBody li{border-bottom: 1px solid #e2e2e2;}
