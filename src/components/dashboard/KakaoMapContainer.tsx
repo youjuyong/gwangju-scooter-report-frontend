@@ -75,7 +75,7 @@ const KakaoMapSection = memo(({reports, outlinePath, center, onMarkerClick, bach
                     <React.Fragment key={item.btchZoneId}>
                         <Circle
                             center={centerLatLng}
-                            radius={15}
+                            radius={25}
                             strokeWeight={1}
                             strokeColor={"rgba(255, 0, 255, 0.4)"}
                             strokeOpacity={0.8}
