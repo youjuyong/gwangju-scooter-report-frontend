@@ -94,6 +94,9 @@ export default function MainHome() {
                 <div className="item gray">
                     <span className="badge">{counts.gray}</span><span className="label">완료</span>
                 </div>
+                <div className="item lezone">
+                    <span className="label">배치존</span>
+                </div>
             </div>
 
             <div className="mainmap">

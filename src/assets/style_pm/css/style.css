@@ -42,6 +42,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 .legend{position: absolute; z-index: 3; left: 5px; top: 35px; border-radius: 5px; overflow: hidden; box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3); background: #fff; padding:3px;}
 .legend .item{float: left; width: 36px; font-size: 10px; height: 40px; text-align: center;}
 .legend .item span{display: block; width: 100%;}
+.legend .item.lezone{padding-top: 28px; background: url(../images/zone.png)center 1px no-repeat;}
 .legend .label{color: #000;}
 .badge{height: 28px; line-height: 25px;}
 .red .badge{background: url(../images/le_red.png)center top no-repeat; color: #b60000}
