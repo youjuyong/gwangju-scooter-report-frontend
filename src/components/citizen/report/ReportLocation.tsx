@@ -21,6 +21,7 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
     const [zoneId, setZoneId] = useState<string>("");
     const [outlinePath, setOutlinePath] = useState([]);
     const [bachList, setBachList] = useState<any[]>([]);
+    const [jibunAddress, setJibunAddress] = useState<string>("");
 
     const fetchAddressInfo = useCallback((lat: number, lng: number) => {
         const {kakao} = window;
@@ -34,6 +35,12 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
                         ? result[0].road_address.address_name
                         : result[0].address.address_name;
                     setAddress(addr);
+
+                    if (result[0].address && result[0].address.address_name) {
+                        setJibunAddress(result[0].address.address_name);
+                    } else {
+                        setJibunAddress("");
+                    }
                 } else {
                     setAddress("주소를 찾을 수 없는 지역입니다.");
                 }
@@ -67,10 +74,28 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
             },
             (err) => {
                 console.warn("GPS 획득 실패:", err);
-                alert("현재 위치를 가져올 수 없습니다. 지도를 직접 움직여 선택해 주세요.");
-                setPosition({lat: 37.42870, lng: 127.25618});
+
+                navigator.geolocation.getCurrentPosition(
+                    (secondPos) => {
+                        const newPos = {
+                            lat: secondPos.coords.latitude,
+                            lng: secondPos.coords.longitude,
+                        };
+                        setPosition(newPos);
+                        fetchAddressInfo(newPos.lat, newPos.lng);
+                    },
+                    (secondErr) => {
+                        console.error("최종 위치 획득 실패, 기본 위치로 지도를 엽니다:", secondErr);
+                        // alert("현재 위치를 가져올 수 없습니다. 지도를 직접 움직여 선택해 주세요.");
+
+                        const defaultPos = {lat: 37.42870, lng: 127.25618};
+                        setPosition(defaultPos);
+                        fetchAddressInfo(defaultPos.lat, defaultPos.lng);
+                    },
+                    {enableHighAccuracy: true, timeout: 15000, maximumAge: 60000}
+                );
             },
-            {enableHighAccuracy: true, timeout: 10000}
+            {enableHighAccuracy: false, timeout: 6000, maximumAge: Infinity}
         );
 
         const initData = async () => {
@@ -226,7 +251,7 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
                         <div className="mapBottom">
                             <p className="address_road">{address}</p>
                             <p className="address" style={{fontSize: '12px', color: '#888'}}>
-                                (지도를 움직여 정확한 위치를 선택해 주세요)
+                                {jibunAddress ? `${jibunAddress}` : "(지도를 움직여 정확한 위치를 선택해 주세요)"}
                             </p>
 
                             <button
