@@ -90,8 +90,20 @@ export default function ReportDetail() {
     const handleBack = () => {
         router.back();
     };
-
     // 회수진행 처리 함수
+    const handleCollect = async (dclrId: string) => {
+        if (!confirm("회수진행 처리를 하시겠습니까?")) return;
+        try {
+            await getPmDclrCollect(dclrId);
+            toast.success("회수진행 처리가 완료되었습니다.");
+            fetchDetail();
+        } catch (error) {
+            console.error("회수진행 실패:", error);
+            toast.error("처리 중 오류가 발생했습니다.");
+        }
+    };
+
+    // 완료 처리 함수
     const handleComplete = async (dclrId: string) => {
         // ⭐ DOM 대신 상태(state)에 저장된 파일 객체를 바로 가져옵니다.
         const file1 = files.firstImg;
@@ -272,6 +284,10 @@ export default function ReportDetail() {
                                             ))}
                                         </ul>
                                     </div>
+                                    <div className="reasonBox">
+                                        <label htmlFor="reason">사유</label>
+                                        <input type="text" id="reason" name="reason" placeholder="사유를 입력하세요" />
+                                    </div>
 
                                 </>
                             )}
@@ -311,26 +327,44 @@ export default function ReportDetail() {
                                             </div>
                                         </div>
                                     </div>
+                                    <div className="reasonBox">
+                                        <label htmlFor="reason">사유</label>
+                                        <input type="text" id="reason" name="reason" value = {"test"} readOnly={true} />
+                                    </div>
+
+
                                 </>
                             )}
                         </div>
                     )}
 
+
                     {/* ==========================================
                 CASE C. 하단 버튼 영역 분기 제어
                ========================================== */}
-                    <div className="btn_area">
+                    <div className="listbtnset">
                         {(() => {
                             // 편집 모드(내 작업 혹은 미배정)일 때만 '완료처리' 노출
                             if (isEditableMode) {
                                 return (
+                                    <>
                                     <button
                                         type="button"
-                                        className="btn_ok"
+                                        className="btn_complete"
                                         onClick={() => handleComplete(report.dclrId)}
                                     >
                                         완료처리
                                     </button>
+                                    {status === "DEST02" && (
+                                        <button
+                                            type="button"
+                                            className="btn_acc"
+                                            onClick={() => handleCollect(report.dclrId)}
+                                        >
+                                            회수진행
+                                        </button>
+                                    )}
+                                    </>
                                 );
                             }
 
