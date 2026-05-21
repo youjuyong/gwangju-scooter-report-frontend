@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>방치 킥보드 회수 시스템</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" href="css/base_style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/common.js"></script>
+    
+  </head>
+
+    <body>
+        <div class="wrap">
+            <header>
+                <h1><img src="./images/simbol_s.png"> 방치 킥보드 회수 시스템</h1>
+                <div class="header_right">
+                    <a href="alarm.html" class="btnalarm">알림</a>
+                    <a href="" class="btnlogout">로그아웃</a>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="home.html" class="menuHome">홈</a></li>
+                        <li class="click"><a href="result.html" class="menuReport">회수관리</a></li>
+                        <li><a href="notice.html" class="menuBoard">공지사항</a></li>
+                    </ul>
+                </nav>
+            </header>
+
+            <main class="sub_article sub_article_padding">
+                
+                <article class="subBoard">
+                    <h2>회수관리</h2>
+                    
+                    <div class="dateselet">
+                        <input type="date">
+                    </div>
+                    
+                    <!--검색-->
+                    <div class="searchBox">
+                        <dl>
+                            <dt>처리상태</dt>
+                            <dd>
+                                <select>
+                                    <option selected>전체</option>
+                                    <option>미배정</option>
+                                    <option>처리중</option>
+                                    <option>완료</option>
+                                </select>
+                            </dd>
+                            <dt>처리자</dt>
+                            <dd>
+                                <select>
+                                    <option selected>전체</option>
+                                    <option>처리자1</option>
+                                    <option>처리자2</option>
+                                </select>
+                            </dd>
+                        </dl>
+                        <button class="btn_search">검색</button>
+                    </div>
+                    
+                    <div class="searchResult">결과<span>10</span>건</div>
+                    
+                    <ul class="listBody">
+                        <li>
+                           <a href="result_detail.html"> <!--클릭 시 해당 상세 페이지로 이동-->
+                                <p class="situation si1">처리중</p> <!-- .si1:처리중 , si2: 처리완료 ,  si3: 미배정-->
+                                <p class="add">경기도 광주시 탄벌동</p> <!--도로명 주소만 나옴-->
+                                <div class="listconten">
+                                    <div class="leftbox">
+                                        <dl>
+                                            <dt>신고일시</dt>
+                                            <dd>2026-01-07 10:11</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>킥보드ID</dt>
+                                            <dd>123456</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>위반유형</dt>
+                                            <dd>보도와 차도가 구분된 도로보도와 차도가 구분된 도로보도와 차도가 구분된 도로보도와 차도가 구분된 도로</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>상세설명</dt>
+                                            <dd>설명이 블라블라 나옵니다. </dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>처리자</dt>
+                                            <dd>처리자ID가 나옵니다</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>처리일시</dt>
+                                            <dd class="blue">-</dd>
+                                        </dl>
+                                    </div>
+                                    <img src="" class="list_img" alt="신고된이미지">
+                                </div>
+                                <!--아래 버튼-->
+                                <div class="listbtnset">
+                                    <button class="btn_complete">완료처리</button>
+                                </div>
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="result_detail.html"> <!--클릭 시 해당 상세 페이지로 이동-->
+                                
+                                <p class="situation si3">미배정</p> <!-- .si1:처리중 , si2: 처리완료 ,  si3: 미배정-->
+                                <p class="add">경기도 광주시 탄벌동</p> <!--도로명 주소만 나옴-->
+                                <div class="listconten">
+                                    <div class="leftbox">
+                                        <dl>
+                                            <dt>신고일시</dt>
+                                            <dd>2026-01-07 10:11</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>킥보드ID</dt>
+                                            <dd>123456</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>위반유형</dt>
+                                            <dd>보도와 차도가 구분된 도로</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>상세설명</dt>
+                                            <dd>설명이 블라블라 나옵니다. </dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>처리자</dt>
+                                            <dd>처리자ID가 나옵니다</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>처리일시</dt>
+                                            <dd class="blue">-</dd>
+                                        </dl>
+                                    </div>
+                                    <img src="" class="list_img" alt="신고된이미지">
+                                </div>
+                                <!--아래 버튼-->
+                                <div class="listbtnset">
+                                    <button class="btn_complete">완료처리</button>
+                                    <button class="btn_acc">회수진행</button>
+                                </div>
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="result_detail_2.html"> <!--처리 완료 , 혹은 타인의 처리중 상태는 클릭 시 result_detail_2.html 로 이동-->
+                                
+                                <p class="situation si2">처리완료</p> <!-- .si1:처리중 , si2: 처리완료 ,  si3: 미배정-->
+                                <p class="add">경기도 광주시 탄벌동</p> <!--도로명 주소만 나옴-->
+                                <div class="listconten">
+                                    <div class="leftbox">
+                                        <dl>
+                                            <dt>신고일시</dt>
+                                            <dd>2026-01-07 10:11</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>킥보드ID</dt>
+                                            <dd>123456</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>위반유형</dt>
+                                            <dd>보도와 차도가 구분된 도로</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>상세설명</dt>
+                                            <dd>설명이 블라블라 나옵니다. </dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>처리자</dt>
+                                            <dd>처리자ID가 나옵니다</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>처리일시</dt>
+                                            <dd class="blue">2026-06-10</dd>
+                                        </dl>
+                                    </div>
+                                    <img src="" class="list_img" alt="신고된이미지">
+                                </div>
+
+                            </a>
+                        </li>
+                    </ul>
+                </article>
+
+            </main> 
+        </div>
+    </body>
+</html>

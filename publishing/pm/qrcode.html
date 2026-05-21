@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>방치 킥보드 회수 시스템</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" href="css/base_style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/common.js"></script>
+    
+  </head>
+
+    <body>
+        <div class="wrap noMenubody">
+            <header>
+                <h1>전동 킥보드 QR 스티커 촬영</h1>
+                <button type="button" class="back" onclick="history.back()">뒤로 가기</button>
+            </header>
+            <main class="sub_article">  
+                <div class="min">
+                    
+                    <div class="QRcamera">
+                        <!--카메라 없을 때-->
+                        <div class="camera_none" style="display: none;" aria-live="assertive">미디어 장치를 감지할 수 없습니다.</div>
+
+                        <!--카메라 있을 때-->
+                        <div class="camera_on">
+                            <div class="camera_bg"></div>
+                            <p class="ex">QR코드를<br>사각 테두리 안에 맞춰 스캔해 주세요.</p>
+                            <div class="camera_box" aria-label="QR코드 스캔 영역">카메라 화면 나올 곳</div>
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    
+                    <div class="QRconten">
+                        <p class="qrinfo"><img src="./images/info.png" alt="">QR코드가 안될 경우 킥보드 정보를 입력해 주세요.</p>
+                        <form>
+                            <fieldset>
+                                <legend>QR코드 정보</legend>
+                                <ul class="inputList">
+                                    <li>
+                                        <label for="kickboard">킥보드사</label>
+                                        <input type="text" id="kickboard" name="kickboard" value="해당킥보드사명">
+                                    </li>
+                                    <li>
+                                        <label for="kickboard_id">킥보드 ID</label>
+                                        <input type="text" id="kickboard_id" name="kickboard_id" placeholder="QR코드 하단 문자열을 입력하세요" required>
+                                    </li>
+                                </ul>
+                            </fieldset>
+                            <button type="submit" class="go_report">회수 등록</button>
+                        </form>
+                    </div>
+                    
+                  </div>
+            </main>
+        </div> 
+    </body>
+</html>

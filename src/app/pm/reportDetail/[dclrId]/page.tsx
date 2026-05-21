@@ -1,12 +1,13 @@
 "use client";
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useParams, useRouter} from "next/navigation";
 import {getPmDclrCollect, getPmDclrComplete, getReportDetail} from "@/services/report/reportApi";
 import {toast} from "react-hot-toast";
 import {useAuthStore} from "@/store/authStore";
 import imageCompression from "browser-image-compression";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import PhotoPopup from "@/components/popup/PhotoPopup";
 
 export default function ReportDetail() {
     const params = useParams();
@@ -29,6 +30,73 @@ export default function ReportDetail() {
     const isProcessorMe = currentUserName && currentUserName === report?.prcrHis?.prcr?.userId;
     const isEditableMode = status === "DEST02" || (status === "DEST03" && isProcessorMe);
     const isReadOnlyMode = status === "DEST04" || (status === "DEST03" && !isProcessorMe);
+
+    // 🚀 팝업 관련 상태 추가
+    const [isPhotoPopupOpen, setIsPhotoPopupOpen] = useState(false);
+    const [activePhotoId, setActivePhotoId] = useState<string | null>(null);
+
+    // 🚀 Input 참조를 위한 Ref 추가
+    const albumInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+
+    // ... (fetchDetail, handleBack, handleCollect, handleComplete 등 기존 로직 유지)
+
+    // 🚀 팝업 열기 함수
+    const handlePhotoClick = (id: string) => {
+        setActivePhotoId(id);
+        setIsPhotoPopupOpen(true);
+    };
+
+    // 🚀 앨범/촬영 버튼 클릭 시 실제 input 실행
+    const triggerAlbum = () => {
+        setIsPhotoPopupOpen(false);
+        albumInputRef.current?.click();
+    };
+
+    const triggerCamera = () => {
+        setIsPhotoPopupOpen(false);
+        cameraInputRef.current?.click();
+    };
+
+    const handleFileChangeCustom = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = e.target.files;
+        if (selectedFiles && selectedFiles[0] && activePhotoId) {
+            // 기존 handleFileChange 로직을 호출하거나 내용을 여기에 합칩니다.
+            // 여기서는 기존 로직을 재사용하기 위해 id를 activePhotoId로 간주하여 처리합니다.
+            processFile(activePhotoId, selectedFiles[0]);
+
+            // 동일 파일 재선택 가능하도록 input 초기화
+            e.target.value = "";
+        }
+    };
+    const processFile = async (id: string, file: File) => {
+        const MIN_SIZE = 10 * 1024;
+        if (file.size < MIN_SIZE) {
+            alert("이미지 용량이 너무 작습니다. 10KB 이상의 사진을 등록해주세요");
+            return;
+        }
+
+        const options = {
+            maxSizeMB: 10,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+            initialQuality: 0.8,
+        };
+
+        let processedFile = file;
+        try {
+            const compressedFile = await imageCompression(file, options);
+            processedFile = new File([compressedFile], file.name, { type: file.type });
+        } catch (error) {
+            console.error("이미지 처리 실패:", error);
+        }
+
+        if (previews[id]) URL.revokeObjectURL(previews[id]);
+        const previewUrl = URL.createObjectURL(processedFile);
+
+        setPreviews(prev => ({ ...prev, [id]: previewUrl }));
+        setFiles(prev => ({ ...prev, [id]: processedFile }));
+    };
 
     const fetchDetail = async () => {
         if (!dclrId) {
@@ -193,6 +261,30 @@ export default function ReportDetail() {
                     message={status === "DEST02" || status === "DEST03" ? "처리 결과를 저장 중입니다..." : "데이터를 로딩 중입니다..."}
                 />
             )}
+
+            <PhotoPopup
+                isOpen={isPhotoPopupOpen}
+                onClose={() => setIsPhotoPopupOpen(false)}
+                onAlbumClick={triggerAlbum}
+                onCameraClick={triggerCamera}
+            />
+
+            {/* 🚀 숨겨진 실제 Input들 (앨범용 / 카메라용) */}
+            <input
+                type="file"
+                ref={albumInputRef}
+                style={{ display: "none" }}
+                accept="image/*"
+                onChange={handleFileChangeCustom}
+            />
+            <input
+                type="file"
+                ref={cameraInputRef}
+                style={{ display: "none" }}
+                accept="image/*"
+                capture="environment" // 직접 촬영 강제
+                onChange={handleFileChangeCustom}
+            />
             <header>
                 <h1>{getMainText(report.dclrStts?.cdId)}</h1>
                 <button type="button" className="back" onClick={handleBack}>
@@ -265,19 +357,13 @@ export default function ReportDetail() {
                                                                 <img src={previews[id]} alt={`신고 사진 ${index + 1}`}/>
                                                             </>
                                                         ) : (
-                                                            <>
-                                                                <input
-                                                                    type="file"
-                                                                    id={id}
-                                                                    className="visually-hidden"
-                                                                    accept="image/*"
-                                                                    capture="environment"
-                                                                    onChange={handleFileChange}
-                                                                />
-                                                                <label htmlFor={id} className="camerain">
-                                                                    {index === 0 ? "첫 번째 촬영" : "두 번째 촬영"}
-                                                                </label>
-                                                            </>
+                                                                <div
+                                                                    className="camerain"
+                                                                    onClick={() => handlePhotoClick(id)}
+                                                                    style={{cursor: 'pointer'}}
+                                                                >
+                                                                    {index === 0 ? "첫 번째 사진" : "두 번째 사진"}
+                                                                </div>
                                                         )}
                                                     </div>
                                                 </li>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>방치 킥보드 회수 시스템</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" href="css/base_style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/common.js"></script>
+    
+  </head>
+
+    <body>
+        <!--팝업창-->
+        <div class="popupbox" style="display: none">
+            <div class="popupconten">
+                <p class="popuptxt">신고된 내역이 없습니다.</p>
+                <div class="popupbtnset">
+                    <button>확인</button>
+                </div>
+            </div>
+            <div class="popbg"></div>
+        </div>
+        
+        
+        
+        
+        <div class="wrap"> <!--여기 wrap 부분에 페이지별 2가지 종류의 클래스가 있습니다. 염두하고 개발해주세요-->
+            <header>
+                <h1><img src="./images/simbol_s.png"> 방치 킥보드 회수 시스템</h1>
+                <div class="header_right">
+                    <a href="alarm.html" class="btnalarm"><span class="new">읽지 않은 알림 있음</span>알림</a>
+                    <a href="" class="btnlogout">로그아웃</a>
+                </div>
+                <nav>
+                    <ul>
+                        <li class="click"><a href="home.html" class="menuHome" title="선택됨">홈</a></li>
+                        <li><a href="result.html" class="menuReport">회수관리</a></li>
+                        <li><a href="notice.html" class="menuBoard">공지사항</a></li>
+                    </ul>
+                </nav>
+            </header>
+
+            <main class="main_article">
+                <button class="btn_result">회수등록</button>
+                
+                <!--건수-->
+                <div class="legend">
+                    <div class="item red">
+                        <span class="badge">20</span>
+                        <span class="label">미배정</span>
+                    </div>
+
+                    <div class="item blue">
+                        <span class="badge">7</span>
+                        <span class="label">처리중</span>
+                    </div>
+
+                    <div class="item gray">
+                        <span class="badge">10</span>
+                        <span class="label">완료</span>
+                    </div>
+                    <div class="item lezone">
+                        <span class="label">배치존</span>
+                    </div>
+                </div>
+                
+                <div class="mainmap">
+                    <!--배치존-->
+                    <div class="zone"> <!--zone 의 width:50px; height: 50px; 임의로 50으로 해놨습니다. 상황에 맞게 사이즈 변경해 주세요.-->
+                        <span class="spot"></span>
+                        <span class="round"></span>
+                    </div>
+                    
+                    지도 나올 곳
+                </div>
+               
+            </main> 
+        </div>
+    </body>
+</html>

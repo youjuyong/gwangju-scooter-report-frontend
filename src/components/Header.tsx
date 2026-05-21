@@ -11,6 +11,7 @@ import axios from "axios";
 import {deleteCookie, setCookie} from "cookies-next";
 import {getAlarmListApi} from "@/services/alarm/alarmApi";
 import {AlarmResponse} from "@/types/alarm";
+import Popup from "@/components/popup/Popup";
 
 interface HeaderProps {
     activeTab: string;
@@ -115,15 +116,10 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
 
     return (
         <>
-            <div className="popupbox" style={{ display: showLoginPopup ? "block" : "none" }}>
-                <div className="popupconten">
-                    <p className="popuptxt">로그인 후 이용하세요</p>
-                    <div className="popupbtnset">
-                        <button onClick={() => setShowLoginPopup(false)}>확인</button>
-                    </div>
-                </div>
-                <div className="popbg"></div>
-            </div>
+            <Popup
+                isOpen={showLoginPopup}
+                onClose={() => setShowLoginPopup(false)}
+            />
 
             <header>
                 <h1>

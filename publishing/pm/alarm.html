@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>방치 킥보드 회수 시스템</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" href="css/base_style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/common.js"></script>
+    
+  </head>
+
+    <body>
+        <div class="wrap noMenubody noMenubodyLine">
+            <header>
+                <h1>알림</h1>
+                <button type="button" class="back" onclick="history.back()">뒤로 가기</button>
+                <button type="button" class="alarmok">모두 읽음 처리</button>
+            </header>
+            <main class="sub_article">  
+                <div class="alarmbox">
+                    <ul>
+                        
+                        <li class="new"> <!--읽지 않은 내용에 new 넣기 -->
+                            <a href="result_detail.html" aria-label="읽지 않은 알림"> <!--클릭 시 해당 상세페이지로 이동 / 읽지않은 알림에 aria-label="읽지 않은 알림" 추가-->
+                                <p class="noticeTitle">신규 신고가 접수되었습니다.</p>
+                                <p class="noticeDay">2026-01-05 11:30</p>
+                            </a>
+                        </li>
+                        
+                        <li> 
+                            <a href="result_detail_2.html"> <!--클릭 시 해당 상세페이지로 이동(완료된거)-->
+                                <p class="noticeTitle">민원 처리가 완료되었습니다.</p>
+                                <p class="noticeDay">2026-01-05 11:30</p>
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </main>
+        </div> 
+    </body>
+</html>
