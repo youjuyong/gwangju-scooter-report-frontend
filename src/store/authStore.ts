@@ -8,6 +8,7 @@ interface UserInfo {
     name: string | null;
     id: string | null;
     role: MemberRole | null;
+    bzentyNm : string | null;
 }
 
 interface AuthGroup {

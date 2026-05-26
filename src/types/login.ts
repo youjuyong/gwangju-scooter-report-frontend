@@ -12,6 +12,7 @@ export interface LoginResponseData {
     userInfo: {
         role: string;
         userNm: string;
+        bzentyNm :string;
         userId: string;
         sessionId: string;
         deptId: string;

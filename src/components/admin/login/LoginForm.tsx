@@ -80,9 +80,8 @@ export default function LoginForm() {
             if (!apiResponse.success) throw new Error(apiResponse.message || "로그인 실패");
 
             const { data } = apiResponse;
-            const { role, userNm, userId: resUserId } = data.userInfo;
-            const userInfo = { name: userNm, id: resUserId, role: role as MemberRole };
-
+            const { role, userNm, userId: resUserId, bzentyNm } = data.userInfo;
+            const userInfo = { name: userNm, id: resUserId, role: role as MemberRole ,bzentyNm : bzentyNm };
             // 🚀 2. 로그인 성공 시 ID 저장 로직 실행
             if (saveId) {
                 localStorage.setItem("savedUserId", userId);
