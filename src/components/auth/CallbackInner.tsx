@@ -22,11 +22,12 @@ export default function OAuth2Callback() {
         const userName = searchParams.get('userName');
         const userId = searchParams.get("userId");
         const role = searchParams.get("role") as MemberRole; // 백엔드에서 주는 Role
+        const bzentyNm = searchParams.get("bzentyNm");
 
         if (accessToken) {
             // 2. Role에 따라 어떤 그룹(authType)에 저장할지 결정
             let authType: "admin" | "pm" | "tow" | "reporter" = "reporter";
-            const userInfo = { name: userName, id: userId, role: role };
+            const userInfo = { name: userName, id: userId, role: role , bzentyNm:bzentyNm};
 
             if (role === "ADMIN" || role === "OPERATOR") {
                 setAdminAuth(accessToken, userInfo);

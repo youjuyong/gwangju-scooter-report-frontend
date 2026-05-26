@@ -10,8 +10,6 @@ const emptySubscribe = () => () => {};
 export default function Layout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
-    console.log(router);
-    console.log(pathname);
     let activeTab = "홈";
     if (pathname.includes("/notice")) activeTab = "공지사항";
     else if (pathname.includes("/reportList")) activeTab = "신고확인";
@@ -21,7 +19,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             const handleMessage = (event: MessageEvent) => {
                 if (event.data && event.data.type === 'NAVIGATE') {
                     const targetUrl = event.data.url;
-                    console.log("targetUrl 경로 : ", targetUrl);
                     
                     if (targetUrl.startsWith('/reportList') || targetUrl.startsWith('/citizen')) {
                         window.location.href = targetUrl; 

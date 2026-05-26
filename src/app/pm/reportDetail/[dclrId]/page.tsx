@@ -205,7 +205,6 @@ export default function ReportDetail() {
         // 2. dclrId 텍스트 데이터 추가
         formData.append("dclrId", dclrId);
         formData.append("prcsRsn", reason);
-        console.log(formData);
 
         // 3. dclrImages 파일 데이터 추가
         if (file1) formData.append("dclrImages", file1);
@@ -229,8 +228,6 @@ export default function ReportDetail() {
         setFiles(prev => ({...prev, [id]: null}));
     };
 
-    console.log(reason);
-    console.log(report);
     return (
         <div className="noMenubody noMenubodyLine">
             {isLoading && (
