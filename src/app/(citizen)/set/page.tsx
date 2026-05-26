@@ -21,20 +21,37 @@ export default function SettingsPage() {
     const { logout, updateFcmToken } = state;
 
     const [mounted, setMounted] = useState(false);
+    const [isSafari, setIsSafari] = useState(false);
 
     // 현재 푸시 상태 확인
     const isPushOn = mounted
-        ? (Notification.permission === 'granted' && !!currentAuth.fcmToken)
+        ? (isSafari ? false : (Notification.permission === 'granted' && !!currentAuth.fcmToken))
         : false;
+
+
     //토글 상태값
     useEffect(() => {
         const raf = requestAnimationFrame(() => {
             setMounted(true);
+
+            const userAgent = navigator.userAgent;
+            const isBrowser =
+                /Safari/.test(userAgent) &&
+                !/Chrome/.test(userAgent) &&
+                !/Chromium/.test(userAgent) &&
+                !/CriOS/.test(userAgent) &&
+                !/FxiOS/.test(userAgent) &&
+                !/KAKAOTALK/.test(userAgent) &&
+                !/NAVER/.test(userAgent);
+
+            const isApp = (window.navigator as any).standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+            if (!isBrowser && !isApp) {
+                setIsSafari(true);
+            }
         });
         return () => cancelAnimationFrame(raf);
     }, []);
-
-
 
     const handleLogout = async () => {
         if (!confirm("로그아웃 하시겠습니까?")) return;
@@ -61,7 +78,12 @@ export default function SettingsPage() {
 
         if (!isPushOn) {
             // OFF -> ON 하려는 경우
-            toast.loading("알림 설정을 활성화 중입니다...", { id: toastId });
+            if (isSafari) {
+                toast.error("iOS/Safari 환경에서는 '홈 화면에 추가'를 통해 앱을 설치하셔야 알림 설정이 가능합니다.");
+                return;
+            } else {
+                toast.loading("알림 설정을 활성화 중입니다...", { id: toastId });
+            }
             try {
 
                 let currentFcmToken = null;
@@ -114,6 +136,7 @@ export default function SettingsPage() {
                             type="button"
                             aria-pressed={isPushOn}
                             onClick={togglePush}
+                            disabled={isSafari}
                         >
                             {isPushOn ? "on" : "off"}
                         </button>
