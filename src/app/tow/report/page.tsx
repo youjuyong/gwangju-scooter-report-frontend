@@ -5,6 +5,7 @@ import {useRouter} from "next/navigation";
 import {BusinessInfo} from "@/types/report";
 import {getBusinessList, getReportStatus} from "@/services/report/reportApi";
 import {Scanner} from "@yudiel/react-qr-scanner";
+import {useAlert} from "@/components/popup/PopupProvider";
 
 export default function ReportPage() {
     const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ export default function ReportPage() {
     const isValid = formData.brand.trim() !== "" && formData.deviceId.trim() !== "";
     const [isValidated, setIsValidated] = useState<boolean>(false);
     const [dclrId, setDclrId] = useState<string>("");
-
+    const showAlert = useAlert();
     const updateFormData = (newData: Partial<typeof formData>) => {
         setFormData((prev) => ({...prev, ...newData}));
     };
@@ -97,7 +98,7 @@ export default function ReportPage() {
         }
 
         if (!isMatched) {
-            alert("존재하지 않거나 유효하지 않은 기기 정보입니다.");
+            showAlert("존재하지 않거나 유효하지 않은 기기 정보입니다.");
             updateFormData({
                 brand: "",
                 brandId: "",
@@ -130,7 +131,7 @@ export default function ReportPage() {
 
     const checkValidated = async (): Promise<string | false> => {
         if (!formData.brandId || !formData.deviceId) {
-            alert("브랜드와 킥보드 ID를 먼저 입력해주세요.");
+            showAlert("브랜드와 킥보드 ID를 먼저 입력해주세요.");
             return false;
         }
         const selectedBiz = businessList.find(b => b.bzentyId === formData.brandId);
@@ -150,7 +151,7 @@ export default function ReportPage() {
         } catch (error: any) {
             setIsValidated(false);
             const errMessage = error?.response?.data?.resultMsg;
-            alert(errMessage || "해당 업체에 등록되지 않았거나 유효하지 않은 킥보드입니다.");
+            showAlert(errMessage || "해당 업체에 등록되지 않았거나 유효하지 않은 킥보드입니다.");
             console.error("유효성 검사 중 에러:", error);
             return false;
         }

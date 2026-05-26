@@ -8,7 +8,7 @@ import { setCookie } from "cookies-next";
 import { useAuthStore, MemberRole } from "@/store/authStore"; // MemberRole 타입 추가
 import { toast } from "react-hot-toast";
 import { loginService } from "@/services/auth/loginApi";
-import RegisterForm from "@/components/RegisterForm";
+import {useAlert} from "@/components/popup/PopupProvider";
 
 export default function LoginForm() {
     const [userId, setUserId] = useState("");
@@ -19,7 +19,7 @@ export default function LoginForm() {
     const [isMounted, setIsMounted] = useState(false);
     const router = useRouter();
     const pathname = usePathname(); // Next.js 권장 방식인 usePathname 사용
-
+    const showAlert = useAlert();
     const state = useAuthStore();
     const { logout, updateFcmToken } = state;
 
@@ -82,7 +82,7 @@ export default function LoginForm() {
             const { data } = apiResponse;
             const { role, userNm, userId: resUserId, bzentyNm } = data.userInfo;
             const userInfo = { name: userNm, id: resUserId, role: role as MemberRole ,bzentyNm : bzentyNm };
-            // 🚀 2. 로그인 성공 시 ID 저장 로직 실행
+            // 2. 로그인 성공 시 ID 저장 로직 실행
             if (saveId) {
                 localStorage.setItem("savedUserId", userId);
             } else {
@@ -136,8 +136,16 @@ export default function LoginForm() {
                 if (userRole == "REPORT_USER") {
                     return handleLogin(undefined, true);
                 } else {
-                    if (confirm("이미 다른 기기에서 로그인 중입니다. 기존 연결을 끊고 여기서 로그인하시겠습니까?")) {
-                        return handleLogin(undefined, true);
+                    if (typeof window !== 'undefined') {
+                        // 1. 사용자가 팝업의 [확인]을 누르면 실행할 코드를 예약해 둡니다.
+                        (window as any).onPopupConfirm = () => {
+                            handleLogin(undefined, true);
+                        };
+
+                        // 2. 팝업창을 띄웁니다.
+                        if ((window as any).apiAlert) {
+                            (window as any).apiAlert("다른 기기에서 로그인중입니다.\n여기서 로그인하시겠습니까?");
+                        }
                     }
                 }
                 return;
@@ -193,8 +201,6 @@ export default function LoginForm() {
                 </div>
             </div>
 
-            {/* 필요 시 회원가입 모달 추가 */}
-            {isRegisterOpen && <RegisterForm onSuccess={() => setIsRegisterOpen(false)} />}
         </div>
     );
 }

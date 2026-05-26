@@ -8,6 +8,7 @@ import "../../../assets/style/css/base_style.css";
 import "../../../assets/style/css/style.css";
 import {getOutlineType} from "@/services/common/commonApi";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import {useAlert} from "@/components/popup/PopupProvider";
 
 interface MapProps {
     brandId: string;
@@ -22,7 +23,7 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
     const [outlinePath, setOutlinePath] = useState([]);
     const [bachList, setBachList] = useState<any[]>([]);
     const [jibunAddress, setJibunAddress] = useState<string>("");
-
+    const showAlert = useAlert();
     const fetchAddressInfo = useCallback((lat: number, lng: number) => {
         const {kakao} = window;
         if (!kakao || !kakao.maps.services) return;
@@ -162,7 +163,7 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
 
     const handleLocationSubmit = () => {
         if (!position || !zoneId || address === "위치를 선택해 주세요") {
-            alert("정확한 위치를 선택해 주세요.");
+            showAlert("정확한 위치를 선택해 주세요.");
             return;
         }
         if (outlinePath.length > 0) {

@@ -32,23 +32,23 @@ export default function ReportDetail() {
     const isEditableMode = status === "DEST02" || (status === "DEST03" && isProcessorMe);
     const isReadOnlyMode = status === "DEST04" || (status === "DEST03" && !isProcessorMe);
 
-    // 🚀 팝업 관련 상태 추가
+    //  팝업 관련 상태 추가
     const [isPhotoPopupOpen, setIsPhotoPopupOpen] = useState(false);
     const [activePhotoId, setActivePhotoId] = useState<string | null>(null);
 
-    // 🚀 Input 참조를 위한 Ref 추가
+    // Input 참조를 위한 Ref 추가
     const albumInputRef = useRef<HTMLInputElement>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
 
     // ... (fetchDetail, handleBack, handleCollect, handleComplete 등 기존 로직 유지)
 
-    // 🚀 팝업 열기 함수
+    // 팝업 열기 함수
     const handlePhotoClick = (id: string) => {
         setActivePhotoId(id);
         setIsPhotoPopupOpen(true);
     };
 
-    // 🚀 앨범/촬영 버튼 클릭 시 실제 input 실행
+    // 앨범/촬영 버튼 클릭 시 실제 input 실행
     const triggerAlbum = () => {
         setIsPhotoPopupOpen(false);
         albumInputRef.current?.click();
@@ -184,7 +184,7 @@ export default function ReportDetail() {
 
     // 완료 처리 함수
     const handleComplete = async (dclrId: string) => {
-        // ⭐ DOM 대신 상태(state)에 저장된 파일 객체를 바로 가져옵니다.
+        // DOM 대신 상태(state)에 저장된 파일 객체를 바로 가져옵니다.
         const file1 = files.firstImg;
         const file2 = files.secondImg;
 
@@ -243,7 +243,7 @@ export default function ReportDetail() {
                 onCameraClick={triggerCamera}
             />
 
-            {/* 🚀 숨겨진 실제 Input들 (앨범용 / 카메라용) */}
+            {/*  숨겨진 실제 Input들 (앨범용 / 카메라용) */}
             <input
                 type="file"
                 ref={albumInputRef}

@@ -7,6 +7,8 @@ import {handleApiError} from "@/hooks/errorHandler";
 import {getCodeType} from "@/services/common/commonApi";
 import {registerReport} from "@/services/report/reportApi";
 import imageCompression from "browser-image-compression";
+import {useAlert} from "@/components/popup/PopupProvider";
+import {toast} from "react-hot-toast";
 
 interface QRProps {
     formData: {
@@ -42,7 +44,7 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
         firstImg: formData.firstImgFile || null,
         secondImg: formData.secondImgFile || null,
     })
-
+    const showAlert = useAlert();
     const [fData, setFData] = useState({
         location: formData.location || "",
         lat: formData.lat || 0,
@@ -145,7 +147,7 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             // 파일 최소 크기 10KB 설정
             const MIN_SIZE = 10 * 1024;
             if (file.size < MIN_SIZE) {
-                alert("이미지 용량이 너무 작습니다. 10KB 이상의 사진을 등록해주세요");
+                showAlert("이미지 용량이 너무 작습니다. 10KB 이상의 사진을 등록해주세요");
 
                 e.target.value = "";
                 return;
@@ -201,12 +203,12 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
         e.preventDefault();
 
         if (!fData.location || !fData.typeCode || !fData.agreeChk || !fData.zoneId) {
-            alert("모든 필수 항목을 입력하고 동의해 주세요.");
+            showAlert("모든 필수 항목을 입력하고 동의해 주세요.");
             return;
         }
 
         if (!files.firstImg || !files.secondImg) {
-            alert("사진을 두장 등록해 주세요.");
+            showAlert("사진을 두장 등록해 주세요.");
             return;
         }
 
@@ -229,10 +231,10 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             const res = await registerReport(formDataPayload);
 
             if (res.success) {
-                alert("신고가 정상적으로 접수되었습니다.");
+                toast.success("신고가 정상적으로 접수되었습니다.");
                 onSuccess();
             } else {
-                alert(res.message || "신고 등록에 실패했습니다.");
+                showAlert(res.message || "신고 등록에 실패했습니다.");
             }
         } catch (error: any) {
             console.error("신고 전송 에러:", error);

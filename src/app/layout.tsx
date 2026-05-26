@@ -5,6 +5,7 @@ import BFCacheHandler from "@/components/auth/BFCacheHandler";
 import FocusVisibleProvider from "@/components/FocusVisibleProvider";
 import React from "react";
 import Script from "next/script";
+import {PopupProvider} from "@/components/popup/PopupProvider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -60,7 +61,9 @@ export default function RootLayout({
         <BFCacheHandler/>
         <Toaster/>
         <FocusVisibleProvider>
-            {children}
+            <PopupProvider>
+                {children}
+            </PopupProvider>
         </FocusVisibleProvider>
         </body>
         </html>

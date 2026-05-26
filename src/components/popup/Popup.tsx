@@ -2,23 +2,25 @@
 
 import React from "react";
 
-interface LoginPopupProps {
+interface PopupProps {
     isOpen: boolean;
     onClose: () => void;
     message?: string; // 문구도 필요시 변경 가능하도록 옵션 추가
 }
 
-export default function Popup({ isOpen, onClose, message = "로그인 후 이용하세요" }: LoginPopupProps) {
+export default function Popup({ isOpen, onClose, message = "로그인 후 이용하세요" }: PopupProps) {
     // 팝업이 열려있지 않으면 아무것도 렌더링하지 않음
     if (!isOpen) return null;
 
     return (
         <div className="popupbox" style={{ display: "block" }}>
             <div className="popupconten">
-                <p className="popuptxt">{message}</p>
+                <p className="popuptxt" style={{whiteSpace: "pre-line"}}>
+                    {message}
+                </p>
                 <div className="popupbtnset">
                     <button type="button" onClick={onClose}>
-                        확인
+                    확인
                     </button>
                 </div>
             </div>
