@@ -59,23 +59,29 @@ export default function ReportDetail() {
     };
 
     const handleFileChangeCustom = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFiles = e.target.files;
-        if (selectedFiles && selectedFiles[0] && activePhotoId) {
-            // 기존 handleFileChange 로직을 호출하거나 내용을 여기에 합칩니다.
-            // 여기서는 기존 로직을 재사용하기 위해 id를 activePhotoId로 간주하여 처리합니다.
-            processFile(activePhotoId, selectedFiles[0]);
+        const selectedFiles = e.target.files; // 사용자가 선택한 파일들 (배열 형태)
 
+        if (selectedFiles && selectedFiles.length > 0) {
+            // 최대 2장까지만 처리하도록 제한 (3장 넘게 골라도 앞의 2장만 사용)
+            const maxFiles = Math.min(selectedFiles.length, 2);
+
+            // 반복문을 돌며 순서대로 처리
+            for (let i = 0; i < maxFiles; i++) {
+                const targetId = i === 0 ? "firstImg" : "secondImg";
+                await processFile(targetId, selectedFiles[i]);
+            }
             // 동일 파일 재선택 가능하도록 input 초기화
             e.target.value = "";
         }
     };
     const processFile = async (id: string, file: File) => {
+        // 1. 최소 용량 체크
         const MIN_SIZE = 10 * 1024;
         if (file.size < MIN_SIZE) {
-            alert("이미지 용량이 너무 작습니다. 10KB 이상의 사진을 등록해주세요");
+            alert(`${id === "firstImg" ? "첫 번째" : "두 번째"} 이미지 용량이 너무 작습니다. (10KB 이상 필요)`);
             return;
         }
-
+        // 2. 이미지 압축 및 회전 방지
         const options = {
             maxSizeMB: 10,
             maxWidthOrHeight: 1920,
@@ -91,10 +97,14 @@ export default function ReportDetail() {
             console.error("이미지 처리 실패:", error);
         }
 
-        if (previews[id]) URL.revokeObjectURL(previews[id]);
+        // 3. 브라우저용 미리보기 URL 생성 (함수형 업데이트로 State 버그 방지)
         const previewUrl = URL.createObjectURL(processedFile);
 
-        setPreviews(prev => ({ ...prev, [id]: previewUrl }));
+        setPreviews(prev => {
+            if (prev[id]) URL.revokeObjectURL(prev[id]); // 기존 메모리 해제
+            return { ...prev, [id]: previewUrl };
+        });
+
         setFiles(prev => ({ ...prev, [id]: processedFile }));
     };
 
@@ -213,46 +223,7 @@ export default function ReportDetail() {
         setPreviews(prev => ({...prev, [id]: ""}));
         setFiles(prev => ({...prev, [id]: null}));
     };
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { id, files: selectedFiles } = e.target;
-        if (selectedFiles && selectedFiles[0]) {
-            let file = selectedFiles[0];
 
-            // 파일 최소 크기 10KB 체크
-            const MIN_SIZE = 10 * 1024;
-            if (file.size < MIN_SIZE) {
-                alert("이미지 용량이 너무 작습니다. 10KB 이상의 사진을 등록해주세요");
-                e.target.value = "";
-                return;
-            }
-
-            // 🚀 browser-image-compression을 이용한 회전 방지 및 압축 옵션
-            const options = {
-                maxSizeMB: 10,          // 최대 파일 용량 2MB로 제한 (원하는 대로 조절 가능)
-                maxWidthOrHeight: 1920, // 최대 해상도 제한
-                useWebWorker: true,
-                initialQuality: 0.8,   // 화질 유지 비율
-            };
-
-            try {
-                // 이 과정에서 EXIF Orientation을 체크해 이미지를 올바른 방향으로 회전시켜 줍니다.
-                const compressedFile = await imageCompression(file, options);
-
-                // 기존 file 객체 대신 회전 정렬 및 압축이 완료된 파일로 대체
-                file = new File([compressedFile], file.name, { type: file.type });
-            } catch (error) {
-                console.error("이미지 처리 실패:", error);
-            }
-
-            // 기존 프리뷰/파일 등록 로직 진행
-            if (previews[id]) URL.revokeObjectURL(previews[id]);
-
-            const previewUrl = URL.createObjectURL(file);
-
-            setPreviews(prev => ({ ...prev, [id]: previewUrl }));
-            setFiles(prev => ({ ...prev, [id]: file }));
-        }
-    };
 
     return (
         <div className="noMenubody noMenubodyLine">
@@ -275,6 +246,7 @@ export default function ReportDetail() {
                 ref={albumInputRef}
                 style={{ display: "none" }}
                 accept="image/*"
+                multiple={true} // 앨범 다중 선택
                 onChange={handleFileChangeCustom}
             />
             <input
