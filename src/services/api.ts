@@ -86,7 +86,7 @@ api.interceptors.request.use(
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            // console.log(config.headers.Authorization);
+
         }
         if (csrfToken) {
             config.headers['X-XSRF-TOKEN'] = csrfToken;
@@ -106,8 +106,6 @@ authApi.interceptors.request.use(
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            // console.log(config.headers.Authorization);
-            // console.log(useAuthStore.getState()[authType]);
         }
         if (csrfToken) {
             config.headers['X-XSRF-TOKEN'] = csrfToken;
@@ -166,7 +164,7 @@ api.interceptors.response.use(
                 const currentGroup = state[authType];
 
                 // ✅ userInfo가 null일 경우를 대비해 기본 객체({ name: null, id: null, role: null })를 병합
-                const safeUserInfo = currentGroup.userInfo || { name: null, id: null, role: null };
+                const safeUserInfo = currentGroup.userInfo || { name: null, id: null, role: null, bzentyNm: null };
 
                 if (authType === 'admin') state.setAdminAuth(newAccessToken, safeUserInfo);
                 else if (authType === 'pm') state.setPmAuth(newAccessToken, safeUserInfo);
