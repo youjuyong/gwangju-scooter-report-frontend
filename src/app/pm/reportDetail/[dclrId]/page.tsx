@@ -15,6 +15,7 @@ export default function ReportDetail() {
     const [report, setReport] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const {dclrId} = useParams<{ dclrId: string }>();
+    const [reason, setReason] = useState("");
     const [previews, setPreviews] = useState<{ [key: string]: string }>({
         firstImg: "",
         secondImg: "",
@@ -187,8 +188,8 @@ export default function ReportDetail() {
         const file1 = files.firstImg;
         const file2 = files.secondImg;
 
-        if (!file1 && !file2) {
-            toast.error("최소 1장 이상의 현장 사진을 등록해 주세요.");
+        if (!file1 && !file2 && !reason.trim()) {
+            toast.error("현장 사진을 최소 1장 등록하거나 사유를 입력해 주세요.");
             return;
         }
 
@@ -199,8 +200,12 @@ export default function ReportDetail() {
         // 1. FormData 객체 생성
         const formData = new FormData();
 
+
+
         // 2. dclrId 텍스트 데이터 추가
         formData.append("dclrId", dclrId);
+        formData.append("prcsRsn", reason);
+        console.log(formData);
 
         // 3. dclrImages 파일 데이터 추가
         if (file1) formData.append("dclrImages", file1);
@@ -224,7 +229,8 @@ export default function ReportDetail() {
         setFiles(prev => ({...prev, [id]: null}));
     };
 
-
+    console.log(reason);
+    console.log(report);
     return (
         <div className="noMenubody noMenubodyLine">
             {isLoading && (
@@ -344,7 +350,14 @@ export default function ReportDetail() {
                                     </div>
                                     <div className="reasonBox">
                                         <label htmlFor="reason">사유</label>
-                                        <input type="text" id="reason" name="reason" placeholder="사유를 입력하세요" />
+                                        <input
+                                            type="text"
+                                            id="reason"
+                                            name="reason"
+                                            placeholder="사유를 입력하세요"
+                                            value={reason} // 👈 연결
+                                            onChange={(e) => setReason(e.target.value)} // 👈 타이핑 감지
+                                        />
                                     </div>
 
                                 </>
@@ -387,7 +400,13 @@ export default function ReportDetail() {
                                     </div>
                                     <div className="reasonBox">
                                         <label htmlFor="reason">사유</label>
-                                        <input type="text" id="reason" name="reason" value = {"test"} readOnly={true} />
+                                        <input
+                                            type="text"
+                                            id="reason"
+                                            name="reason"
+                                            value={report?.prcrHis.prcsRsn || "등록된 사유가 없습니다."} // 👈 서버에서 온 사유 매핑
+                                            readOnly={true}
+                                        />
                                     </div>
 
 
