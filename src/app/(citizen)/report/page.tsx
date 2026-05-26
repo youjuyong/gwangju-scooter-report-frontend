@@ -5,9 +5,10 @@ import ReportLocation from "@/components/citizen/report/ReportLocation";
 import ReportCitizenQRCode from "@/components/citizen/report/ReportCitizenQRCode";
 import ReportCitizen from "@/components/citizen/report/ReportCitizen";
 import ReportSuccess from "@/components/citizen/report/ReportSuccess";
+import ReportTerms from "@/components/citizen/report/ReportTerms";
 
 export default function ReportPage() {
-    const [step, setStep] = useState<"QR" | "FORM" | "MAP" | "SUCCESS">("QR");
+    const [step, setStep] = useState<"QR" | "FORM" | "MAP" | "SUCCESS" | "AGREE">("QR");
 
     const initialFormData = {
         deviceId: "",
@@ -70,13 +71,23 @@ export default function ReportPage() {
                     formData={formData}
                     onNext={(data) => {
                         updateFormData(data);
-                        setStep("MAP");
+                        if (data.targetStep === "AGREE") {
+                            setStep("AGREE");
+                        } else {
+                            setStep("MAP");
+                        }
                     }}
                     onBack={() => {
                         resetFormData();
                         setStep("QR")
                     }}
                     onSuccess={() => setStep("SUCCESS")}
+                />
+            );
+        case "AGREE":
+            return (
+                <ReportTerms
+                    onBack={() => setStep("FORM")}
                 />
             );
         case "SUCCESS":

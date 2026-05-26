@@ -106,8 +106,8 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
         setFData({...fData, [name]: val});
     };
 
-    const openMap = () => {
-        onNext({
+    const getUpdatedFormData = () => {
+        return {
             ...formData,
             location: fData.location,
             lat: fData.lat,
@@ -120,6 +120,20 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             secondImgFile: files.secondImg,
             firstImgPreview: previews.firstImg,
             secondImgPreview: previews.secondImg
+        };
+    };
+
+    const openMap = () => {
+        onNext({
+            ...getUpdatedFormData(),
+            targetStep: "MAP"
+        });
+    };
+
+    const openTerms = () => {
+        onNext({
+            ...getUpdatedFormData(),
+            targetStep: "AGREE"
         });
     };
 
@@ -386,7 +400,16 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
                                     required
                                 />
                                 <label htmlFor="agreeChk">개인정보 활용에 동의합니다</label>
-                                <a href="#" className="btn-send">개인정보 처리방침</a>
+                                <a
+                                    href="#"
+                                    className="btn-send"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        openTerms();
+                                    }}
+                                >
+                                    개인정보 처리방침
+                                </a>
                             </li>
                         </ul>
 
