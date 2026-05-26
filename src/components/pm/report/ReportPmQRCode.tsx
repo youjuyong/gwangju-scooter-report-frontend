@@ -53,6 +53,8 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
                 brand: selectedBiz ? selectedBiz.bzentyNm : "",
                 brandId: value
             });
+        } else if (name === "deviceId") {
+            onUpdate({[name]: value.toUpperCase()});
         } else {
             onUpdate({[name]: value});
         }
@@ -81,7 +83,7 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
                     onUpdate({
                         brand: business.bzentyNm,
                         brandId: business.bzentyId,
-                        deviceId: extractedId,
+                        deviceId: extractedId.toUpperCase(),
                         qrValue: qrValue,
                     });
                     isMatched = true;
@@ -220,6 +222,7 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
                                             value={formData.deviceId}
                                             onChange={handleInputChange}
                                             required
+                                            style={{textTransform: 'uppercase'}}
                                         />
                                     </li>
                                 </ul>
