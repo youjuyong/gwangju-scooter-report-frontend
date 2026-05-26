@@ -24,7 +24,7 @@ header h1 img{vertical-align: middle;}
 .header_right{position: absolute; right: 7px; top: 5px; z-index: 2; }
 .header_right a{display: block; float: left; font-size: 11px; width: 45px; height: 45px; color: transparent; line-height: 45px; text-align: center;}
 .header_right .btnalarm{background: url(../images/icon_alarm_s.png)center no-repeat; position: relative}
-.btnalarm .new{position: absolute; right: 4px; top:10px; display: block; width: 8px; height:8px; line-height:10px; background: #fffd5c;  border-radius: 50px; text-indent:-9999px; white-space: nowrap;}
+.btnalarm .new{position: absolute; right: 4px; top:10px; display: block; width: 8px; height:8px; line-height:10px; background: #fffd5c; border-radius: 50px; text-indent:-9999px; white-space: nowrap;}
 .header_right .btnlogout{background: url(../images/icon_logout.png)center no-repeat;}
 header nav{height: 44px; position: absolute; bottom: 11px; left: 10px; right: 10px;}
 header nav li{float: left; width: 33.3%; height:44px; border-radius: 50px;}
@@ -104,7 +104,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 
 .camera_on{width: 100%; height: 100%; text-align: center; position: relative;}
 .camera_on .ex{color: #fff; font-size: 13px;width: 300px; height: 50px; position: absolute; left: 50%; top: 50%; margin:95px 0 0 -150px; line-height: 17px; z-index: 3}
-.camera_bg{width: 100%; height: 100%; background: url(../images/qr.png)center no-repeat; position: absolute; z-index: 2;}
+/*.camera_bg{width: 100%; height: 100%; background: url(../images/qr.png)center no-repeat; position: absolute; z-index: 2;}*/
 .camera_box{width: 100%; height: 100%; position: absolute; z-index: 1;}
 
 .sub_article_padding{padding: 15px;}
@@ -129,7 +129,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 .btn-send{ font-size: 12px; color:#000; height: 25px; line-height: 25px; border: 1px solid #b7b7b7; border-radius:5px; background: #f3f2f2; display: inline-block;width:109px; text-align: center; margin-left: 5px; vertical-align: middle;}
 
 .visually-hidden {position: absolute; width: 1px!important; height: 1px; padding: 0;
-  margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); border: 0;white-space: nowrap;}
+    margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); border: 0;white-space: nowrap;}
 .visually-hidden:focus-visible + label {outline: dotted 2px #cde3ff; box-shadow: inset 0 0 0px 4px rgba(0,0,0,1); outline-offset: -3px; text-decoration: underline;}
 
 .allBox{width: 100%; padding: 20px; position: relative;}
@@ -138,7 +138,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 /*회수관리*/
 .subBoard{width: 100%; position: relative;}
 .subBoard h2{font-size: 15px; height: 25px; line-height: 25px; margin-bottom: 10px;}
-.listBody li{width: 100%; border: 1px solid #c3c3c3; border-radius: 10px; margin-bottom: 10px; padding: 13px; background: url(../images/arrow.png)right 15px top 15px no-repeat;}
+.listBody li{width: 100%; border: 1px solid #c3c3c3; border-radius: 10px; margin-bottom: 10px; padding: 13px; background: url(../images/arrow.png)right 15px top 15px no-repeat; position: relative;}
 
 .listBody li a{display: block; width: 100%; height: 100%; border-radius: 10px; }
 .situation{border-radius: 50px; width: 70px; height: 23px; line-height: 23px; color: #fff; font-size: 13px; text-align: center; background: #636363}
@@ -157,7 +157,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 
 .listbtnset{width: 100%; text-align: center; font-size: 0;}
 .listbtnset button{width:40%; height: 38px; border-radius: 5px; display: inline-block; margin: 0 3px; font-size: 14px; color: #fff; font-weight: 500}
-.listbtnset button.btn_complete{background: #535353;} 
+.listbtnset button.btn_complete{background: #535353;}
 .listbtnset button.btn_acc{background: #e03400;}
 
 .dateselet{position: absolute; right: 0px; top: -10px; width: 140px;}
@@ -242,32 +242,32 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 /*팝업*/
 .popupbox{position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 99}
 .popupbox .popbg{width: 100%; height: 100%; background: rgba(0,0,0,0.1);
- -webkit-animation-name:on; animation-name:on;
-	-webkit-animation-iteration-count:1; animation-iteration-count:1;
-	-webkit-animation-duration: 0.3s; animation-duration: 0.3s;} 
+    -webkit-animation-name:on; animation-name:on;
+    -webkit-animation-iteration-count:1; animation-iteration-count:1;
+    -webkit-animation-duration: 0.3s; animation-duration: 0.3s;}
 
 @keyframes on {
-	0% {opacity: 0;}
-	100% {opacity: 1;}
+    0% {opacity: 0;}
+    100% {opacity: 1;}
 }
 
 @-webkit-keyframes on {
-	0% {opacity: 0;}
-	100% {opacity: 1;}
+    0% {opacity: 0;}
+    100% {opacity: 1;}
 }
 
 .popupconten{position: absolute; z-index: 2; width: 200px; background:url(../images/mark.png)center 15px #fff no-repeat; border-radius: 10px; border-top: 2px solid #e03400; overflow: hidden; text-align: center; font-size: 13px; padding: 80px 10px 20px 10px; left: 50%; top: 50%; margin-left: -100px; margin-top:-86.5px; -webkit-animation-name:down; animation-name:down;
-	-webkit-animation-iteration-count:1; animation-iteration-count:1;
-	-webkit-animation-duration: 0.3s; animation-duration: 0.3s;}
+    -webkit-animation-iteration-count:1; animation-iteration-count:1;
+    -webkit-animation-duration: 0.3s; animation-duration: 0.3s;}
 
 @keyframes down {
-	0% {top:48%; opacity: 0;}
-	100% {top:50%; opacity: 1;}
+    0% {top:48%; opacity: 0;}
+    100% {top:50%; opacity: 1;}
 }
 
 @-webkit-keyframes down {
-	0% {top:48%; opacity: 0;}
-	100% {top:50%; opacity: 1;}
+    0% {top:48%; opacity: 0;}
+    100% {top:50%; opacity: 1;}
 }
 
 
@@ -301,7 +301,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 
 .fix{display:inline-block; background: url(../images/speaker.png)left center no-repeat; padding-left: 5px; font-size: 11px; color: transparent; width: 19px; height: 21px; overflow: hidden; vertical-align: middle;margin-top: -1px}
 
-
+.mapgo{position: absolute; right:39px; top: 10px; width: 70px; height:30px; font-size: 13px; border-radius: 5px; border: 1px solid #d5d5d5; font-weight: 300}
 
 
 
