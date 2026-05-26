@@ -55,6 +55,8 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                 brand: selectedBiz ? selectedBiz.bzentyNm : "",
                 brandId: value
             });
+        } else if (name === "deviceId") {
+            onUpdate({[name]: value.toUpperCase()});
         } else {
             onUpdate({[name]: value});
         }
@@ -80,11 +82,10 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                     if (business.bzentyNm.toLowerCase().includes("gbike")) {
                         extractedId = extractedId.slice(-6);
                     }
-
                     onUpdate({
                         brand: business.bzentyNm,
                         brandId: business.bzentyId,
-                        deviceId: extractedId,
+                        deviceId: extractedId.toUpperCase(),
                         qrValue: qrValue,
                     });
                     isMatched = true;
@@ -173,11 +174,13 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                             <div className="camera_on">
                                 <div className="camera_bg"></div>
                                 <div className="camera_box" aria-label="QR코드 스캔 영역">
-                                    <Scanner
-                                        onScan={handleScan}
-                                        onError={() => setIsCamera(false)}
-                                        constraints={{facingMode: "environment"}}
-                                    />
+                                    {isCamera && (
+                                        <Scanner
+                                            onScan={handleScan}
+                                            onError={() => setIsCamera(false)}
+                                            constraints={{facingMode: "environment"}}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -221,6 +224,7 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                                             value={formData.deviceId}
                                             onChange={handleInputChange}
                                             required
+                                            style={{textTransform: 'uppercase'}}
                                         />
                                     </li>
                                 </ul>
