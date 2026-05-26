@@ -9,7 +9,7 @@ header h1 img{vertical-align: middle;}
 .header_right{position: absolute; right: 7px; top: 5px; z-index: 2; }
 .header_right a{display: block; float: left; font-size: 11px; width: 45px; height: 45px; color: transparent; line-height: 45px; text-align: center;}
 .header_right .btnalarm{background: url(../images/icon_alarm_s.png)center no-repeat; position: relative}
-.btnalarm .new{position: absolute; right: 4px; top:10px; display: block; width: 8px; height:8px; line-height:10px; background: #0048ff; border-radius: 50px; text-indent:-9999px; white-space: nowrap;}
+.btnalarm .new{position: absolute; right: 4px; top:10px; display: block; width: 8px; height:8px; line-height:10px; background: #fffd5c;  border-radius: 50px; text-indent:-9999px; white-space: nowrap;}
 .header_right .btnset{background: url(../images/icon_set_s.png)center no-repeat;}
 header nav{height: 44px; position: absolute; bottom: 11px; left: 10px; right: 10px;}
 header nav li{float: left; width: 33.3%; height:44px; border-radius: 50px;}
