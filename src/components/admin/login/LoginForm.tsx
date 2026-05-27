@@ -131,24 +131,8 @@ export default function LoginForm() {
         } catch (err: any) {
             toast.dismiss(toastId);
 
-            if (err.response?.status === 409) {
-                const userRole = err.response.data?.role;
-                if (userRole == "REPORT_USER") {
-                    return handleLogin(undefined, true);
-                } else {
-                    if (typeof window !== 'undefined') {
-                        // 1. 사용자가 팝업의 [확인]을 누르면 실행할 코드를 예약해 둡니다.
-                        (window as any).onPopupConfirm = () => {
-                            handleLogin(undefined, true);
-                        };
-
-                        // 2. 팝업창을 띄웁니다.
-                        if ((window as any).apiAlert) {
-                            (window as any).apiAlert("다른 기기에서 로그인중입니다.\n여기서 로그인하시겠습니까?");
-                        }
-                    }
-                }
-                return;
+            if (await showAlert("이미 다른 기기에서 로그인 중입니다. 기존 연결을 끊고 여기서 로그인하시겠습니까?")) {
+                return handleLogin(undefined, true);
             }
 
             handleApiError(err, err.response?.data.resultMsg);
