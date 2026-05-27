@@ -5,7 +5,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { pmDcleReportRequestForm, pmDcleReportResponse, staffsResponse } from "@/types/report";
-import { getDclrCollect, getTowDclrComplete, getPmDclrListApi, getStaffsList } from "@/services/report/reportApi_tow";
+//import { getDclrCollect, getTowDclrComplete, getPmDclrListApi, getStaffsList } from "@/services/report/reportApi_tow";
+import {  getTowDclrComplete, getStaffsList } from "@/services/report/reportApi_tow";
 import {useAuthStore} from "@/store/authStore";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import {useAlert} from "@/components/popup/PopupProvider";
@@ -49,9 +50,9 @@ export default function ReportList({
                 prcsUserId: workerFilter,
                 dclrSttsCd: statusFilter
             };
-            const data = await getTowDclrListApi(requestParams, token);
+         //   const data = await getTowDclrListApi(requestParams, token);
             // console.log(data);
-            setReports(data || []);
+          //  setReports(data || []);
         } catch (error) {
             console.error(`${title} 데이터 로드 실패:`, error);
             toast.error("리스트를 불러오는 데 실패했습니다.");
@@ -104,7 +105,7 @@ export default function ReportList({
     const handleCollect = async (dclrId: string) => {
         if (!await showAlert("회수진행 처리를 하시겠습니까?")) return;
         try {
-            await getPmDclrCollect(dclrId);
+         //   await getPmDclrCollect(dclrId);
             toast.success("회수진행 처리가 완료되었습니다.");
             fetchReports();
         } catch (error) {
