@@ -54,7 +54,7 @@ export default function ReportListPage() {
                                 <a>
 
                                     <p className={`situation ${statusClass}`}>
-                                        {item.dclrStts?.cdNm}
+                                        {isCompleted ? "처리완료" : "처리중"}
                                     </p>
                                     <p className="add">{item.dclrAddrTxt}</p>
 
