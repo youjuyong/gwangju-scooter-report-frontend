@@ -131,11 +131,27 @@ export default function LoginForm() {
         } catch (err: any) {
             toast.dismiss(toastId);
 
-            if (await showAlert("다른 기기에서 로그인중입니다.\n여기서 로그인하시겠습니까?")) {
-                return handleLogin(undefined, true);
+            if (err.response?.status === 409) {
+                const userRole = err.response.data?.role;
+                if (userRole == "REPORT_USER ") {
+                    return handleLogin(undefined, true);
+                } else {
+                    if (await showAlert("다른 기기에서 로그인중입니다.\n여기서 로그인하시겠습니까?")) {
+                        return handleLogin(undefined, true);
+                    }
+                }
+                return;
             }
 
-            handleApiError(err, err.response?.data.resultMsg);
+            const resultCode = err.response?.data.resultCode;
+            if (resultCode === "E008") {
+                toast.error(ERROR_MESSAGES[resultCode]);
+                return;
+            }else if(resultCode === "E005") {
+                toast.error(err.response?.data.resultMsg);
+            }
+
+            handleApiError(err, "로그인 정보가 올바르지 않습니다.");
         }
     };
 
