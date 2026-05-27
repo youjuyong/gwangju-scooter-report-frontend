@@ -30,15 +30,20 @@ const getAuthTypeByPath = () => {
     if (path.startsWith('/tow')) return 'tow';
     return 'reporter'; // 기본값
 };
-const handleDuplicateLogin = (errorResponse: any, state: any, authType: string) => {
+const handleDuplicateLogin = async (errorResponse: any, state: any, authType: string) => {
     if (isSessionExpiredAlertShown) return;
 
     isSessionExpiredAlertShown = true;
-    
+
     const userRole = errorResponse.data?.data?.role as MemberRole;
     const serverMessage = errorResponse.data?.message || "다른 기기에서 로그인되어 연결이 종료되었습니다.";
 
-    toast.success(serverMessage);
+    console.log(serverMessage);
+
+    if (typeof window !== 'undefined' && (window as any).showAlert) {
+        await (window as any).showAlert(serverMessage);
+    }
+
     state.logout(authType);
 
     if (typeof window !== 'undefined') {
