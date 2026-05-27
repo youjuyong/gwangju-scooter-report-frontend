@@ -43,12 +43,12 @@ export default function SettingsPage() {
         try {
             // 백엔드에 로그아웃 알림 (기기 정보 전달)
             await authApi.post("/logout", { deviceType });
-            clearStore();
             // 클라이언트 상태 및 쿠키 삭제
             logout(authType);
             deleteCookie(`${authType}AccessToken`);
             delete axios.defaults.headers.common["Authorization"];
-
+            clearStore(); //알림 리스트 삭제
+            console.log("알림 삭제");
             toast.success("로그아웃되었습니다.");
             router.replace("/");
         } catch (error) {

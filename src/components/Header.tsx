@@ -75,9 +75,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const handleLogout = async () => {
         if (!await showAlert("로그아웃 하시겠습니까?")) return;
         try {
-            console.log("=== 로그아웃 시작 ===");
-            clearStore();
-            console.log("=== 알림 스토어 초기화 완료 ===");
+
             // 백엔드에 로그아웃 알림 (기기 정보 전달)
             await authApi.post("/logout", { deviceType });
 
@@ -87,7 +85,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
             deleteCookie(`${authType}AccessToken`);
 
             delete axios.defaults.headers.common["Authorization"];
-
+            clearStore(); // 헤더 알림 리스트 삭제
             toast.success("로그아웃되었습니다.");
 
             // 로그아웃 후 해당 서비스의 로그인 페이지 또는 메인으로 이동
