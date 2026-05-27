@@ -46,8 +46,10 @@ export default function SettingsPage() {
 
             const isApp = (window.navigator as any).standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 
-            if (!isBrowser && !isApp) {
+            if (isBrowser && !isApp) {
                 setIsSafari(true);
+            } else {
+                setIsSafari(false);
             }
         });
         return () => cancelAnimationFrame(raf);
