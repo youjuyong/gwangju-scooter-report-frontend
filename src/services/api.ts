@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {useAuthStore} from '@/store/authStore';
 import { MemberRole } from '@/store/authStore';
+import {toast} from "react-hot-toast";
 
 // CSRF 및 기본 설정 전역 적용
 axios.defaults.withCredentials = true;
@@ -37,7 +38,7 @@ const handleDuplicateLogin = (errorResponse: any, state: any, authType: string) 
     const userRole = errorResponse.data?.data?.role as MemberRole;
     const serverMessage = errorResponse.data?.message || "다른 기기에서 로그인되어 연결이 종료되었습니다.";
 
-    alert(serverMessage);
+    toast.success(serverMessage);
     state.logout(authType);
 
     if (typeof window !== 'undefined') {
