@@ -65,14 +65,16 @@ export default function ReportDetail() {
         const selectedFiles = e.target.files; // 사용자가 선택한 파일들 (배열 형태)
 
         if (selectedFiles && selectedFiles.length > 0) {
-            // 최대 2장까지만 처리하도록 제한 (3장 넘게 골라도 앞의 2장만 사용)
-            const maxFiles = Math.min(selectedFiles.length, 2);
-
-            // 반복문을 돌며 순서대로 처리
-            for (let i = 0; i < maxFiles; i++) {
-                const targetId = i === 0 ? "firstImg" : "secondImg";
-                await processFile(targetId, selectedFiles[i]);
+            // 🌟 1. 앨범에서 1장만 선택한 경우 -> 클릭한 칸(activePhotoId)에 정확히 매핑
+            if (selectedFiles.length === 1 && activePhotoId) {
+                await processFile(activePhotoId, selectedFiles[0]);
             }
+            // 🌟 2. 앨범에서 2장 이상을 동시에 선택한 경우 -> 앞의 2장을 순서대로 자동 배치
+            else if (selectedFiles.length >= 2) {
+                await processFile("firstImg", selectedFiles[0]);
+                await processFile("secondImg", selectedFiles[1]);
+            }
+
             // 동일 파일 재선택 가능하도록 input 초기화
             e.target.value = "";
         }

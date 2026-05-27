@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import "../../../assets/style/css/base_style.css";
 import "../../../assets/style/css/style.css";
 import {handleApiError} from "@/hooks/errorHandler";
@@ -9,6 +9,7 @@ import {registerReport} from "@/services/report/reportApi";
 import imageCompression from "browser-image-compression";
 import {useAlert} from "@/components/popup/PopupProvider";
 import {toast} from "react-hot-toast";
+import PhotoPopup from "@/components/popup/PhotoPopup";
 
 interface QRProps {
     formData: {
@@ -56,6 +57,11 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
         zoneId: formData.zoneId || "",
     });
 
+    // 팝업 및 실제 숨겨진 Input 제어용 상태와 Ref 추가
+    const [isPhotoPopupOpen, setIsPhotoPopupOpen] = useState(false);
+    const [activePhotoId, setActivePhotoId] = useState<string | null>(null);
+    const albumInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
         setFData(prev => ({
             ...prev,
@@ -244,6 +250,77 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
             setIsLoading(false);
         }
     };
+    // 🌟 사진 박스 클릭 시 어떤 칸(id)인지 기록하고 팝업을 엽니다.
+    const handlePhotoClick = (id: string) => {
+        setActivePhotoId(id);
+        setIsPhotoPopupOpen(true);
+    };
+
+    // 🌟 팝업 내부 버튼 클릭 핸들러들
+    const triggerAlbum = () => {
+        setIsPhotoPopupOpen(false);
+        albumInputRef.current?.click();
+    };
+
+    const triggerCamera = () => {
+        setIsPhotoPopupOpen(false);
+        cameraInputRef.current?.click();
+    };
+    // 🌟 개별 파일 압축 및 데이터 맵핑 공통 모듈
+    const processFile = async (id: string, file: File) => {
+        const MIN_SIZE = 10 * 1024;
+        if (file.size < MIN_SIZE) {
+            showAlert(`${id === "firstImg" ? "첫 번째" : "두 번째"} 이미지 용량이 너무 작습니다. (10KB 이상 필요)`);
+            return;
+        }
+
+        const options = {
+            maxSizeMB: 10,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+            initialQuality: 0.8,
+        };
+
+        let processedFile = file;
+        try {
+            const compressedFile = await imageCompression(file, options);
+            processedFile = new File([compressedFile], file.name, {type: file.type});
+        } catch (error) {
+            console.error("이미지 처리 실패:", error);
+        }
+
+        setPreviews(prev => {
+            if (prev[id]) URL.revokeObjectURL(prev[id]);
+            return {...prev, [id]: URL.createObjectURL(processedFile)};
+        });
+        setFiles(prev => ({...prev, [id]: processedFile}));
+
+        if (id === "firstImg") {
+            formData.firstImgFile = processedFile;
+            formData.firstImgPreview = URL.createObjectURL(processedFile);
+        } else {
+            formData.secondImgFile = processedFile;
+            formData.secondImgPreview = URL.createObjectURL(processedFile);
+        }
+    };
+
+    // 🌟 다중 선택(앨범) 및 단일 촬영(카메라)을 모두 커버하는 커스텀 파일 체인지 핸들러
+    const handleFileChangeCustom = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = e.target.files;
+        if (!selectedFiles || selectedFiles.length === 0) return;
+
+        // 카메라 촬영이거나 앨범에서 1장만 선택한 경우
+        if (selectedFiles.length === 1 && activePhotoId) {
+            await processFile(activePhotoId, selectedFiles[0]);
+        }
+        // 앨범에서 2장 이상을 동시에 선택한 경우
+        else if (selectedFiles.length >= 2) {
+            await processFile("firstImg", selectedFiles[0]);
+            await processFile("secondImg", selectedFiles[1]);
+        }
+
+        e.target.value = ""; // 동일 파일 재선택 제어용 초기화
+    };
 
     return (
         <div className={`wrap noMenubody`}>
@@ -284,6 +361,31 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
                 `}</style>
                 </div>
             )}
+            {/* 🌟 기존 ReportDetail에서 구현한 것과 동일한 구조의 내장 컴포넌트 배치 */}
+            <PhotoPopup
+                isOpen={isPhotoPopupOpen}
+                onClose={() => setIsPhotoPopupOpen(false)}
+                onAlbumClick={triggerAlbum}
+                onCameraClick={triggerCamera}
+            />
+
+            {/* 🌟 팝업 액션에 매핑되는 숨겨진 실제 인풋창 2개 */}
+            <input
+                type="file"
+                ref={albumInputRef}
+                style={{ display: "none" }}
+                accept="image/*"
+                multiple={true}
+                onChange={handleFileChangeCustom}
+            />
+            <input
+                type="file"
+                ref={cameraInputRef}
+                style={{ display: "none" }}
+                accept="image/*"
+                capture="environment"
+                onChange={handleFileChangeCustom}
+            />
             <header>
                 <h1>킥보드 방치 신고</h1>
                 <button type="button" className="back" onClick={onBack}>뒤로 가기</button>
@@ -367,17 +469,13 @@ export default function ReportCitizen({formData, onNext, onBack, onSuccess}: QRP
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <input
-                                                                type="file"
-                                                                id={id}
-                                                                className="visually-hidden"
-                                                                accept="image/*"
-                                                                capture="environment"
-                                                                onChange={handleFileChange}
-                                                            />
-                                                            <label htmlFor={id} className="camerain">
+                                                            <div
+                                                                className="camerain"
+                                                                onClick={() => handlePhotoClick(id)}
+                                                                style={{cursor: 'pointer'}}
+                                                            >
                                                                 {index === 0 ? "첫 번째 촬영" : "두 번째 촬영"}
-                                                            </label>
+                                                            </div>
                                                         </>
                                                     )}
                                                 </div>
