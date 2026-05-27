@@ -1,32 +1,81 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuthStore } from "@/store/authStore";
-import { Map, CustomOverlayMap, useKakaoLoader } from "react-kakao-maps-sdk";
+import { useKakaoLoader } from "react-kakao-maps-sdk";
+import {getMyBachList, getPmDclrListApi} from "@/services/report/reportApi";
+import { getOutlineType } from "@/services/common/commonApi";
+import Cookies from "js-cookie";
+import KakaoMapSection from "@/components/dashboard/KakaoMapContainer";
+import {getTowDclrListApi} from "@/services/report/reportApi_tow";
+const pmtoken = Cookies.get("pmAccessToken");
 
 export default function MainHome() {
     const router = useRouter();
     const pathname = usePathname();
-    const Token = useAuthStore((state) => state.pm);
 
-    // 1. 카카오 지도 스크립트 로드 (ReportLocation과 동일한 방식)
+    const [reports, setReports] = useState([]);
+    const [outlinePath, setOutlinePath] = useState([]);
+
     const [loading, error] = useKakaoLoader({
         appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
         libraries: ["services"],
     });
+    const prefix = useMemo(() => (pathname.startsWith("/pm") ? "/pm" : "/tow"), [pathname]);
+    const center = useMemo(() => ({ lat: 37.429, lng: 127.255 }), []);
+    const [bachList, setBachList] = useState<any[]>([]);
 
-    // URL Prefix 추출
-    const prefix = pathname.startsWith("/pm")
-        ? "/pm"
-        : pathname.startsWith("/admin")
-        ? "/admin"
-        : pathname.startsWith("/tow")
-        ? "/tow"
-        : "";
+    useEffect(() => {
+        const initData = async () => {
+            try {
+                const [reportRes, outlineRes]:any = await Promise.all([
+                    getTowDclrListApi({ searchMonth: "", searchDate: "", prcsUserId: "", dclrSttsCd: "" ,isMap :"Y"},pmtoken),
+                    getOutlineType()
+                ]);
+                if (reportRes) setReports(reportRes);
 
-    // 지도 중심 좌표 상태
-    const [center, setCenter] = useState({ lat: 37.429, lng: 127.255 }); // 광주시청 근처 예시 좌표
+                if (outlineRes && Array.isArray(outlineRes)) {
+                    const formattedPath:any = outlineRes
+                        .sort((a: any, b: any) => a.ord - b.ord)
+                        .map((item: any) => ({
+                            lat: Number(item.ycrdn),
+                            lng: Number(item.xcrdn)
+                        }));
+                    setOutlinePath(formattedPath);
+                }
+            } catch (err) {
+                console.error("초기 데이터 로드 실패:", err);
+            }
+        };
+
+        if (!loading) initData();
+    }, [loading]);
+
+    useEffect(() => {
+        const getMyCompanyBach = async () => {
+            try {
+                const res = await getMyBachList();
+                if (res && res.success && Array.isArray(res.data)) {
+                    setBachList(res.data);
+                }
+
+            } catch (e) {
+                console.error('Error : ', e);
+            }
+        };
+        getMyCompanyBach();
+    }, []);
+
+    const handleMarkerClick = useCallback((id: string) => {
+        router.push(`${prefix}/reportDetail/${id}`);
+    }, [prefix, router]);
+
+    // 레전드 카운트 최적화
+    const counts = useMemo(() => ({
+        red: reports.filter((r: any) => r.dclrStts?.cdId === "DEST02").length,
+        blue: reports.filter((r: any) => r.dclrStts?.cdId === "DEST03").length,
+        gray: reports.filter((r: any) => r.dclrStts?.cdId === "DEST04").length,
+    }), [reports]);
 
     if (error) return <div>지도 로딩 에러</div>;
 
@@ -38,36 +87,28 @@ export default function MainHome() {
 
             <div className="legend">
                 <div className="item red">
-                    <span className="badge">20</span>
-                    <span className="label">미배정</span>
+                    <span className="badge">{counts.red}</span><span className="label">미배정</span>
                 </div>
                 <div className="item blue">
-                    <span className="badge">7</span>
-                    <span className="label">처리중</span>
+                    <span className="badge">{counts.blue}</span><span className="label">처리중</span>
                 </div>
                 <div className="item gray">
-                    <span className="badge">10</span>
-                    <span className="label">완료</span>
+                    <span className="badge">{counts.gray}</span><span className="label">완료</span>
+                </div>
+                <div className="item lezone">
+                    <span className="label">배치존</span>
                 </div>
             </div>
 
-            {/* 지도 영역 */}
-            <div className="mainmap" >
-                {/* 2. 로딩이 완료된 후 Map 컴포넌트 렌더링 */}
+            <div className="mainmap">
                 {!loading && (
-                    <Map
+                    <KakaoMapSection
+                        reports={reports}
+                        outlinePath={outlinePath}
                         center={center}
-                        style={{ width: "100%", height: "100%" }}
-                        level={3}
-                    >
-                        {/* 3. 커스텀 오버레이 (HTML 시안의 .zone 디자인 적용) */}
-                        <CustomOverlayMap position={center}>
-                            <div className="zone">
-                                <span className="spot"></span>
-                                <span className="round"></span>
-                            </div>
-                        </CustomOverlayMap>
-                    </Map>
+                        onMarkerClick={handleMarkerClick}
+                        bachList={bachList}
+                    />
                 )}
             </div>
         </>

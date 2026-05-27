@@ -2,7 +2,7 @@
 
 
 import Cookies from "js-cookie";
-import ReportList from "@/components/report/ReportList";
+import ReportList from "@/components/report/ReportList_Tow";
 
 export default function PmReportPage() {
     const token = Cookies.get("towAccessToken");

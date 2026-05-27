@@ -3,17 +3,41 @@
 import Header from "@/components/Header";
 import { usePathname } from "next/navigation";
 import React, {useState, useEffect, useSyncExternalStore} from "react";
+import {useAlarmStore} from "@/store/alamStore";
+import {useAuthStore} from "@/store/authStore";
+import {getAlarmListApi} from "@/services/alarm/alarmApi";
 // 가짜 구독 함수 (클라이언트 로딩 체크용)
 const emptySubscribe = () => () => {};
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-   // const [activeTab, setActiveTab] = useState("홈");
+    const alarmList = useAlarmStore((state) => state.alarmList);
+    const setInitialList = useAlarmStore((state) => state.setInitialList);
+    const token = useAuthStore((state) => state.tow?.accessToken);
+    const alarmLength = alarmList.length;
 
     let activeTab = "홈";
     if (pathname.includes("/notice")) activeTab = "공지사항";
     else if (pathname.includes("/report")) activeTab = "신고하기";
     else if (pathname.includes("/reportList")) activeTab = "신고확인";
+
+    // 로그인시 알람 리스트 삽입
+    useEffect(() => {
+        console.log(token);
+        // 토큰이 없거나, 이미 알림이 있다면 아무것도 하지 않고 즉시 종료
+        if (!token || alarmLength !== 0) return;
+
+        const fetchAlarms = async () => {
+            try {
+                const data = await getAlarmListApi();
+                console.log(data);
+                setInitialList(data);
+            } catch (error) {
+                console.error("알림 리스트 초기화 실패:", error);
+            }
+        };
+        fetchAlarms();
+    }, [setInitialList, alarmLength, token]);
 
     // 컴포넌트가 브라우저에 완전히 마운트된 후에만 화면을 보여줌
     const isClient = useSyncExternalStore(
@@ -28,9 +52,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return (
         <div className={`wrap ${pathname === "/" ? "main-wrap" : "sub-wrap"}`}>
             {/* 이 그룹에 속한 페이지들 상단에만 헤더가 나타납니다 */}
-            <Header activeTab={activeTab} setActiveTab={() => {}} />
+            <Header activeTab={activeTab} setActiveTab={() => {}}/>
 
-            <main className={pathname === "/notice" ? "sub_article sub_article_padding" : "main_article"}>
+            <main className={pathname === "/tow" ? "main_article" : "sub_article sub_article_padding"}>
                 {children}
             </main>
         </div>
