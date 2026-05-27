@@ -12,6 +12,7 @@ import {deleteCookie, setCookie} from "cookies-next";
 import {getAlarmListApi} from "@/services/alarm/alarmApi";
 import {AlarmResponse} from "@/types/alarm";
 import Popup from "@/components/popup/Popup";
+import {useAlert} from "@/components/popup/PopupProvider";
 
 interface HeaderProps {
     activeTab: string;
@@ -42,7 +43,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const currentAuth = useAuthStore((state) => state[authType]);
     const logout = useAuthStore((state) => state.logout);
     const accessToken = useAuthStore((state) => state[authType].accessToken);
-
+    const showAlert = useAlert();
     // 읽지 않은 알람이 있는지 확인
     const checkNewAlarmStatus = (alarms: AlarmResponse[]): boolean => {
         return alarms.some(alarm => alarm.readYn === 'N');
@@ -87,7 +88,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
         }
     };
     const handleLogout = async () => {
-        if (!confirm("로그아웃 하시겠습니까?")) return;
+        if (!await showAlert("로그아웃 하시겠습니까?")) return;
         try {
             // 백엔드에 로그아웃 알림 (기기 정보 전달)
             await authApi.post("/logout", { deviceType });

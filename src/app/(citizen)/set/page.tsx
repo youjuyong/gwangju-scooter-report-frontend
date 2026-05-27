@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { authApi } from "@/services/api";
 import axios from "axios";
 import { useFcmToken } from "@/hooks/useFcmToken";
+import {useAlert} from "@/components/popup/PopupProvider";
 
 export default function SettingsPage() {
     const router = useRouter();
@@ -16,7 +17,7 @@ export default function SettingsPage() {
     const deviceType = getDeviceInfo();
     const authType = "reporter";
     const state = useAuthStore();
-
+    const showAlert = useAlert();
     const currentAuth = state[authType];
     const { logout, updateFcmToken } = state;
 
@@ -36,7 +37,7 @@ export default function SettingsPage() {
     }, []);
 
     const handleLogout = async () => {
-        if (!confirm("로그아웃 하시겠습니까?")) return;
+        if (!await showAlert("로그아웃 하시겠습니까?")) return;
         try {
             // 백엔드에 로그아웃 알림 (기기 정보 전달)
             await authApi.post("/logout", { deviceType });
@@ -81,7 +82,7 @@ export default function SettingsPage() {
             }
         } else {
 
-            if (confirm("알림을 끄시겠습니까? (기기 설정에서 권한을 차단해야 완전히 해제됩니다)")) {
+            if (await showAlert("알림을 끄시겠습니까? \n (기기 설정에서 권한을 차단해야 \n 완전히 해제됩니다)")) {
                 try {
                     // fcmToken 토큰 삭제
                     await deleteTokenToServer(currentAuth.accessToken!);

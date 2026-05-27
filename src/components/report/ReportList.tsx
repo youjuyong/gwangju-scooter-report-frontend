@@ -8,6 +8,7 @@ import { pmDcleReportRequestForm, pmDcleReportResponse, staffsResponse } from "@
 import { getPmDclrCollect, getPmDclrComplete, getPmDclrListApi, getStaffsList } from "@/services/report/reportApi";
 import {useAuthStore} from "@/store/authStore";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import {useAlert} from "@/components/popup/PopupProvider";
 
 interface ReportBoardListProps {
     prefix: "/pm" | "/tow" | ""; // 이동할 상세 페이지의 URL Prefix
@@ -32,7 +33,7 @@ export default function ReportList({
 
     const pmUserInfo = useAuthStore((state) => state.pm.userInfo);
     const currentUserName = pmUserInfo?.id; // 로그인한 유저의 name
-
+    const showAlert = useAlert();
     // 2. 데이터 페칭 함수
     const fetchReports = async () => {
         setLoading(true);
@@ -101,7 +102,7 @@ export default function ReportList({
 
     // 회수진행 처리 함수
     const handleCollect = async (dclrId: string) => {
-        if (!confirm("회수진행 처리를 하시겠습니까?")) return;
+        if (!await showAlert("회수진행 처리를 하시겠습니까?")) return;
         try {
             await getPmDclrCollect(dclrId);
             toast.success("회수진행 처리가 완료되었습니다.");

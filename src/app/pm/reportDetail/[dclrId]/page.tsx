@@ -8,6 +8,7 @@ import {useAuthStore} from "@/store/authStore";
 import imageCompression from "browser-image-compression";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PhotoPopup from "@/components/popup/PhotoPopup";
+import {useAlert} from "@/components/popup/PopupProvider";
 
 export default function ReportDetail() {
     const params = useParams();
@@ -24,6 +25,7 @@ export default function ReportDetail() {
         firstImg: null,
         secondImg: null
     })
+    const showAlert = useAlert();
     //상태확인용
     const pmUserInfo = useAuthStore((state) => state.pm.userInfo);
     const currentUserName = pmUserInfo?.id;
@@ -171,7 +173,7 @@ export default function ReportDetail() {
     };
     // 회수진행 처리 함수
     const handleCollect = async (dclrId: string) => {
-        if (!confirm("회수진행 처리를 하시겠습니까?")) return;
+        if (!await showAlert("회수진행 처리를 하시겠습니까?")) return;
         try {
             await getPmDclrCollect(dclrId);
             toast.success("회수진행 처리가 완료되었습니다.");
@@ -193,7 +195,7 @@ export default function ReportDetail() {
             return;
         }
 
-        if (!confirm("회수완료 처리를 하시겠습니까?")) return;
+        if (!await showAlert("회수완료 처리를 하시겠습니까?")) return;
 
         setIsLoading(true);
 
