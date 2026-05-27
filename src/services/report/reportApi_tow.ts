@@ -15,7 +15,7 @@ import {
  * 견인 신고 내역 전체 조회
  * */
 export const getTowDclrListApi = async (request: towDcleReportRequestForm, token?: string): Promise<towDcleReportResponse[]> => {
-    const response = await api.get('/dclr/pm/list', {
+    const response = await api.get('/dclr/tow/list', {
         params: request,
         headers: token ? {Authorization: `Bearer ${token}`} : undefined
     });
@@ -50,22 +50,3 @@ export const getTowDclrComplete = async (formData: FormData) => {
     return response.data;
 }
 
-// /**
-//  * 킥보드 pm 신고 진행 장비 검증
-//  */
-// export const getReportStatus = async (qrId: string): Promise<ApiResponse<any>> => {
-//     const response = await api.get<ApiResponse<any>>(`/pm/device/verify/report-status`, {
-//         params: {qrcdVl: qrId}
-//     });
-//
-//     return response.data;
-// }
-
-// /**
-//  * 소속 업체 배치존 목록 조회(pm용)
-//  */
-// export const getMyBachList = async (): Promise<ApiResponse<any>> => {
-//     const response = await api.get<ApiResponse<any>>(`/pm/bach/my-company`);
-//
-//     return response.data;
-// }
