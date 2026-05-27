@@ -6,6 +6,7 @@ import {Scanner} from "@yudiel/react-qr-scanner";
 import {BusinessInfo} from "@/types/report";
 import {getBusinessList, getReportStatus} from "@/services/report/reportApi";
 import {useAlert} from "@/components/popup/PopupProvider";
+import {useAuthStore} from "@/store/authStore";
 
 interface QRProps {
     formData: {
@@ -26,12 +27,28 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
     const [isValidated, setIsValidated] = useState<boolean>(false);
     const [dclrId, setDclrId] = useState<string>("");
     const showAlert = useAlert();
+    const pmUserInfo = useAuthStore((state) => state.pm.userInfo);
+    const userBzentyNm = pmUserInfo?.bzentyNm;
+
     useEffect(() => {
         const fetchBrands = async () => {
             try {
                 setIsLoading(true);
                 const res = await getBusinessList('BZTY01');
                 setBusinessList(res);
+
+                if (userBzentyNm && res && res.length > 0) {
+                    const myBzenty = res.find(
+                        (b: BusinessInfo) => b.bzentyNm.trim() === userBzentyNm.trim()
+                    );
+
+                    if (myBzenty) {
+                        onUpdate({
+                            brand: myBzenty.bzentyNm,
+                            brandId: myBzenty.bzentyId
+                        });
+                    }
+                }
             } catch (e) {
                 console.error('err');
             } finally {
@@ -39,7 +56,7 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
             }
         };
         fetchBrands();
-    }, []);
+    }, [userBzentyNm]);
 
     useEffect(() => {
         setIsValidated(false);
@@ -81,6 +98,11 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
                         extractedId = extractedId.slice(-6);
                     }
 
+                    if (userBzentyNm && userBzentyNm.trim() !== business.bzentyNm.trim()) {
+                        showAlert("해당 업체에 등록되지 않았거나 유효하지 않은 킥보드입니다.");
+                        return;
+                    }
+
                     onUpdate({
                         brand: business.bzentyNm,
                         brandId: business.bzentyId,
@@ -98,8 +120,8 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
         if (!isMatched) {
             showAlert("존재하지 않거나 유효하지 않은 기기 정보입니다.");
             onUpdate({
-                brand: "",
-                brandId: "",
+                brand: userBzentyNm || "",
+                brandId: formData.brandId,
                 deviceId: "",
                 qrValue: ""
             });
@@ -179,7 +201,7 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
                                         onScan={handleScan}
                                         onError={() => setIsCamera(false)}
                                         constraints={{
-                                            facingMode: { ideal: "environment" }
+                                            facingMode: {ideal: "environment"}
                                         }}
                                     />
                                 </div>
@@ -198,22 +220,13 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
                                 <ul className="inputList">
                                     <li>
                                         <label htmlFor="kickboard">킥보드사</label>
-                                        <select
+                                        <input
+                                            type="text"
                                             id="kickboard"
                                             name="brand"
-                                            value={formData.brandId || ""}
-                                            onChange={handleInputChange}
-                                            required
-                                        >
-                                            <option value="" disabled>
-                                                {isLoading ? "로딩 중..." : "선택"}
-                                            </option>
-                                            {businessList?.map((item) => (
-                                                <option key={item.bzentyId} value={item.bzentyId}>
-                                                    {item.bzentyNm}
-                                                </option>
-                                            ))}
-                                        </select>
+                                            value={userBzentyNm || ""}
+                                            disabled
+                                        />
                                     </li>
                                     <li>
                                         <label htmlFor="kickboard_id">킥보드 ID</label>
