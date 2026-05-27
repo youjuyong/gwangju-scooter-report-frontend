@@ -5,6 +5,9 @@ import {toast} from "react-hot-toast";
 import {useFcmToken} from "@/hooks/useFcmToken";
 import MainNotice from "@/components/notice/MainNotice";
 import {useRouter} from "next/navigation";
+import {getAlarmListApi} from "@/services/alarm/alarmApi";
+import {useAlarmStore} from "@/store/alamStore";
+
 
 export default function HomeContents() {
     const accessToken = useAuthStore((state) => state.reporter.accessToken);
@@ -17,6 +20,7 @@ export default function HomeContents() {
 function HomeSection({accessToken}: { accessToken: string | null }) {
     const {getDeviceInfo} = useFcmToken();
     const router = useRouter();
+    const setInitialList = useAlarmStore((state) => state.setInitialList);
 
     const oauthHandleLogin = async (provider: string) => {
         const currentOrigin = window.location.origin;
@@ -35,6 +39,9 @@ function HomeSection({accessToken}: { accessToken: string | null }) {
 
         toast.loading(`${provider === 'kakao' ? '카카오' : '네이버'}로 연결 중...`);
         window.location.href = loginUrl;
+        const data = await getAlarmListApi();
+        //  주스탄드 스토어에 전체 리스트를 미리 삽입
+        setInitialList(data);
     };
 
     const handleReport = () => {

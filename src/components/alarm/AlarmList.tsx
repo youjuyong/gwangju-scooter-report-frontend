@@ -5,6 +5,7 @@ import {getAlarmListApi, readAllNotifications, UpdateAlarmStatus} from "@/servic
 import {AlarmResponse} from "@/types/alarm";
 import {usePathname, useRouter} from "next/navigation";
 import {toast} from "react-hot-toast";
+import { useAlarmStore } from '@/store/alamStore';
 
 export default function AlarmList(){
     const [alarmList , setAlarmList] = useState<AlarmResponse[]>([]);
@@ -17,17 +18,21 @@ export default function AlarmList(){
     };
 
     const alarmStatusUpdate = async (logId: string) =>{
+        const markAsRead = useAlarmStore.getState().markAsRead;
        try{
            await UpdateAlarmStatus(logId);
+           markAsRead(logId);
        } catch (error: any) {
            console.error("리스트 업데이트 실패:", error);
        }
     }
 
     const alarmStatusAllUpdate = async () =>{
+        const markAllasRead = useAlarmStore.getState().markAllAsRead;
         try{
             const res = await readAllNotifications();
             if(res.success){
+                markAllasRead();
                 toast.success("처리 되었습니다.");
                 setTimeout(() => {
                     window.location.reload();

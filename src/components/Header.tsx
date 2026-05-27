@@ -10,9 +10,10 @@ import { toast } from "react-hot-toast";
 import axios from "axios";
 import {deleteCookie, setCookie} from "cookies-next";
 import {getAlarmListApi} from "@/services/alarm/alarmApi";
-import {AlarmResponse} from "@/types/alarm";
 import Popup from "@/components/popup/Popup";
 import {useAlert} from "@/components/popup/PopupProvider";
+import {AlarmResponse} from "@/types/alarm";
+import { useAlarmStore } from '@/store/alamStore';
 
 interface HeaderProps {
     activeTab: string;
@@ -24,7 +25,6 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const pathname = usePathname();
     const [showLoginPopup, setShowLoginPopup] = useState(false);
     const { getDeviceInfo } = useFcmToken();
-    const [hasNewAlarm, setHasNewAlarm] = useState(false);
     const deviceType = getDeviceInfo();
     // 1. 현재 경로 분석 (admin, pm, tow, reporter)
     const getAuthType = () => {
@@ -44,10 +44,11 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const logout = useAuthStore((state) => state.logout);
     const accessToken = useAuthStore((state) => state[authType].accessToken);
     const showAlert = useAlert();
-    // 읽지 않은 알람이 있는지 확인
-    const checkNewAlarmStatus = (alarms: AlarmResponse[]): boolean => {
-        return alarms.some(alarm => alarm.readYn === 'N');
-    };
+    const alarmList = useAlarmStore((state) => state.alarmList);
+    const clearStore = useAlarmStore((state) => state.clearStore);
+    const hasNewAlarm =  alarmList.some((alarm) => alarm.readYn === 'N');
+
+
 
     // 3. Hydration 대기 (클라이언트에서 스토리지 데이터를 다 읽었는지 확인)
     useEffect(() => {
@@ -57,22 +58,6 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
         });
         setIsMounted(true);
     }, []);
-
-    useEffect(()=> {
-        const checkNewAlarm = async ()=>{
-            try{
-                const result = await getAlarmListApi();
-                const isNewExist = checkNewAlarmStatus(result);
-                setHasNewAlarm(isNewExist);
-            }catch (error){
-                console.error("알람 리스트 로딩 실패: ", error);
-            }
-        };
-        if(currentAuth.userInfo){
-            checkNewAlarm();
-        }
-    })
-
 
     // 2. 권한 체크 및 '페이지 이동' 처리
     const handleNavigation = (e: React.MouseEvent, path: string, isProtected: boolean) => {
@@ -90,6 +75,9 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const handleLogout = async () => {
         if (!await showAlert("로그아웃 하시겠습니까?")) return;
         try {
+            console.log("=== 로그아웃 시작 ===");
+            clearStore();
+            console.log("=== 알림 스토어 초기화 완료 ===");
             // 백엔드에 로그아웃 알림 (기기 정보 전달)
             await authApi.post("/logout", { deviceType });
 

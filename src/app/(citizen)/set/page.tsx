@@ -10,6 +10,7 @@ import { authApi } from "@/services/api";
 import axios from "axios";
 import { useFcmToken } from "@/hooks/useFcmToken";
 import {useAlert} from "@/components/popup/PopupProvider";
+import { useAlarmStore } from '@/store/alamStore';
 
 export default function SettingsPage() {
     const router = useRouter();
@@ -20,6 +21,7 @@ export default function SettingsPage() {
     const showAlert = useAlert();
     const currentAuth = state[authType];
     const { logout, updateFcmToken } = state;
+    const clearStore = useAlarmStore((state) => state.clearStore);
 
     const [mounted, setMounted] = useState(false);
 
@@ -41,7 +43,7 @@ export default function SettingsPage() {
         try {
             // 백엔드에 로그아웃 알림 (기기 정보 전달)
             await authApi.post("/logout", { deviceType });
-
+            clearStore();
             // 클라이언트 상태 및 쿠키 삭제
             logout(authType);
             deleteCookie(`${authType}AccessToken`);
