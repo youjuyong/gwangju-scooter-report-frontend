@@ -178,7 +178,9 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
                                     <Scanner
                                         onScan={handleScan}
                                         onError={() => setIsCamera(false)}
-                                        constraints={{facingMode: "environment"}}
+                                        constraints={{
+                                            facingMode: { ideal: "environment" }
+                                        }}
                                     />
                                 </div>
                             </div>
