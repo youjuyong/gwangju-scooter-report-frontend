@@ -88,9 +88,9 @@ export default function ReportList({
 
     const getStatusText = (cdId: string) => {
         switch (cdId) {
-            case "DEST02": return "미배정";
-            case "DEST03": return "처리중";
-            case "DEST04": return "처리완료";
+            case "DEST07": return "견인요청";
+            case "DEST08": return "견인접수";
+            case "DEST09": return "견인완료";
             default: return "알 수 없음";
         }
     };
@@ -191,12 +191,12 @@ export default function ReportList({
                                 </div>
 
                                 <div className="listbtnset" onClick={(e) => e.stopPropagation()}>
-                                    {item.dclrStts?.cdId === "DEST03" && currentUserName && currentUserName === item.prcrHis?.prcr?.userId&& (
+                                    {item.dclrStts?.cdId === "DEST08" && currentUserName && currentUserName === item.prcrHis?.prcr?.userId&& (
                                         <button className="btn_complete" onClick={() => handleComplete(item.dclrId)}>
                                             완료처리
                                         </button>
                                     )}
-                                    {item.dclrStts.cdId === "DEST02" && (
+                                    {item.dclrStts.cdId === "DEST07" && (
                                         <>
                                             <button className="btn_complete" onClick={() => handleComplete(item.dclrId)}>
                                                 완료처리
