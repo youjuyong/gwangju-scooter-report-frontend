@@ -1,5 +1,5 @@
 import LoginForm from "../../../components/admin/login/LoginForm";
 
-export default function PmLoginPage() {
+export default function TowLoginPage() {
   return <LoginForm />;
 }
