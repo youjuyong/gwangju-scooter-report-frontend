@@ -60,7 +60,7 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
 
     useEffect(() => {
         if (!navigator.geolocation) {
-            alert("GPS를 지원하지 않는 기기입니다.");
+            showAlert("GPS를 지원하지 않는 기기입니다.");
             return;
         }
 
@@ -170,7 +170,7 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
             const isInside = checkValidLocation(position.lat, position.lng);
 
             if (isInside) {
-                alert("지정된 금지 영역 내부에는 등록할 수 없습니다. 다른 위치를 선택해 주세요.");
+                showAlert("지정된 금지 영역 내부에는 등록할 수 없습니다. 다른 위치를 선택해 주세요.");
                 return;
             }
         }

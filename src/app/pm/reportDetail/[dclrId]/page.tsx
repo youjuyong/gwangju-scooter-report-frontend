@@ -81,7 +81,7 @@ export default function ReportDetail() {
         // 1. 최소 용량 체크
         const MIN_SIZE = 10 * 1024;
         if (file.size < MIN_SIZE) {
-            alert(`${id === "firstImg" ? "첫 번째" : "두 번째"} 이미지 용량이 너무 작습니다. (10KB 이상 필요)`);
+            showAlert(`${id === "firstImg" ? "첫 번째" : "두 번째"} 이미지 용량이 너무 작습니다. (10KB 이상 필요)`);
             return;
         }
         // 2. 이미지 압축 및 회전 방지
