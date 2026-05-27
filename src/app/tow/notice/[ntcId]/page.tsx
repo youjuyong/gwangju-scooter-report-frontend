@@ -11,7 +11,7 @@ export default async function NoticeDetailPage({ params }: Props) {
         <NoticeBoardDetail
             ntcId={ntcId}
             apiEndpoint="/api/ntc"
-            backUrl="/pm/notice"
+            backUrl="/tow/notice"
             title="PM 공지사항"
         />
     );
