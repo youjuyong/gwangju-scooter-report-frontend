@@ -7,11 +7,11 @@ import MainNotice from "@/components/notice/MainNotice";
 import {useRouter} from "next/navigation";
 import {getAlarmListApi} from "@/services/alarm/alarmApi";
 import {useAlarmStore} from "@/store/alamStore";
+import {useEffect} from "react";
 
 
 export default function HomeContents() {
     const accessToken = useAuthStore((state) => state.reporter.accessToken);
-
     return (
         <HomeSection accessToken={accessToken}/>
     );
@@ -21,6 +21,8 @@ function HomeSection({accessToken}: { accessToken: string | null }) {
     const {getDeviceInfo} = useFcmToken();
     const router = useRouter();
     const setInitialList = useAlarmStore((state) => state.setInitialList);
+    const alarmList = useAlarmStore((state) => state.alarmList);
+    const alarmLength = alarmList.length;
 
     const oauthHandleLogin = async (provider: string) => {
         const currentOrigin = window.location.origin;
@@ -39,10 +41,23 @@ function HomeSection({accessToken}: { accessToken: string | null }) {
 
         toast.loading(`${provider === 'kakao' ? '카카오' : '네이버'}로 연결 중...`);
         window.location.href = loginUrl;
-        const data = await getAlarmListApi();
-        //  주스탄드 스토어에 전체 리스트를 미리 삽입
-        setInitialList(data);
     };
+
+    // 로그인시 알람 리스트 삽입
+    useEffect(() => {
+        // 토큰이 없거나, 이미 알림이 있다면 아무것도 하지 않고 즉시 종료
+        if (!accessToken || alarmLength !== 0) return;
+
+        const fetchAlarms = async () => {
+            try {
+                const data = await getAlarmListApi();
+                setInitialList(data);
+            } catch (error) {
+                console.error("알림 리스트 초기화 실패:", error);
+            }
+        };
+        fetchAlarms();
+    }, [setInitialList, alarmLength, accessToken]);
 
     const handleReport = () => {
         router.push("/report");

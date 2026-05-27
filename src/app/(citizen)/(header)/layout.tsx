@@ -3,10 +3,6 @@
 import Header from "@/components/Header";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState, useEffect, useSyncExternalStore } from "react";
-import {getAlarmListApi} from "@/services/alarm/alarmApi";
-import {useAlarmStore} from "@/store/alamStore";
-import {useAuthStore} from "@/store/authStore";
-import ReportList from "@/components/report/ReportList";
 
 
 // 가짜 구독 함수 (클라이언트 로딩 체크용)
@@ -15,8 +11,6 @@ const emptySubscribe = () => () => {};
 export default function Layout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
-    const setInitialList = useAlarmStore((state) => state.setInitialList);
-    const alarmList = useAlarmStore((state) => state.alarmList);
     let activeTab = "홈";
     if (pathname.includes("/notice")) activeTab = "공지사항";
     else if (pathname.includes("/reportList")) activeTab = "신고확인";
@@ -40,25 +34,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         }
     }, [router]);
 
-    useEffect(() => {
-
-        const token = useAuthStore.getState()['reporter'].accessToken;
-        console.log(token)
-        console.log(alarmList.length);
-        if(token && alarmList.length ===0 ){
-            const fetchAlarms = async () => {
-                try {
-                    const data = await getAlarmListApi();
-                    setInitialList(data);
-                } catch (error) {
-                    console.error("알림 리스트 초기화 실패:", error);
-                }
-            };
-
-            fetchAlarms();
-        }
-    }, [setInitialList, alarmList.length]);
-    
     const isClient = useSyncExternalStore(
         emptySubscribe,
         () => true,  
