@@ -1,39 +1,74 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/authStore";
-import { deleteCookie } from "cookies-next";
-import { toast } from "react-hot-toast";
+import {useRouter} from "next/navigation";
+import {useAuthStore} from "@/store/authStore";
+import {deleteCookie} from "cookies-next";
+import {toast} from "react-hot-toast";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { authApi } from "@/services/api";
+import {useEffect, useState} from "react";
+import {authApi} from "@/services/api";
 import axios from "axios";
-import { useFcmToken } from "@/hooks/useFcmToken";
+import {useFcmToken} from "@/hooks/useFcmToken";
 import {useAlert} from "@/components/popup/PopupProvider";
-import { useAlarmStore } from '@/store/alamStore';
+import {useAlarmStore} from '@/store/alamStore';
 
 export default function SettingsPage() {
     const router = useRouter();
-    const { getDeviceInfo, fetchFcmToken, saveTokenToServer,fetchFcmTokenForCallback,deleteTokenToServer } = useFcmToken();
+    const {
+        getDeviceInfo,
+        fetchFcmToken,
+        saveTokenToServer,
+        fetchFcmTokenForCallback,
+        deleteTokenToServer
+    } = useFcmToken();
     const deviceType = getDeviceInfo();
     const authType = "reporter";
     const state = useAuthStore();
     const showAlert = useAlert();
     const currentAuth = state[authType];
-    const { logout, updateFcmToken } = state;
+    const {logout, updateFcmToken} = state;
     const clearStore = useAlarmStore((state) => state.clearStore);
 
     const [mounted, setMounted] = useState(false);
+    const [isSafari, setIsSafari] = useState(false);
+
+    const [hasNotificationPermission, setHasNotificationPermission] = useState(false);
 
     // 현재 푸시 상태 확인
-    const isPushOn = mounted
-        ? (Notification.permission === 'granted' && !!currentAuth.fcmToken)
-        : false;
+    const isPushOn = mounted && !isSafari && hasNotificationPermission && !!currentAuth?.fcmToken;
 
     //토글 상태값
     useEffect(() => {
         const raf = requestAnimationFrame(() => {
             setMounted(true);
+
+            const userAgent = navigator.userAgent;
+
+            const safariMode =
+                /Safari/.test(userAgent) &&
+                !/Chrome/.test(userAgent) &&
+                !/Chromium/.test(userAgent) &&
+                !/CriOS/.test(userAgent) &&
+                !/FxiOS/.test(userAgent) &&
+                !/KAKAOTALK/.test(userAgent) &&
+                !/NAVER/.test(userAgent);
+
+            const isApp = (window.navigator as any).standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+            const hasNoNotification = !('Notification' in window);
+
+            if ((safariMode || hasNoNotification) && !isApp) {
+                setIsSafari(true);
+            } else {
+                setIsSafari(false);
+            }
+            try {
+                if ("Notification" in window && window.Notification) {
+                    setHasNotificationPermission(window.Notification.permission === 'granted');
+                }
+            } catch (error) {
+                console.error(error);
+                setHasNotificationPermission(false);
+            }
         });
         return () => cancelAnimationFrame(raf);
     }, []);
@@ -42,7 +77,7 @@ export default function SettingsPage() {
         if (!await showAlert("로그아웃 하시겠습니까?")) return;
         try {
             // 백엔드에 로그아웃 알림 (기기 정보 전달)
-            await authApi.post("/logout", { deviceType });
+            await authApi.post("/logout", {deviceType});
             // 클라이언트 상태 및 쿠키 삭제
             logout(authType);
             deleteCookie(`${authType}AccessToken`);
@@ -63,6 +98,12 @@ export default function SettingsPage() {
 
         if (!isPushOn) {
             // OFF -> ON 하려는 경우
+            if (isSafari) {
+                toast.error("iOS/Safari 환경에서는 '홈 화면에 추가'를 통해 앱을 설치하셔야 알림 설정이 가능합니다.");
+                return;
+            } else {
+                toast.loading("알림 설정을 활성화 중입니다...", {id: toastId});
+            }
             try {
 
                 let currentFcmToken = null;
@@ -74,13 +115,15 @@ export default function SettingsPage() {
                 if (currentFcmToken) {
                     await saveTokenToServer(currentFcmToken, currentAuth.accessToken!);
                     updateFcmToken(authType, currentFcmToken);
+
+                    setHasNotificationPermission(true);
                     // setIsPushOn(true);
-                    toast.success("푸시 알림이 활성화되었습니다.", { id: toastId });
+                    toast.success("푸시 알림이 활성화되었습니다.", {id: toastId});
                 } else {
-                    toast.error("알림 권한이 거부되었거나 설정에 실패했습니다.", { id: toastId });
+                    toast.error("알림 권한이 거부되었거나 설정에 실패했습니다.", {id: toastId});
                 }
             } catch (error) {
-                toast.error("설정 중 오류가 발생했습니다.", { id: toastId });
+                toast.error("설정 중 오류가 발생했습니다.", {id: toastId});
             }
         } else {
 
