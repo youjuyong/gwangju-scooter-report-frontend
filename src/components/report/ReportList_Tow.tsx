@@ -31,8 +31,8 @@ export default function ReportList({
     const [loading, setLoading] = useState(false);
     const [staffs, setStaffs] = useState<staffsResponse[]>([]); // 처리자 목록
 
-    const pmUserInfo = useAuthStore((state) => state.pm.userInfo);
-    const currentUserName = pmUserInfo?.id; // 로그인한 유저의 name
+    const towUserInfo = useAuthStore((state) => state.tow.userInfo);
+    const currentUserName = towUserInfo?.id; // 로그인한 유저의 name
     const showAlert = useAlert();
     // 2. 데이터 페칭 함수
     const fetchReports = async () => {
@@ -50,7 +50,6 @@ export default function ReportList({
                 dclrSttsCd: statusFilter
             };
            const data = await getTowDclrListApi(requestParams, token);
-            console.log(data);
            setReports(data || []);
         } catch (error) {
             console.error(`${title} 데이터 로드 실패:`, error);
@@ -79,9 +78,9 @@ export default function ReportList({
     // 5. 상태별 CSS 클래스 및 텍스트 매핑
     const getStatusStyle = (cdId: string) => {
         switch (cdId) {
-            case "DEST02": return "si3"; // 미배정
-            case "DEST03": return "si1"; // 처리중
-            case "DEST04": return "si2"; // 처리완료
+            case "DEST07": return "si3"; // 미배정
+            case "DEST08": return "si1"; // 처리중
+            case "DEST09": return "si2"; // 처리완료
             default: return "si3";
         }
     };
