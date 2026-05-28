@@ -87,7 +87,6 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
                     },
                     (secondErr) => {
                         console.error("최종 위치 획득 실패, 기본 위치로 지도를 엽니다:", secondErr);
-                        // alert("현재 위치를 가져올 수 없습니다. 지도를 직접 움직여 선택해 주세요.");
 
                         const defaultPos = {lat: 37.42870, lng: 127.25618};
                         setPosition(defaultPos);
