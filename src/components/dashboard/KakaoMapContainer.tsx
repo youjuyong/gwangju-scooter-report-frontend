@@ -6,9 +6,14 @@ import {CityOutline} from "@/components/dashboard/CityOutline";
 
 const MARKER_CONFIG = {
     images: {
+        "DEST02": "/assets/style_pm/images/icon_red.png",
+        "DEST03": "/assets/style_pm/images/icon_blue.png",
+        "DEST04": "/assets/style_pm/images/icon_gray.png",
+
         "DEST07": "/assets/style_pm/images/icon_red.png",
         "DEST08": "/assets/style_pm/images/icon_blue.png",
         "DEST09": "/assets/style_pm/images/icon_gray.png",
+
     } as Record<string, string>,
     logos: {
         "빔(BEAM)": "/assets/style_pm/images/logo_beam.png",
@@ -29,35 +34,25 @@ const KakaoMapSection = memo(({reports, outlinePath, center, onMarkerClick, bach
             {reports.map((report: any) => (
                 report.latVl && report.lotVl && (
                     <React.Fragment key={report.dclrId}>
-                        <MapMarker
-                            position={{lat: report.latVl, lng: report.lotVl}}
-                            image={{
-                                src: MARKER_CONFIG.images[report.dclrStts?.cdId] || "/assets/style_pm/images/mark.png",
-                                size: {width: 25, height: 36},
-                            }}
-                            onClick={() => onMarkerClick(report.dclrId)}
-                        />
-                        {/*<CustomOverlayMap position={{lat: report.latVl, lng: report.lotVl}} yAnchor={1.32}>*/}
-                        {/*    <div*/}
-                        {/*        onClick={() => onMarkerClick(report.dclrId)}*/}
-                        {/*        style={{*/}
-                        {/*            width: "29px",*/}
-                        {/*            height: "29px",*/}
-                        {/*            borderRadius: "50%",*/}
-                        {/*            overflow: "hidden",*/}
-                        {/*            border: "2px solid white",*/}
-                        {/*            backgroundColor: "white",*/}
-                        {/*            boxShadow: "0 2px 2px rgba(0,0,0,0.2)",*/}
-                        {/*            cursor: "pointer"*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        <img*/}
-                        {/*            src={MARKER_CONFIG.logos[report.bzenty.bzentyNm] || "/assets/style_pm/images/mark.png"}*/}
-                        {/*            alt="logo"*/}
-                        {/*            style={{width: "100%", height: "100%", objectFit: "contain"}}*/}
-                        {/*        />*/}
-                        {/*    </div>*/}
-                        {/*</CustomOverlayMap>*/}
+                        <CustomOverlayMap
+                            position={{ lat: report.latVl, lng: report.lotVl }}
+                            clickable={true} // 클릭 이벤트 활성화
+                        >
+                            <div
+                                className="my-custom-marker"
+                                onClick={() => onMarkerClick(report.dclrId)}
+                                style={{ cursor: "pointer" }}
+                            >
+                                {/* 마커 이미지 배치 */}
+                                <img
+                                    src={MARKER_CONFIG.images[report.dclrStts?.cdId] || "/assets/style_pm/images/mark.png"}
+                                    alt="marker"
+                                    style={{ width: "25px", height: "36px" }}
+                                />
+
+                                {/* 필요하다면 마커 밑에 텍스트나 뱃지 같은 것도 CSS로 마음대로 추가 가능! */}
+                            </div>
+                        </CustomOverlayMap>
                     </React.Fragment>
                 )
             ))}
