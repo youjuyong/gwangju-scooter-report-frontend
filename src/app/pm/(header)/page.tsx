@@ -22,16 +22,33 @@ export default function MainHome() {
         libraries: ["services"],
     });
     const prefix = useMemo(() => (pathname.startsWith("/pm") ? "/pm" : "/tow"), [pathname]);
+    const [activeDclrId, setActiveDclrId] = useState<string | null>(null);
+
     const [center] = useState(() => {
         if (typeof window !== "undefined") {
             const savedLocation = sessionStorage.getItem("selected_kickboard_loc");
             if (savedLocation) {
-                sessionStorage.removeItem("selected_kickboard_loc");
-                return JSON.parse(savedLocation);
+                const parsed = JSON.parse(savedLocation);
+                // 컴포넌트 생성 시점에 dclrId가 있으면 상태의 초기값으로 심어주기 위해 세션에서 잠시 유지하거나,
+                // 아래 useEffect에서 바로 꺼내 쓰도록 유도합니다.
+                return { lat: parsed.lat, lng: parsed.lng };
             }
         }
-        return {lat: 37.429, lng: 127.255};
+        return { lat: 37.429, lng: 127.255 };
     });
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const savedLocation = sessionStorage.getItem("selected_kickboard_loc");
+            if (savedLocation) {
+                const parsed = JSON.parse(savedLocation);
+                if (parsed.dclrId) {
+                    setActiveDclrId(parsed.dclrId); // 선택된 마커 ID 마킹
+                }
+                sessionStorage.removeItem("selected_kickboard_loc"); // 사용 후 클리어
+            }
+        }
+    }, []);
     const [bachList, setBachList] = useState<any[]>([]);
 
     useEffect(() => {
@@ -123,6 +140,7 @@ export default function MainHome() {
                         center={center}
                         onMarkerClick={handleMarkerClick}
                         bachList={bachList}
+                        activeDclrId={activeDclrId}
                     />
                 )}
             </div>

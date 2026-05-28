@@ -186,7 +186,11 @@ export default function ReportList({
                                     onClick={(e) => {
                                         e.stopPropagation();
 
-                                        const locationData = {lat: item.latVl, lng: item.lotVl};
+                                        const locationData = {
+                                            lat: item.latVl,
+                                            lng: item.lotVl,
+                                            dclrId: item.dclrId // 👈 추가된 부분
+                                        };
                                         sessionStorage.setItem("selected_kickboard_loc", JSON.stringify(locationData));
 
                                         router.push(prefix || "/");

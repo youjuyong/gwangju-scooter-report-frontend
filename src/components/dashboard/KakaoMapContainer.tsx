@@ -22,8 +22,7 @@ const MARKER_CONFIG = {
     } as Record<string, string>
 };
 
-const KakaoMapSection = memo(({reports, outlinePath, center, onMarkerClick, bachList = []}: any) => {
-
+const KakaoMapSection = memo(({reports, outlinePath, center, onMarkerClick, bachList = [], activeDclrId}: any) => {
     const optimizedPath = useMemo(() => {
         if (!outlinePath || outlinePath.length === 0) return [];
         return outlinePath.filter((_: any, index: number) => index % 10 === 0);
@@ -39,8 +38,7 @@ const KakaoMapSection = memo(({reports, outlinePath, center, onMarkerClick, bach
                             clickable={true} // 클릭 이벤트 활성화
                         >
                             <div
-                                className="my-custom-marker"
-                                onClick={() => onMarkerClick(report.dclrId)}
+                                className={`my-custom-marker ${activeDclrId === report.dclrId ? "click" : ""}`}                                onClick={() => onMarkerClick(report.dclrId)}
                                 style={{ cursor: "pointer" }}
                             >
                                 {/* 마커 이미지 배치 */}
