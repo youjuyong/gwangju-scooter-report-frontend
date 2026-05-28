@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { useKakaoLoader } from "react-kakao-maps-sdk";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {usePathname, useRouter} from "next/navigation";
+import {useKakaoLoader} from "react-kakao-maps-sdk";
 import {getMyBachList, getPmDclrListApi} from "@/services/report/reportApi";
-import { getOutlineType } from "@/services/common/commonApi";
+import {getOutlineType} from "@/services/common/commonApi";
 import Cookies from "js-cookie";
 import KakaoMapSection from "@/components/dashboard/KakaoMapContainer";
+
 const pmtoken = Cookies.get("pmAccessToken");
 
 export default function MainHome() {
@@ -15,26 +16,41 @@ export default function MainHome() {
 
     const [reports, setReports] = useState([]);
     const [outlinePath, setOutlinePath] = useState([]);
-    
+
     const [loading, error] = useKakaoLoader({
         appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
         libraries: ["services"],
     });
     const prefix = useMemo(() => (pathname.startsWith("/pm") ? "/pm" : "/tow"), [pathname]);
-    const center = useMemo(() => ({ lat: 37.429, lng: 127.255 }), []);
+    const [center] = useState(() => {
+        if (typeof window !== "undefined") {
+            const savedLocation = sessionStorage.getItem("selected_kickboard_loc");
+            if (savedLocation) {
+                sessionStorage.removeItem("selected_kickboard_loc");
+                return JSON.parse(savedLocation);
+            }
+        }
+        return {lat: 37.429, lng: 127.255};
+    });
     const [bachList, setBachList] = useState<any[]>([]);
 
     useEffect(() => {
         const initData = async () => {
             try {
-                const [reportRes, outlineRes]:any = await Promise.all([
-                    getPmDclrListApi({ searchMonth: "", searchDate: "", prcsUserId: "", dclrSttsCd: "" ,isMap :"Y"},pmtoken),
+                const [reportRes, outlineRes]: any = await Promise.all([
+                    getPmDclrListApi({
+                        searchMonth: "",
+                        searchDate: "",
+                        prcsUserId: "",
+                        dclrSttsCd: "",
+                        isMap: "Y"
+                    }, pmtoken),
                     getOutlineType()
                 ]);
                 if (reportRes) setReports(reportRes);
-                
+
                 if (outlineRes && Array.isArray(outlineRes)) {
-                    const formattedPath:any = outlineRes
+                    const formattedPath: any = outlineRes
                         .sort((a: any, b: any) => a.ord - b.ord)
                         .map((item: any) => ({
                             lat: Number(item.ycrdn),

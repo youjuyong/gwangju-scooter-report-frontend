@@ -1,11 +1,11 @@
 // src/components/ReportBoardList.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
-import { pmDcleReportRequestForm, pmDcleReportResponse, staffsResponse } from "@/types/report";
-import { getPmDclrCollect, getPmDclrComplete, getPmDclrListApi, getStaffsList } from "@/services/report/reportApi";
+import React, {useEffect, useState} from "react";
+import {useRouter} from "next/navigation";
+import {toast} from "react-hot-toast";
+import {pmDcleReportRequestForm, pmDcleReportResponse, staffsResponse} from "@/types/report";
+import {getPmDclrCollect, getPmDclrListApi, getStaffsList} from "@/services/report/reportApi";
 import {useAuthStore} from "@/store/authStore";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import {useAlert} from "@/components/popup/PopupProvider";
@@ -17,10 +17,10 @@ interface ReportBoardListProps {
 }
 
 export default function ReportList({
-                                            prefix,
-                                            token,
-                                            title = "회수관리"
-                                        }: ReportBoardListProps) {
+                                       prefix,
+                                       token,
+                                       title = "회수관리"
+                                   }: ReportBoardListProps) {
     const router = useRouter();
 
     // 1. 상태 관리 (필터 및 데이터)
@@ -79,19 +79,27 @@ export default function ReportList({
     // 5. 상태별 CSS 클래스 및 텍스트 매핑
     const getStatusStyle = (cdId: string) => {
         switch (cdId) {
-            case "DEST02": return "si3"; // 미배정
-            case "DEST03": return "si1"; // 처리중
-            case "DEST04": return "si2"; // 처리완료
-            default: return "si3";
+            case "DEST02":
+                return "si3"; // 미배정
+            case "DEST03":
+                return "si1"; // 처리중
+            case "DEST04":
+                return "si2"; // 처리완료
+            default:
+                return "si3";
         }
     };
 
     const getStatusText = (cdId: string) => {
         switch (cdId) {
-            case "DEST02": return "미배정";
-            case "DEST03": return "처리중";
-            case "DEST04": return "처리완료";
-            default: return "알 수 없음";
+            case "DEST02":
+                return "미배정";
+            case "DEST03":
+                return "처리중";
+            case "DEST04":
+                return "처리완료";
+            default:
+                return "알 수 없음";
         }
     };
 
@@ -169,19 +177,50 @@ export default function ReportList({
                 ) : (
                     reports.map((item) => (
                         <li key={item.dclrId}>
-                            <div className="list_item_card" onClick={() => goDetail(item)} style={{ cursor: 'pointer' }}>
+                            <div className="list_item_card" onClick={() => goDetail(item)} style={{cursor: 'pointer'}}>
                                 <p className={`situation ${getStatusStyle(item.dclrStts.cdId)}`}>
                                     {getStatusText(item.dclrStts.cdId)}
                                 </p>
+                                <button
+                                    className="mapgo"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+
+                                        const locationData = {lat: item.latVl, lng: item.lotVl};
+                                        sessionStorage.setItem("selected_kickboard_loc", JSON.stringify(locationData));
+
+                                        router.push(prefix || "/");
+                                    }}
+                                >
+                                    지도보기
+                                </button>
                                 <p className="add">{item.dclrAddrTxt}</p>
                                 <div className="listconten">
                                     <div className="leftbox">
-                                        <dl><dt>신고일시</dt><dd>{item.regDt.substring(0, 16)}</dd></dl>
-                                        <dl><dt>킥보드ID</dt><dd>{item.qrcdVl}</dd></dl>
-                                        <dl><dt>위반유형</dt><dd>{item.vltnType.cdNm}</dd></dl>
-                                        <dl><dt>상세설명</dt><dd>{item.dclrCn}</dd></dl>
-                                        <dl><dt>처리자</dt><dd>{item.prcrHis?.prcr?.userNm || "-"}</dd></dl>
-                                        <dl><dt>처리일시</dt><dd className="blue">{item.prcrHis?.prcsDt || "-"}</dd></dl>
+                                        <dl>
+                                            <dt>신고일시</dt>
+                                            <dd>{item.regDt.substring(0, 16)}</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>킥보드ID</dt>
+                                            <dd>{item.qrcdVl}</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>위반유형</dt>
+                                            <dd>{item.vltnType.cdNm}</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>상세설명</dt>
+                                            <dd>{item.dclrCn}</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>처리자</dt>
+                                            <dd>{item.prcrHis?.prcr?.userNm || "-"}</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>처리일시</dt>
+                                            <dd className="blue">{item.prcrHis?.prcsDt || "-"}</dd>
+                                        </dl>
                                     </div>
                                     <img
                                         src={item.imgUrls?.[0] || "/images/main_all_img.png"}
@@ -191,14 +230,15 @@ export default function ReportList({
                                 </div>
 
                                 <div className="listbtnset" onClick={(e) => e.stopPropagation()}>
-                                    {item.dclrStts?.cdId === "DEST03" && currentUserName && currentUserName === item.prcrHis?.prcr?.userId&& (
+                                    {item.dclrStts?.cdId === "DEST03" && currentUserName && currentUserName === item.prcrHis?.prcr?.userId && (
                                         <button className="btn_complete" onClick={() => handleComplete(item.dclrId)}>
                                             완료처리
                                         </button>
                                     )}
                                     {item.dclrStts.cdId === "DEST02" && (
                                         <>
-                                            <button className="btn_complete" onClick={() => handleComplete(item.dclrId)}>
+                                            <button className="btn_complete"
+                                                    onClick={() => handleComplete(item.dclrId)}>
                                                 완료처리
                                             </button>
                                             <button className="btn_acc" onClick={() => handleCollect(item.dclrId)}>
