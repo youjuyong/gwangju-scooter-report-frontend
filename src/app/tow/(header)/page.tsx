@@ -72,9 +72,9 @@ export default function MainHome() {
 
     // 레전드 카운트 최적화
     const counts = useMemo(() => ({
-        red: reports.filter((r: any) => r.dclrStts?.cdId === "DEST02").length,
-        blue: reports.filter((r: any) => r.dclrStts?.cdId === "DEST03").length,
-        gray: reports.filter((r: any) => r.dclrStts?.cdId === "DEST04").length,
+        red: reports.filter((r: any) => r.dclrStts?.cdId === "DEST07").length,
+        blue: reports.filter((r: any) => r.dclrStts?.cdId === "DEST08").length,
+        gray: reports.filter((r: any) => r.dclrStts?.cdId === "DEST09").length,
     }), [reports]);
 
     if (error) return <div>지도 로딩 에러</div>;

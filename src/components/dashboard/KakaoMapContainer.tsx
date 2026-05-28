@@ -6,9 +6,9 @@ import {CityOutline} from "@/components/dashboard/CityOutline";
 
 const MARKER_CONFIG = {
     images: {
-        "DEST02": "/assets/style_pm/images/icon_red.png",
-        "DEST03": "/assets/style_pm/images/icon_blue.png",
-        "DEST04": "/assets/style_pm/images/icon_gray.png",
+        "DEST07": "/assets/style_pm/images/icon_red.png",
+        "DEST08": "/assets/style_pm/images/icon_blue.png",
+        "DEST09": "/assets/style_pm/images/icon_gray.png",
     } as Record<string, string>,
     logos: {
         "빔(BEAM)": "/assets/style_pm/images/logo_beam.png",
