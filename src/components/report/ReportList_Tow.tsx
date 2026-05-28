@@ -135,8 +135,8 @@ export default function ReportList({
                     <dd>
                         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                             <option value="">전체</option>
-                            <option value="DEST02">미배정</option>
-                            <option value="DEST03">처리중</option>
+                            <option value="DEST07">견인요청</option>
+                            <option value="DEST08">견인접수</option>
                         </select>
                     </dd>
                     <dt>처리자</dt>
