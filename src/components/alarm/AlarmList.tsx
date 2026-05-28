@@ -33,10 +33,10 @@ export default function AlarmList(){
             const res = await readAllNotifications();
             if(res.success){
                 markAllasRead();
-                toast.success("처리 되었습니다.");
-                setTimeout(() => {
+             //   toast.success("처리 되었습니다.");
+             //   setTimeout(() => {
                     window.location.reload();
-                }, 1000);
+            //    }, 1000);
             }
         } catch (error: any) {
             console.error("리스트 업데이트 실패:", error);

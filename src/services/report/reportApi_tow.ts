@@ -10,6 +10,14 @@ import {
     staffsResponse
 } from "@/types/report_tow";
 
+/**
+ * 신고내역 단건 조회
+ * */
+export const getReportDetail = async (dclrId: string) => {
+    const response = await api.get<ApiResponse<any>>(`/dclr/${dclrId}`);
+    return response.data;
+}
+
 
 /**
  * 견인 신고 내역 전체 조회
@@ -39,7 +47,7 @@ export const getTowDclrCollect = async (dclrId: string) => {
 }
 
 /**
- * 회수 완료 처리 /api/dclr/{dclrId}/pm/complete
+ * 회수 완료 처리
  * */
 export const getTowDclrComplete = async (formData: FormData) => {
     const response = await api.patch(`/dclr/tow/complete`, formData, {

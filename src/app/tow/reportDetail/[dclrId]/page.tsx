@@ -2,14 +2,13 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import {useParams, useRouter} from "next/navigation";
-import {getPmDclrCollect, getPmDclrComplete, getReportDetail} from "@/services/report/reportApi";
 import {toast} from "react-hot-toast";
 import {useAuthStore} from "@/store/authStore";
 import imageCompression from "browser-image-compression";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PhotoPopup from "@/components/popup/PhotoPopup";
 import {useAlert} from "@/components/popup/PopupProvider";
-import {getTowDclrCollect} from "@/services/report/reportApi_tow";
+import {getTowDclrCollect, getTowDclrComplete ,getReportDetail} from "@/services/report/reportApi_tow";
 
 export default function ReportDetail() {
     const params = useParams();
@@ -28,13 +27,13 @@ export default function ReportDetail() {
     })
     const showAlert = useAlert();
     //상태확인용
-    const pmUserInfo = useAuthStore((state) => state.pm.userInfo);
-    const currentUserName = pmUserInfo?.id;
+    const towUserInfo = useAuthStore((state) => state.tow.userInfo);
+    const currentUserName = towUserInfo?.id;
     const status = report?.dclrStts.cdId;
     const isProcessorMe = currentUserName && currentUserName === report?.prcrHis?.prcr?.userId;
+
     const isEditableMode = status === "DEST07" || (status === "DEST08" && isProcessorMe);
     const isReadOnlyMode = status === "DEST09" || (status === "DEST08" && !isProcessorMe);
-
     //  팝업 관련 상태 추가
     const [isPhotoPopupOpen, setIsPhotoPopupOpen] = useState(false);
     const [activePhotoId, setActivePhotoId] = useState<string | null>(null);
@@ -217,7 +216,7 @@ export default function ReportDetail() {
 
         try {
             // 4. API 호출
-            await getPmDclrComplete( formData);
+            await getTowDclrComplete( formData);
 
             toast.success("회수완료 처리가 완료되었습니다.");
             fetchDetail(); // 성공 후 상세 화면 갱신
