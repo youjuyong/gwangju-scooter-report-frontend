@@ -168,19 +168,54 @@ export default function ReportList({
                 ) : (
                     reports.map((item) => (
                         <li key={item.dclrId}>
-                            <div className="list_item_card" onClick={() => goDetail(item)} style={{ cursor: 'pointer' }}>
+                            <div className="list_item_card" onClick={() => goDetail(item)} style={{cursor: 'pointer'}}>
                                 <p className={`situation ${getStatusStyle(item.dclrStts.cdId)}`}>
                                     {getStatusText(item.dclrStts.cdId)}
                                 </p>
+                                <button
+                                    className="mapgo"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+
+                                        const locationData = {
+                                            lat: item.latVl,
+                                            lng: item.lotVl,
+                                            dclrId: item.dclrId
+                                        };
+                                        sessionStorage.setItem("selected_kickboard_loc", JSON.stringify(locationData));
+
+                                        router.push(prefix || "/");
+                                    }}
+                                >
+                                    지도보기
+                                </button>
                                 <p className="add">{item.dclrAddrTxt}</p>
                                 <div className="listconten">
                                     <div className="leftbox">
-                                        <dl><dt>신고일시</dt><dd>{item.regDt.substring(0, 16)}</dd></dl>
-                                        <dl><dt>킥보드ID</dt><dd>{item.qrcdVl}</dd></dl>
-                                        <dl><dt>위반유형</dt><dd>{item.vltnType.cdNm}</dd></dl>
-                                        <dl><dt>상세설명</dt><dd>{item.dclrCn}</dd></dl>
-                                        <dl><dt>처리자</dt><dd>{item.prcrHis?.prcr?.userNm || "-"}</dd></dl>
-                                        <dl><dt>처리일시</dt><dd className="blue">{item.prcrHis?.prcsDt || "-"}</dd></dl>
+                                        <dl>
+                                            <dt>신고일시</dt>
+                                            <dd>{item.regDt.substring(0, 16)}</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>킥보드ID</dt>
+                                            <dd>{item.qrcdVl}</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>위반유형</dt>
+                                            <dd>{item.vltnType.cdNm}</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>상세설명</dt>
+                                            <dd>{item.dclrCn}</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>처리자</dt>
+                                            <dd>{item.prcrHis?.prcr?.userNm || "-"}</dd>
+                                        </dl>
+                                        <dl>
+                                            <dt>처리일시</dt>
+                                            <dd className="blue">{item.prcrHis?.prcsDt || "-"}</dd>
+                                        </dl>
                                     </div>
                                     <img
                                         src={item.imgUrls?.[0] || "/images/main_all_img.png"}
@@ -190,14 +225,15 @@ export default function ReportList({
                                 </div>
 
                                 <div className="listbtnset" onClick={(e) => e.stopPropagation()}>
-                                    {item.dclrStts?.cdId === "DEST08" && currentUserName && currentUserName === item.prcrHis?.prcr?.userId&& (
+                                    {item.dclrStts?.cdId === "DEST08" && currentUserName && currentUserName === item.prcrHis?.prcr?.userId && (
                                         <button className="btn_complete" onClick={() => handleComplete(item.dclrId)}>
                                             완료처리
                                         </button>
                                     )}
                                     {item.dclrStts.cdId === "DEST07" && (
                                         <>
-                                            <button className="btn_complete" onClick={() => handleComplete(item.dclrId)}>
+                                            <button className="btn_complete"
+                                                    onClick={() => handleComplete(item.dclrId)}>
                                                 완료처리
                                             </button>
                                             <button className="btn_acc" onClick={() => handleCollect(item.dclrId)}>

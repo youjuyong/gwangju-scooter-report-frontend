@@ -189,7 +189,7 @@ export default function ReportList({
                                         const locationData = {
                                             lat: item.latVl,
                                             lng: item.lotVl,
-                                            dclrId: item.dclrId // 👈 추가된 부분
+                                            dclrId: item.dclrId
                                         };
                                         sessionStorage.setItem("selected_kickboard_loc", JSON.stringify(locationData));
 
