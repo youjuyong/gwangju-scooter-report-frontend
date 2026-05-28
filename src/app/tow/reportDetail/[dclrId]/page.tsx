@@ -9,6 +9,7 @@ import imageCompression from "browser-image-compression";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import PhotoPopup from "@/components/popup/PhotoPopup";
 import {useAlert} from "@/components/popup/PopupProvider";
+import {getTowDclrCollect} from "@/services/report/reportApi_tow";
 
 export default function ReportDetail() {
     const params = useParams();
@@ -31,8 +32,8 @@ export default function ReportDetail() {
     const currentUserName = pmUserInfo?.id;
     const status = report?.dclrStts.cdId;
     const isProcessorMe = currentUserName && currentUserName === report?.prcrHis?.prcr?.userId;
-    const isEditableMode = status === "DEST02" || (status === "DEST03" && isProcessorMe);
-    const isReadOnlyMode = status === "DEST04" || (status === "DEST03" && !isProcessorMe);
+    const isEditableMode = status === "DEST07" || (status === "DEST08" && isProcessorMe);
+    const isReadOnlyMode = status === "DEST09" || (status === "DEST08" && !isProcessorMe);
 
     //  팝업 관련 상태 추가
     const [isPhotoPopupOpen, setIsPhotoPopupOpen] = useState(false);
@@ -144,25 +145,25 @@ export default function ReportDetail() {
 
     const getStatusStyle = (cdId: string) => {
         switch (cdId) {
-            case "DEST02": return "si3"; // 신고승인대기 (미배정)
-            case "DEST03": return "si1"; // 처리중
-            case "DEST04": return "si2"; // 처리완료
+            case "DEST07": return "si3"; // 신고승인대기 (미배정)
+            case "DEST08": return "si1"; // 처리중
+            case "DEST09": return "si2"; // 처리완료
             default: return "si3";
         }
     };
     const getStatusText = (cdId: string) => {
         switch (cdId) {
-            case "DEST02": return "미배정";
-            case "DEST03": return "처리중";
-            case "DEST04": return "처리완료";
+            case "DEST07": return "견인요청";
+            case "DEST08": return "견인접수";
+            case "DEST09": return "처리완료";
             default: return "알 수 없음"; // 예외 처리
         }
     };
     const getMainText = (cdId: string) => {
         switch (cdId) {
-            case "DEST02": return "킥보드 회수 등록";
-            case "DEST03": return "킥보드 회수 상세정보";
-            case "DEST04": return "킥보드 회수 상세정보";
+            case "DEST07": return "킥보드 회수 등록";
+            case "DEST08": return "킥보드 회수 상세정보";
+            case "DEST09": return "킥보드 회수 상세정보";
             default: return "알 수 없음"; // 예외 처리
         }
     };
@@ -177,7 +178,7 @@ export default function ReportDetail() {
     const handleCollect = async (dclrId: string) => {
         if (!await showAlert("회수진행 처리를 하시겠습니까?")) return;
         try {
-            await getPmDclrCollect(dclrId);
+            await getTowDclrCollect(dclrId);
             toast.success("회수진행 처리가 완료되었습니다.");
             fetchDetail();
         } catch (error) {
@@ -236,7 +237,7 @@ export default function ReportDetail() {
         <div className="noMenubody noMenubodyLine">
             {isLoading && (
                 <LoadingOverlay
-                    message={status === "DEST02" || status === "DEST03" ? "처리 결과를 저장 중입니다..." : "데이터를 로딩 중입니다..."}
+                    message={status === "DEST07" || status === "DEST08" ? "처리 결과를 저장 중입니다..." : "데이터를 로딩 중입니다..."}
                 />
             )}
 
@@ -314,7 +315,7 @@ export default function ReportDetail() {
                                 <>
                                     <dl>
                                         <dt>처리자</dt>
-                                        {/* DEST02일 땐 배정이 안 되었으니 배정 전 표기, 내 작업일 땐 이름 출력 */}
+
                                         <dd>{report.prcrHis?.prcr?.userNm || "배정 전"}</dd>
                                     </dl>
                                     <span className="listtitle" id="photo-label">사진등록</span>
@@ -433,7 +434,7 @@ export default function ReportDetail() {
                                     >
                                         완료처리
                                     </button>
-                                    {status === "DEST02" && (
+                                    {status === "DEST07" && (
                                         <button
                                             type="button"
                                             className="btn_acc"

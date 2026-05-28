@@ -23,14 +23,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     // 로그인시 알람 리스트 삽입
     useEffect(() => {
-        console.log(token);
         // 토큰이 없거나, 이미 알림이 있다면 아무것도 하지 않고 즉시 종료
         if (!token || alarmLength !== 0) return;
 
         const fetchAlarms = async () => {
             try {
                 const data = await getAlarmListApi();
-                console.log(data);
                 setInitialList(data);
             } catch (error) {
                 console.error("알림 리스트 초기화 실패:", error);
