@@ -51,20 +51,20 @@ export default function MainHome() {
         if (!loading) initData();
     }, [loading]);
 
-    useEffect(() => {
-        const getMyCompanyBach = async () => {
-            try {
-                const res = await getMyBachList();
-                if (res && res.success && Array.isArray(res.data)) {
-                    setBachList(res.data);
-                }
-
-            } catch (e) {
-                console.error('Error : ', e);
-            }
-        };
-        getMyCompanyBach();
-    }, []);
+    // useEffect(() => {
+    //     const getMyCompanyBach = async () => {
+    //         try {
+    //             const res = await getMyBachList();
+    //             if (res && res.success && Array.isArray(res.data)) {
+    //                 setBachList(res.data);
+    //             }
+    //
+    //         } catch (e) {
+    //             console.error('Error : ', e);
+    //         }
+    //     };
+    //     getMyCompanyBach();
+    // }, []);
 
     const handleMarkerClick = useCallback((id: string) => {
         router.push(`${prefix}/reportDetail/${id}`);
@@ -87,7 +87,7 @@ export default function MainHome() {
 
             <div className="legend">
                 <div className="item red">
-                    <span className="badge">{counts.red}</span><span className="label">미배정</span>
+                    <span className="badge">{counts.red}</span><span className="label">요청</span>
                 </div>
                 <div className="item blue">
                     <span className="badge">{counts.blue}</span><span className="label">처리중</span>
@@ -95,9 +95,9 @@ export default function MainHome() {
                 <div className="item gray">
                     <span className="badge">{counts.gray}</span><span className="label">완료</span>
                 </div>
-                <div className="item lezone">
-                    <span className="label">배치존</span>
-                </div>
+                {/*<div className="item lezone">*/}
+                {/*    <span className="label">배치존</span>*/}
+                {/*</div>*/}
             </div>
 
             <div className="mainmap">
