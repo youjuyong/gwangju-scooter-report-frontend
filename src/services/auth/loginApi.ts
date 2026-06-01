@@ -13,6 +13,10 @@ const getDynamicBaseURL = () => {
         if (path.startsWith("/tow")) {
             return "/tow/login";
         }
+
+        if (path.startsWith("/admin")) {
+            return "/admin/login";
+        }
     }
 };
 
