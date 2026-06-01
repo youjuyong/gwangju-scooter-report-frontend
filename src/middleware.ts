@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+ export default function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const segments = pathname.split('/');
     const firstSegment = segments[1];
@@ -30,7 +30,7 @@ export function middleware(request: NextRequest) {
     if (isReporterProtected) {
         const token = request.cookies.get('reporterAccessToken')?.value;
 
-        if (!token) {
+        if (!token || token === "null" || token === "undefined") {
             // 시민은 /login 페이지가 루트에 있으므로 /login으로 보냄
             const loginUrl = new URL('/', request.url);
             // 로그인 후 다시 돌아오게 하고 싶다면 쿼리 추가
@@ -48,8 +48,13 @@ export const config = {
         '/admin/:path*',
         '/pm/:path*',
         '/tow/:path*',
-        '/set/:path*',      // 시민 설정 페이지
-        '/reportList/:path*', // 시민 신고확인 페이지
-        '/alarm/:path*'     // 시민 알림 페이지
+        '/set',          // 하위 경로 없는 버전 추가
+        '/set/:path*',
+        '/reportList',   // ◀ http://localhost:3000/reportList를 잡으려면 이게 있어야 합니다!
+        '/reportList/:path*',
+        '/alarm',        // 하위 경로 없는 버전 추가
+        '/alarm/:path*',
+        '/report',       // ◀ 코드 본문에 /report도 있으니 이것도 추가
+        '/report/:path*'
     ],
 }
