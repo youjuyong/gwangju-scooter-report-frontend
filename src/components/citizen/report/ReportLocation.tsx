@@ -9,6 +9,7 @@ import "../../../assets/style/css/style.css";
 import {getOutlineType} from "@/services/common/commonApi";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import {useAlert} from "@/components/popup/PopupProvider";
+import {useAuthStore} from "@/store/authStore";
 
 interface MapProps {
     brandId: string;
@@ -24,6 +25,13 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
     const [bachList, setBachList] = useState<any[]>([]);
     const [jibunAddress, setJibunAddress] = useState<string>("");
     const showAlert = useAlert();
+    const loginType = useAuthStore((state) => {
+        if (state.admin.accessToken) return 'admin';
+        if (state.pm.accessToken) return 'pm';
+        if (state.tow.accessToken) return 'tow';
+        if (state.reporter.accessToken) return 'reporter';
+        return null;
+    });
     const fetchAddressInfo = useCallback((lat: number, lng: number) => {
         const {kakao} = window;
         if (!kakao || !kakao.maps.services) return;
@@ -149,7 +157,7 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
 
         const markerPoint = new kakao.maps.LatLng(lat, lng);
 
-        return bachList.some((item) => {
+        return bachList?.some((item) => {
             const zonePoint = new kakao.maps.LatLng(Number(item.lat), Number(item.lot));
 
             const polyLine = new kakao.maps.Polyline({
@@ -157,7 +165,7 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
             });
 
             return polyLine.getLength() <= 15;
-        });
+        }) ?? false;
     };
 
     const handleLocationSubmit = () => {
@@ -210,7 +218,7 @@ export default function ReportLocation({brandId, onSelect, onBack}: MapProps) {
                                 >
                                     <MapMarker position={position}/>
 
-                                    {bachList.map((item) => {
+                                    {loginType !== "reporter" && bachList?.map((item) => {
                                         const centerLatLng = {
                                             lat: Number(item.lat),
                                             lng: Number(item.lot),
