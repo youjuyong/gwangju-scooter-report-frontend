@@ -78,7 +78,7 @@ export default function ReportListPage() {
                                             </dl>
                                             <dl>
                                                 <dt>처리일시</dt>
-                                                <dd className="blue">{item.prcsDt || "-"}</dd>
+                                                <dd className="blue">{item.prcrHis?.prcsDt || "-"}</dd>
                                             </dl>
                                         </div>
 
