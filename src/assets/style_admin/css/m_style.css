@@ -1,0 +1,345 @@
+@media (max-width:1514px){
+    .subnav dd.status1{background:none; padding-right: 0px;}
+    .subnav dd.status2{padding-left: 0;}
+}
+
+
+@media (max-width:1493px){
+    .modeslider span{font-size: 12px}
+    .dashboardTop button{font-size: 12px}
+    .dashboardTop .status button{width: 115px;}    
+}
+
+@media (max-width:1430px){
+
+    /*대시보드*/
+     .wrap.off .dashboardTop{ height: 1px; padding: 1px; animation:slideUp 0.2s ease;}
+    .wrap.off .dashboardTop dl{margin-top: -20px; opacity: 0; animation:slideUp2 0.2s ease;}
+    .wrap.off .article{top: 4px; }
+    .wrap.on .dashboardTop{animation:slideDown 0.2s ease;}
+    .wrap.on .dashboardTop dl{margin-top:0; opacity:1; animation:slideDown2 0.2s ease;}
+    
+    .btnarrow{display: block;}
+    .wrap.off .btnarrow{background: url(../images/btn_open.png)center #4b4e52 no-repeat;}
+
+    .dashboardTop{height:86px}
+    .article{top: 86px}
+    .subnav dl{width: 100%;}
+    
+    @keyframes slideUp{
+        from{height:90px;}
+        to{ height:1px;}
+    }
+    @keyframes slideUp2{
+        from{opacity: 1; margin-top: 0px;}
+        to{opacity: 0; margin-top: -20px;}
+    }  
+    
+    @keyframes slideDown{
+        from{height:1px;}
+        to{ }
+    }
+    
+    @keyframes slideDown2{
+        from{margin-top: -20px; opacity:0;}
+        to{margin-top:0; opacity:1; }
+    }
+    
+    .wrap.on .article{animation:mapslide 0.2s ease;}
+    @keyframes mapslide{
+        from{top: 4px}
+        to{ }
+    }
+    
+    
+
+    .btnarrow_left{display: block;}
+    .leftoff .listBox{left: -320px; animation:slideLeft 0.3s ease;}
+    .leftoff .mapBox{left: 0; animation:mapLeftoff 0.3s ease;}
+    .lefton .listBox{left:0; animation:slideLefton 0.3s ease;}
+    @keyframes slideLefton{
+        from{left:-320px;}
+        to{ left:0;}
+    }
+    @keyframes slideLeft{
+        from{left:0px;}
+        to{ left: -320px;}
+    }
+    @keyframes mapLeftoff{
+        from{left:320px;}
+        to{ left:0;}
+    } 
+    .lefton .mapBox{animation:mapleft 0.3s ease;}
+    @keyframes mapleft{
+        from{left:0px;}
+        to{}
+    }
+
+    
+}
+
+@media (max-width:1100px){  
+     /*메뉴*/
+     header h1{left: 5px;margin: 5px 0 0 0px; background: url(../images/logo.png)left center no-repeat; background-size: 150px;}
+    header nav{left: 0; transform: translate(0, 0);}
+     header nav{top: auto; bottom: 0; width: 100%; height: 44px; border-top: 1px solid #f23324}
+    header .header_Right{width:100%; text-align: center; height: 39px; border-bottom: 1px solid #a73128;}
+    .btnLogout{width: 40px; height: 40px; border-left: none; padding: 0}
+    .today{padding-top: 10px;right: 40px; font-size: 12px; width: 140px;}
+    header nav li{height: 44px; width: 20%;}
+    header nav li a{height: 44px; padding: 13px 0 0 0; text-align: center}
+    header nav li:hover{border-bottom: 1px solid #b92519;}
+    .menu1.click a{background:#36373c;}
+    .menu2.click a{background:#36373c; padding: 13px 0 0 0; text-align: center}
+    .menu3.click a{background:#36373c;}
+    .menu4.click a{background:#36373c; padding: 13px 0 0 0; text-align: center}
+    .menu5.click a{background:#36373c; padding: 13px 0 0 0; text-align: center}
+    .menu1 a{background:none;}
+    .menu2 a{background:none; padding: 13px 0 0 0; text-align: center}
+    .menu3 a{background:none; }
+    .menu4 a{background:none; padding: 13px 0 0 0; text-align: center}
+    .menu5 a{background:none;  padding: 13px 0 0 0; text-align: center}
+    header nav li.click a{height: 46px;}
+    header{height: 85px;}
+   .wrap{top: 85px;}
+
+    /*신고처리이력*/
+    .report_wrap .searchBox{height: 88px;}
+    .report_wrap .searchBox .dlfirst{width: 100%; margin-bottom:5px}
+    .report_wrap .searchBox .dlnth2 dt:first-child{padding: 0 10px 0 0px;}
+    .report_wrap .infoContent{top: 88px;}
+    .wrap .searchBox .searchinput{width: 150px}
+}
+
+@media (max-width:1032px){  
+    .dashboardTop{height:127px}
+    .article{top: 127px}
+}
+
+@media (max-width:940px){
+    /*공지사항팝업*/
+    .popup_notice{width: 90%;}
+
+    
+}
+
+@media (max-width:800px){
+    /*배치포인트*/
+    .point_wrap .infoContent{overflow-y: scroll;}
+    .point_wrap .gridbox{right: 0; bottom: auto; height: 200px; border-bottom: 1px solid #000; border-right: none;width: auto;}
+    .point_map{left: 0; top: 200px; border-left: none; border-top: 1px solid #303034; min-height:300px}
+
+    
+}
+
+@media (max-width:625px){
+    /*서브메뉴*/  
+    .searchBox dt{font-size: 11px; padding: 0 5px 0 10px;}
+    .searchBox dl.dlfirst dt:first-child,.searchBox dl.dlnth2 dt:first-child,.report_wrap .searchBox .dlnth2 dt:first-child{padding: 0 5px 0 0px;}
+    .searchBox input, .searchBox select{font-size: 12px; width: 113px; padding: 0 5px;}
+    input[type="date"] {background: url(../images/calendar.png) right 5px top 10px #232326 no-repeat;}
+    select {background: url(../images/img_select.png) right 5px top 14px #232326 no-repeat;}
+    .wrap .searchBox .pmsel{width: 70px;}
+    .wrap .searchBox .sisel{width: 70px;}
+    .wrap .searchBox .searchinput{width: 120px}
+    .wrap .searchBox .monsel{width: 50px}
+    
+    .btnExcel{background: url(../images/icon_excel.png)3px 8px #008c59 no-repeat; font-size: 12px; padding: 0 5px 0 20px;}
+    .btnExcel:hover {background: url(../images/icon_excel.png)3px 8px #00a166 no-repeat;}
+    .btnExcel:active {background: url(../images/icon_excel.png)3px 8px #007c4f no-repeat;}
+    
+    /*버튼*/
+    .searchBox .btnSet button{font-size: 12px; width: 50px; padding: 0;}
+    .setingBox .btnSet button{font-size: 12px; width: 50px; padding: 0; height: 30px;}
+    .setingBox .btnSet{padding: 3px 0 0 10px;}
+    
+    /*오른쪽검색*/
+    .search_right.search_right_Excel{padding-right: 80px}
+    .searchBox .search_right.search_right_Excel dd{margin-right: 0}
+    
+}
+
+@media (max-width:580px){
+    .history_wrap .searchBox .dlfirst{width: 100%; margin-bottom: 5px;}
+    .history_wrap .searchBox .dlnth3 dt{padding: 0 5px 0 0px}
+    .history_wrap .searchBox{height: 88px;}
+    .history_wrap .infoContent{top: 88px;}
+}
+
+
+@media (max-width:556px){
+    .dashboardTop{height:162px}
+    .article{top: 162px}
+}
+
+@media (max-width:520px){
+    /*서브메뉴*/
+    .subnav{padding: 5px 3px;}
+    .subnav nav{padding: 3px 0}
+    .subnav nav li a{font-size: 12px; padding: 0 8px;}
+    .subnav nav li.click a{background:#d22517; padding: 0 8px;}
+    
+    /*로그인*/
+    .loginBox{width: 80%; height: 470px;} 
+    .login_inputbox{width: 74%; margin:45px auto 0 auto;}
+    .login_bottom_logo{height: 59px; padding-top:11px;}
+    .login_bottom_logo img{width: 57px}
+    .btnLogin{ margin-top: 24px;}
+    
+    /*팝업*/
+    .popup.popup_kick{width: 300px;}
+    
+    /*탭*/
+    .tab li{width: 70px;}
+    .tab li a{font-size: 12px;}
+    
+    /*운영설정관리*/
+    .sectiontop h4{font-size: 13px;}
+    .seting1, .seting2{height: 150px;}
+    .tablebox table th{font-size: 12px; height: 32px;}
+    .tablebox table td{font-size: 13px;}
+    .tablebox {height: 100px;}
+    
+
+}
+
+
+@media (max-width:485px){
+
+    /*대시보드*/
+    .dashboardTop button{width: 80px;}
+    .dashboardTop .status button{width: 115px;}
+    .subnav dd{height: auto;}
+    .dashboardTop{height:238px}
+    .article{top: 238px}
+    
+    /*신고처리이력*/
+    .wrap .searchBox .pmsel{width: 50px;}
+    .wrap .searchBox .sisel{width: 65px;}
+    .wrap .searchBox .searchinput{width:90px}
+    
+    /*버튼*/
+    .searchBox .btnSet button{width: 42px;}
+    
+}
+
+@media (max-width:422px){
+    /*신고처리이력*/
+    .btnSearch{margin: 0 0 0 5px;}
+    .searchBox dt{display: none;}
+    .searchBox dd{margin-right:5px;}
+    .wrap .searchBox .pmsel{width:65px;}
+    
+    /*PM팝업*/
+    .popup_pm{width: 300px;}
+    .logoimg .imginput{width: 144px}
+    
+    /*운영설정관리*/
+    .seting1, .seting2{width: 100%;}
+    
+}
+
+
+@media (max-width:417px){
+    /*서브메뉴*/
+    .subnav nav li a{padding: 0 5px; }
+    .subnav nav li.click a{padding: 0 5px;}
+    
+    /*대시보드*/
+    .subnav dd{margin-right: 6px;}
+    .subnav dt{font-size: 11px; margin: 0 5px}
+    .dashboardTop button{font-size: 11px; width: 72px;}
+    .dashboardTop .status button{width: 109px;}
+    .switch{width: 65px;}
+    .modeslider span{font-size: 11px;}
+    .subnav dd{height: auto;}
+    header nav li a{font-size: 12px;}
+      
+    /*관리자*/
+    .popup_manager{width:300px;}
+    
+}
+
+
+@media (max-width:400px){
+    /*서브메뉴*/
+    .subnav nav li a{font-size: 11px;}  
+    
+    /*공지사항팝업*/
+    .popup_notice th{width:60px; }
+    .popup_notice .popupconten table th{font-size: 11px}
+    .popup_notice .popupconten table td{font-size: 11px}
+}
+
+@media (max-width:380px){.wrap .searchBox .searchinput{width: 80px;}}
+
+@media (max-width:370px){
+    /*서브메뉴*/
+    .subnav{padding: 5px 0px;}
+    .subnav nav li a{letter-spacing: -0.5px}
+    .btnExcel{font-size: 11px; padding: 0 3px 0 18px; background: url(../images/icon_excel.png)2px 8px #008c59 no-repeat;}
+    .btnExcel:hover {background: url(../images/icon_excel.png)2px 8px #00a166 no-repeat;}
+    .btnExcel:active {background: url(../images/icon_excel.png)2px 8px #007c4f no-repeat;}
+    
+    /*오른쪽검색*/
+    .search_right.search_right_Excel{padding-right: 70px;}
+    /*버튼*/
+    .searchBox .btnSet button{font-size: 11px; width: 40px;}
+    
+    
+}
+
+
+@media (max-width:350px){
+    .listBox{width: 290px}
+    .leftoff .listBox{left: -290px; animation:slideLeft 0.3s ease;}
+    @keyframes slideLefton{
+        from{left:-290px;}
+        to{ left:0;}
+    }
+    @keyframes slideLeft{
+        from{left:0px;}
+        to{ left: -290px;}
+    }
+    @keyframes mapLeftoff{
+        from{left:290px;}
+        to{ left:0;}
+    } 
+    
+    /*서브메뉴*/
+    .subnav nav li a{letter-spacing: -0.6px; padding: 0 3px;}
+    .subnav nav li.click a{padding: 0 4px;}
+    .searchBox{padding: 7px 7px;}
+    .searchBox input, .searchBox select{width: 110px;}
+    
+    /*공지사항팝업*/
+    .popup.popup_notice label{ margin-right:5px;}
+    
+}
+
+
+@media (max-width:344px){.search_right.search_right_Excel{display: none}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

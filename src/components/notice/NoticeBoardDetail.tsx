@@ -69,6 +69,7 @@ export default async function NoticeBoardDetail({
                                 <time dateTime={notice.regDt?.split(' ')[0]}>{notice.regDt}</time>
                             </td>
                         </tr>
+                        {/* 첨부파일이름으로 표기 , 첨부파일이 없으면 안나오게 */}
                         <tr>
                             <th scope="row">첨부파일</th>
                             <td className="borderBottom"><a href="" download aria-label="파일이름이 나옵니다">파일이름이

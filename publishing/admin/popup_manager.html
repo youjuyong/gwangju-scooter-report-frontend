@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>광주 방치킥보드 관리 시스템</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" href="css/base_style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/m_style.css"/>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/common.js"></script>
+    
+  </head>
+    
+<body>
+    
+    
+            <div class="popupWrap">
+                <div class="popupInner">
+                    <div class="popup popup_manager">
+                        <h3>관리자</h3>
+                        <button class="popupClose">닫기</button>
+                        <div class="popupconten">
+                           
+                            <table>
+                                <tr>
+                                    <th>ID</th>
+                                    <td> 
+                                        <input type="text">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>이름</th>
+                                    <td> 
+                                        <input type="text">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>비밀번호</th>
+                                    <td> 
+                                        <input type="text">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>비밀번호확인</th>
+                                    <td> 
+                                        <input type="text">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>사용자 종류</th>
+                                    <td>
+                                        <select>
+                                            <option>관리자</option>
+                                            <option>지역담당자</option>
+                                            <option>PM사</option>
+                                            <option>견인업체</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>PM사</th>
+                                    <td>
+                                        <select disabled> <!--사용자 종류 에서 PM사 선택 시 활성-->
+                                            <option>-</option>
+                                            <option>지쿠</option>
+                                            <option>스윙</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>사용여부</th>
+                                    <td>
+                                        <select>
+                                            <option>사용</option>
+                                            <option>사용안함</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>담당권역</th>
+                                    <td style="padding: 10px 0">
+                                        <label><input type="checkbox"> 경안동</label>
+                                        <label><input type="checkbox"> 능평동</label>
+                                        <label><input type="checkbox"> 오포1동</label>
+                                        <label><input type="checkbox"> 곤지암읍</label>
+                                        <label><input type="checkbox"> 도척면</label>
+                                        <label><input type="checkbox"> 오포2동</label>
+                                        <label><input type="checkbox"> 광남1동</label>
+                                        <label><input type="checkbox"> 송정동</label>
+                                        <label><input type="checkbox"> 초월읍</label>
+                                        <label><input type="checkbox"> 광남2동</label>
+                                        <label><input type="checkbox"> 신현동</label>
+                                        <label><input type="checkbox"> 탄벌동</label>
+                                        <label><input type="checkbox"> 남종면</label>
+                                        <label><input type="checkbox"> 쌍령동</label>
+                                        <label><input type="checkbox"> 퇴촌면</label>
+                                        <label><input type="checkbox"> 남한산성면</label>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!--버튼-->
+                            <div class="btnSet">
+                                <button>취소</button>
+                                <button class="red">저장</button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+                    
+                    
+</body>
+</html>

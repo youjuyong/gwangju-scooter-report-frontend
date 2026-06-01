@@ -1,0 +1,103 @@
+@charset "UTF-8";
+
+@font-face {
+    font-family: 'NanumSquareNeo';
+    font-style: normal;
+    font-weight: 300;
+     src: url(../fonts/NanumSquareNeoOTF-Rg.woff2) format('woff2'),
+        url(../fonts/NanumSquareNeoOTF-Rg.woff) format('woff'),
+        url(../fonts/NanumSquareNeoOTF-Rg.otf) format('opentype');}
+
+@font-face {
+    font-family: 'NanumSquareNeo';
+    font-style: normal;
+    font-weight: 500;
+    src: url(../fonts/NanumSquareNeoOTF-Bd.woff2) format('woff2'),
+        url(../fonts/NanumSquareNeoOTF-Bd.woff) format('woff'),
+        url(../fonts/NanumSquareNeoOTF-Bd.otf) format('opentype');}
+
+@font-face {
+    font-family: 'NanumSquareNeo';
+    font-style: normal;
+    font-weight: 700;
+    src: url(../fonts/NanumSquareNeoOTF-Eb.woff2) format('woff2'),
+        url(../fonts/NanumSquareNeoOTF-Eb.woff) format('woff'),
+        url(../fonts/NanumSquareNeoOTF-Eb.otf) format('opentype');}
+
+
+/* CSS Document */
+html, body	{ font-family: 'NanumSquareNeo'; font-weight: 300;}
+
+*{margin: 0; padding: 0;}
+div, p, ul, ol, li, dl, dt, dd, form, select, fieldset, legend, input, textarea, h1, h2, h3, h4, h5, h6, img, table, thead, tbody, tr, th, td, caption, img, section, article, header, a , button{ box-sizing: border-box; word-break: break-all;}
+
+hr, caption, legend {width: 1px; height: 1px; font-size: 11px; position: absolute; left: -999999px; color: transparent;}
+fieldset{border: none; outline: none;}
+
+/* to enable resizing for IE */
+input,textarea,select{ font-size:14px; font-family: 'NanumSquareNeo'; color: #fff; box-sizing: border-box; cursor: pointer; border:1px solid #3f3f3f; height: 34px; text-align: left; background: #232326; border-radius:5px; padding: 0 10px; font-weight: 300;
+	-webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+	outline:none;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 1);
+    -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 1);
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+input:focus,textarea:focus,select:focus{   
+    border: 1px solid rgba(210, 37, 23, 0.7);
+    box-shadow:0 0 5px 0 rgba(210, 37, 23, 1);
+    -webkit-box-shadow:0 0 5px 0 rgba(210, 37, 23, 1);
+    
+  }
+
+select option {
+  font-size: 16px;
+}
+
+select{ background: url(../images/img_select.png)right 10px top 14px #232326 no-repeat;}
+
+a{ color:#000; text-decoration:none; outline:none; cursor: pointer}
+button {cursor:pointer; border:0; font-family: 'NanumSquareNeo'; border-radius: 5px; height: 32px; font-size: 13px; color: #fff; padding: 0 10px; box-shadow:0 0 4px rgba(0,0,0,0.5);    -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);}
+a:hover,button:hover{text-decoration: underline}
+button:disabled, input:disabled, select:disabled{cursor: auto; color: #fff; box-shadow: none; background:transparent; border:transparent; opacity:1;}
+button:disabled:hover, input:disabled:hover, select:disabled:hover{text-decoration: none}
+
+*{scrollbar-track-color:rgba(255,255,255,0); scrollbar-face-color: #747474; scrollbar-shadow-color: #646464;}
+/* Chrome, Safari용 스크롤 바 */
+*::-webkit-scrollbar{width:5px; height: 5px;}
+*::-webkit-scrollbar-button{display: none;}
+*::-webkit-scrollbar-track{background: rgba(0,0,0,0);} /*배경*/
+*::-webkit-scrollbar-thumb{border-radius: 20px; background: #747474;}
+*::-webkit-scrollbar-thumb:hover{background:#414141}
+
+li{list-style: none}
+table{border-collapse: collapse; width: 100%;}
+
+
+label{cursor: pointer}
+input[type=checkbox]{background: url(../images/check.png)center no-repeat; width:19px!important; height: 19px!important; vertical-align: middle; border: none!important; border-radius: 0!important}
+input[type=checkbox]:checked{background: url(../images/check_click.png)center no-repeat;}
+
+input[type="date"],input[type="month"] { position: relative; background: url(../images/calendar.png)right 10px top 10px #232326 no-repeat;}
+input[type="time"]{ position: relative; background: url(../images/time.png)right 10px top 7px #232326 no-repeat;}
+input[type="date"]:disabled,input[type="month"]:disabled,input[type="time"]:disabled{background:transparent;}
+
+input[type="date"]::-webkit-calendar-picker-indicator,input[type="month"]::-webkit-calendar-picker-indicator,input[type="time"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 33px;
+    height: 100%;
+    background: transparent;
+    color: transparent;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+textarea{resize:none; padding: 20px; white-space: pre-wrap; line-height: 20px;}
+textarea:disabled{cursor:auto; box-shadow: none; background:#2f2f32; border:1px solid #212123; opacity:1; }

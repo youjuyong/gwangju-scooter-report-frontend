@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>광주 방치킥보드 관리 시스템</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" href="css/base_style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/m_style.css"/>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/common.js"></script>
+    
+  </head>
+
+    <body class="systembody">
+        
+        <header>
+            <h1>방치킥보드관리시스템</h1>
+            <nav>
+                <ul>
+                    <li class="menu menu1"><a href="dashboard.html">대시보드</a></li>
+                    <li class="menu menu2"><a href="report.html">이력/통계</a></li>
+                    <li class="menu menu3 click"><a href="notice.html">정책관리</a></li>
+                    <li class="menu menu4 "><a href="pm.html">시스템관리</a></li>
+                    <li class="menu menu5"><a href="member.html">사용자관리</a></li>
+                </ul>
+            </nav>
+            <div class="header_Right">
+                <p class="today">2026년 6월 1일 18:12</p>
+                <button class="btnLogout">로그아웃</button>
+            </div>
+        </header>
+      
+        
+        <div class="wrap">
+
+            <div class="subnav">
+                <nav>
+                    <ul>
+                        <li><a href="notice.html">공지사항</a></li>
+                        <li class="click"><a href="policy.html">약관관리</a></li>
+                    </ul>
+                </nav>
+            </div>
+           
+            <div class="subarticle">
+                <!--검색영역-->
+                <div class="searchBox">
+                    
+                    <div class="btnSet">
+                        <button>수정</button>
+                        <!--<button>취소</button>
+                        <button class="red">저장</button>-->
+                    </div>
+                </div>
+                
+                <div class="infoContent">
+                    <textarea class="policytext" placeholder="내용을 입력하세요" ></textarea>
+                </div>
+                
+            </div>
+            
+        </div>
+    </body>
+</html>

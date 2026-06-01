@@ -6,6 +6,7 @@ import FocusVisibleProvider from "@/components/FocusVisibleProvider";
 import React from "react";
 import Script from "next/script";
 import {PopupProvider} from "@/components/popup/PopupProvider";
+import { headers } from "next/headers";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -35,11 +36,18 @@ export const metadata: Metadata = {
     },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
                                        children,
                                    }: {
     children: React.ReactNode;
 }) {
+    // // 💡 서버에서 현재 요청된 URL 경로(pathname)를 추출합니다.
+     const headersList = await headers();
+    const pathname = headersList.get("x-current-path") || "";
+
+    // 💡 주소창에 /admin 이 포함되어 있는지 검사하여 클래스명을 결정합니다.
+    const isAdmin = pathname.includes("/admin");
+    const bodyClass = isAdmin ? "systembody" : "";
 
     return (
         <html lang="ko">
@@ -57,7 +65,8 @@ export default function RootLayout({
                 strategy="beforeInteractive"
             />
         </head>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* 💡 조건에 맞춰 기존 폰트 클래스 뒤에 systembody가 깔끔하게 붙도록 결합했습니다. */}
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased ${bodyClass}`.trim()}>
         <BFCacheHandler/>
         <Toaster/>
         <FocusVisibleProvider>

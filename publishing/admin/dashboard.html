@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>광주 방치킥보드 관리 시스템</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" href="css/base_style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/m_style.css"/>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/common.js"></script>
+    
+  </head>
+
+    <body class="systembody">
+        
+        <header>
+            <h1>방치킥보드관리시스템</h1>
+            <nav>
+                <ul>
+                    <li class="menu menu1 click"><a href="dashboard.html">대시보드</a></li>
+                    <li class="menu menu2 "><a href="report.html">이력/통계</a></li>
+                    <li class="menu menu3 "><a href="notice.html">정책관리</a></li>
+                    <li class="menu menu4 "><a href="pm.html">시스템관리</a></li>
+                    <li class="menu menu5"><a href="member.html">사용자관리</a></li>
+                </ul>
+            </nav>
+            <div class="header_Right">
+                <p class="today">2026년 6월 1일 18:12</p>
+                <button class="btnLogout">로그아웃</button>
+            </div>
+        </header>
+      
+        
+        <div class="wrap">
+
+            <div class="subnav dashboardTop">
+                <dl>
+                    <dt>모드선택</dt>
+                    <dd>
+                        <label class="switch">
+                          <input type="checkbox" id="toggle">
+                          <span class="modeslider">
+                            <span class="text on">자동</span>
+                            <span class="text off">수동</span>
+                          </span>
+                        </label>
+                    </dd>
+                    <dt>PM</dt>
+                    <dd class="pm">
+                        <button class="click"><img src="./images/gcoo.png">지쿠</button> 
+                        <button><img src="./images/swing.png">스윙</button>
+                    </dd>
+                </dl>
+                <dl>
+                    <dt>상태/건수</dt>
+                    <dd class="status status1">
+                        <button class="icon1 click" disabled>미승인 [0]</button>  <!--수동모드 전환 시 disabled 삭제-->
+                        <button class="icon2 click">미배정 [0]</button> 
+                        <button class="icon3 click">처리중 [0]</button> 
+                        <button class="icon4 click">처리완료 [0]</button> 
+                    </dd>
+                    <dd class="status status2">
+                        <button class="icon5 click" disabled>견인미승인 [0]</button>  <!--수동모드 전환 시 disabled 삭제-->
+                        <button class="icon6">견인요청 [0]</button> 
+                        <button class="icon7">견인처리중 [0]</button> 
+                        <button class="icon8">견인완료 [0]</button> 
+                    </dd>
+                </dl>
+
+            </div>
+            
+            <button class="btnarrow"></button><!--모바일용 상단 열기닫기 버튼(대시보드에서만 있음)-->
+            
+            <div class="article">
+                
+                <section class="listBox">
+                    
+                    <button class="btnarrow_left"></button><!--모바일용 왼쪽 열기닫기 버튼 / 브라우저 width 1430px 이하 에서 목록 클릭 시 wrap에 leftoff 들어가게(리스트창닫힘) 해주세요 (지금 구현되어있는거에서 목록 클릭시에도 동작 되게 추가) / 다시 열기 누르면 클릭한 내용(팝업 및 리스트 선택 상태) 닫히 도록(리셋)-->
+                    
+                    <!--자동/수동모드 안내-->
+                    <div class="leftinfo">   
+                        <div class="auto"><img src="./images/icon_self.png">자동 승인 처리중..</div><!--자동모드일 때 -->
+                        <!--<div class="hand">수동모드</div>--><!--수동모드일 때 -->
+                    </div> 
+                    
+                    <!--킥보드리스트-->
+                    <div class="listconten">
+                        
+                        <h2>목록</h2>
+                        <ul class="">
+                            <li class="click"> <!--선택 된 li에 click 넣기-->
+                                <div class="listtop">
+                                    <p class="state st2">미배정</p> <!--미승인 st1 , 미배정: st2, 처리중: st3 , 처리완료: st4 , 견인미승인:st5 , 견인요청: st6 , 견인처리중: st7 , 견인완료: st8-->
+                                    <div class="pmname"><img src="./images/gcoo.png">지쿠</div>
+                                </div>
+                                <div class="address">경기도 광주시 탄벌동 28-4</div>
+                                <div class="details">
+                                    <div class="detail_tableBox">
+                                        <table>
+                                            <tr>
+                                                <th>신고일시</th>
+                                                <td>2026-01-07 10:00</td>
+                                            </tr>
+                                            <tr>
+                                                <th>위반유형</th>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th>상세설명</th>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th>처리자ID</th>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th>처리일자</th>
+                                                <td class="blue">-</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <img src="./images/img.jpg">
+                                </div>
+                                <!--수동모드(미승인) 일때만 나올 버튼-->
+                                <div class="btnSet">
+                                    <button>반려</button> <!--반려 시 아예 삭제-->
+                                    <button class="red">승인</button> <!--승인 시 미배정으로 변경-->
+                                </div>
+                            </li>
+                            
+                            <li> <!--선택 된 li에 click 넣기-->
+                                <div class="listtop">
+                                    <p class="state st3">처리중</p> <!--미승인 st1 , 미배정: st2, 처리중: st3 , 처리완료: st4 , 견인미승인:st5 , 견인요청: st6 , 견인처리중: st7 , 견인완료: st8-->
+                                    <div class="pmname"><img src="./images/swing.png">스윙</div>
+                                </div>
+                                <div class="address">경기도 광주시 탄벌동 28-4</div>
+                                <div class="details">
+                                    <div class="detail_tableBox">
+                                        <table>
+                                            <tr>
+                                                <th>신고일시</th>
+                                                <td>2026-01-07 10:00</td>
+                                            </tr>
+                                            <tr>
+                                                <th>위반유형</th>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th>상세설명</th>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th>처리자ID</th>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th>처리일자</th>
+                                                <td class="blue">-</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <img src="./images/img.jpg">
+                                </div>
+                                
+                            </li>
+                            
+                            
+                            
+                            
+                        </ul>
+                        
+                    </div>
+                    
+                </section>
+                
+                
+                <!--지도-->
+                <section class="mapBox">
+                    <!--마커-->
+                    <div class="marker marker5 click"> <!-- marker1(미승인) ~ marker8(견인완료) 순서대로 번호 / 클릭 시 click 넣기-->
+                        <div class="img">
+                            <p class="tow"></p>
+                            <img src="./images/gcoo.png"> <!--로고이미지-->
+                        </div>
+                    </div>
+                    <!--./마커 끝-->
+                    
+                    <!--배치존-->
+                    <div class="zone"> <!--zone 의 width:50px; height: 50px; 임의로 50으로 해놨습니다. 상황에 맞게 사이즈 변경해 주세요.-->
+                        <span class="spot"></span>
+                        <span class="round"></span>
+                    </div>
+                    <!--./배치존 끝-->
+                    
+                    
+                    
+                    
+                    <!--수동모드일 때 신규신고 알림-->
+                    <div class="alarm">
+                        <h3>신규신고</h3> 
+                        <div class="alarmBox">
+                            <ul>
+                                
+                                <li>
+                                    <p>경안천로 159 역순으로 쌓이도록</p> <!--도,시 제외한 나머지 주소만 보이게-->
+                                    <button>확인하기</button> <!--해당 팝업 띄움(선택상태로)-->
+                                </li>
+                                
+                                <li>
+                                    <p>경안천로 159 두번째알림</p> 
+                                    <button>확인하기</button>
+                                </li>
+                                
+                                <li>
+                                    <p>경안천로 159 첫번째 알림</p>
+                                    <button>확인하기</button>
+                                </li>
+                                
+                            </ul>     
+                        </div>
+                    </div>
+                    <!--./수동모드일 때 신규신고 알림 끝-->
+                    
+                    
+                    
+                    <!--상세 (다른 아이콘 또는 다른 리스트 누르면 내용 바뀌도록)-->
+                    <div class="popup popup_kick">
+                        <h3>신고정보</h3>
+                        <button class="popupClose">닫기</button>
+                        <div class="popupconten">
+                            <p class="state st2">미배정</p>  <!--미승인 st1 , 미배정: st2, 처리중: st3 , 처리완료: st4 , 견인미승인:st5 , 견인요청: st6 , 견인처리중: st7 , 견인완료: st8-->
+                            <div class="address">경기도 광주시 탄벌동 28-4</div>
+                            <table>
+                                <tr>
+                                    <th>신고일시</th>
+                                    <td>2026년 1월 20일 05:00</td>
+                                </tr>
+                                <tr>
+                                    <th>신고번호</th>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <th>신고자ID</th>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <th>위반유형</th>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <th>상세설명</th>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <th>PM사</th>
+                                    <td>지쿠</td>
+                                </tr>
+                                <tr>
+                                    <th>킥보드ID</th>
+                                    <td></td>
+                                </tr>
+                            </table>
+                            
+                            <div class="kickimg">
+                                <div class="imgli">
+                                    <div class="imgsize">
+                                        <img src="./images/img.jpg" alt="이미지1"> 
+                                    </div>
+                                </div>
+                                <div class="imgli lastimgli">
+                                    <div class="imgsize">
+                                        <img src="./images/img.jpg" alt="이미지2"> 
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="table2">
+                                <table>
+                                    <tr>
+                                        <th>처리자ID</th>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <th>처리일시</th>
+                                        <td class="blue">2025</td>
+                                    </tr>
+                                    <tr>
+                                        <th>처리사유</th>
+                                        <td>사유가 나옵니다.</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <!--처리완료시 나올 처리완료사진-->
+                            <div class="kickimg kickimg_ok">
+                                <div class="imgli">
+                                    <div class="imgsize">
+                                        <img src="./images/img.jpg" alt="이미지1"> 
+                                    </div>
+                                </div>
+                                <div class="imgli lastimgli">
+                                    <div class="imgsize">
+                                        <!--<img src="./images/img.jpg" alt="이미지2">--> <!--두번째 사진 없을 시 img 만 삭제-->
+                                    </div>
+                                </div>
+                            </div>
+                            <!--./처리완료시 나올 처리완료사진 끝-->
+                            
+                            <!--수동모드일 때 나올 버튼-->
+                            <div class="btnSet">
+                                <button>반려</button> <!--반려 시 리스트에서 삭제-->
+                                <button class="red">승인</button> <!--승인 시 미배정으로 변경-->
+                            </div>
+                        </div>
+                    </div>
+                    <!--/.상세끝-->
+                    
+                    
+                    
+                    <div class="map">지도 나올 곳</div>
+
+                </section>
+                
+            </div>
+            
+        </div>
+    </body>
+</html>

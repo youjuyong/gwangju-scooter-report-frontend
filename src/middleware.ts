@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
  export default function middleware(request: NextRequest) {
+     const requestHeaders = new Headers(request.headers);
+     requestHeaders.set('x-current-path', request.nextUrl.pathname);
     const { pathname } = request.nextUrl;
     const segments = pathname.split('/');
     const firstSegment = segments[1];
@@ -10,6 +12,14 @@ import type { NextRequest } from 'next/server'
     const corporateRoles = ['admin', 'pm', 'tow'];
 
     if (corporateRoles.includes(firstSegment)) {
+        //운영단말 로그인 개발후 삭제
+        if (process.env.NODE_ENV === 'development' && firstSegment === 'admin') {
+            return NextResponse.next({
+                request: {
+                    headers: requestHeaders,
+                },
+            });
+        }
         if (pathname.endsWith('/login')) {
             return NextResponse.next();
         }
@@ -39,7 +49,11 @@ import type { NextRequest } from 'next/server'
         }
     }
 
-    return NextResponse.next();
+     return NextResponse.next({
+         request: {
+             headers: requestHeaders,
+         },
+     });
 }
 
 // 매처 설정: 검사할 모든 경로 패턴 등록
