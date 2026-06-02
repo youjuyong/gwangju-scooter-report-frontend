@@ -1,15 +1,14 @@
 "use client";
 
-import React, {useEffect, useState, useSyncExternalStore} from "react";
-import {usePathname, useRouter} from "next/navigation";
+import React, { useEffect, useSyncExternalStore } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import AdminHeader from "@/components/admin/AdminHeader";
 import "../../../assets/style_admin/css/base_style.css";
 import "../../../assets/style_admin/css/style.css";
 
-const emptySubscribe = () => () => {
-};
+const emptySubscribe = () => () => {};
 
-export default function AdminHeaderLayout({children}: { children: React.ReactNode }) {
+export default function AdminHeaderLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
     const userRole = "admin";
@@ -37,14 +36,23 @@ export default function AdminHeaderLayout({children}: { children: React.ReactNod
         return <div className="loading-screen"></div>;
     }
 
+    // 💡 주소에 맞는 동적 wrap 클래스명 설정
+    // 이력/통계인 (static) 하위 페이지로 들어오면 HTML과 똑같이 'report_wrap'을 붙여줍니다.
+    let wrapClass = " ";
+    if (pathname.includes("/report") ) {
+        wrapClass = "report_wrap";
+    }
+
     return (
-        <div>
-            {/* 1. HTML 상단의 공통 헤더 컴포넌트 배치 */}
-            <AdminHeader userRole={userRole}/>
-            {/* 2. 하위 페이지 내용(subnav, searchBox, gridbox 등)이 들어오는 구역 */}
-            {/* HTML 구조상 wrap 바로 밑에 subnav와 subarticle이 나란히 배치되므로 그대로 뚫어줍니다 */}
-            {children}
-        </div>
-    )
-        ;
+  <div>
+        {/* 1. HTML 상단의 공통 헤더 컴포넌트 배치 */}
+    <AdminHeader userRole={userRole}/>
+    <div className={`wrap ${wrapClass}`}>
+        {/* 2. 하위 페이지 내용(subnav, searchBox, gridbox 등)이 들어오는 구역 */}
+        {/* HTML 구조상 wrap 바로 밑에 subnav와 subarticle이 나란히 배치되므로 그대로 뚫어줍니다 */}
+        {children}
+    </div>
+  </div>
+)
+    ;
 }

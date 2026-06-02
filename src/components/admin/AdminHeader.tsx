@@ -21,10 +21,10 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
         const updateTime = () => {
             const now = new Date();
             const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const date = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const month = String(now.getMonth() + 1);
+            const date = String(now.getDate());
+            const hours = String(now.getHours());
+            const minutes = String(now.getMinutes());
 
             setCurrentTime(`${year}년 ${month}월 ${date}일 ${hours}:${minutes}`);
         };
@@ -43,7 +43,7 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
 
     // 메뉴 데이터 정의
     const menuItems = [
-        { id: 'dashboard', classNum: 'menu1', name: '대시보드', path: `/${userRole}/dashboard` },
+        { id: 'dashboard', classNum: 'menu1', name: '대시보드', path: `/${userRole}` },
         { id: 'report', classNum: 'menu2', name: '이력/통계', path: `/${userRole}/report` },
         { id: 'notice', classNum: 'menu3', name: '정책관리', path: `/${userRole}/notice` },
         { id: 'pm', classNum: 'menu4', name: '시스템관리', path: `/${userRole}/pm` },
@@ -57,7 +57,9 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
                 <ul>
                     {menuItems.map((item) => {
                         // 현재 페이지 주소가 메뉴 경로로 시작하면 'click' 클래스 추가
-                        const isActive = pathname.startsWith(item.path);
+                        const isActive = item.id === 'dashboard'
+                            ? pathname === item.path
+                            : pathname.startsWith(item.path);
 
                         return (
                             <li

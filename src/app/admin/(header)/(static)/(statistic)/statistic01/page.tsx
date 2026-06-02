@@ -4,16 +4,13 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function ReportPage() {
+export default function StatisticDayPage() {
     const pathname = usePathname();
     const userRole = "admin";
 
-    // 1. 검색 필터 상태 관리 (기능 컴포넌트화를 위한 state)
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+    // 1. 검색 필터 상태 관리
+    const [targetDate, setTargetDate] = useState('');
     const [pmCompany, setPmCompany] = useState('전체');
-    const [status, setStatus] = useState('전체');
-    const [keyword, setKeyword] = useState('');
 
     // 2. 왼쪽 서브 내비게이션 메뉴 데이터 정의
     const subNavItems = [
@@ -23,33 +20,39 @@ export default function ReportPage() {
         { id: 'menuStat', name: '메뉴기능활용통계', path: `/${userRole}/statistic_menu01` },
     ];
 
+    // 3. 상단 세부 탭 메뉴 데이터 정의 (일별/월별/년별)
+    const tabItems = [
+        { id: 'day', name: '일별', path: `/${userRole}/statistic01` },
+        { id: 'month', name: '월별', path: `/${userRole}/statistic02` },
+        { id: 'year', name: '년별', path: `/${userRole}/statistic03` },
+    ];
+
     // 검색 버튼 이벤트 핸들러
     const handleSearch = () => {
         const searchData = {
-            startDate,
-            endDate,
-            pmCompany,
-            status,
-            keyword
+            targetDate,
+            pmCompany
         };
-        console.log('검색 요청 데이터:', searchData);
-        // 추후 API 연동 시 이 지점에서 fetch나 axios를 활용하시면 됩니다.
+        console.log('민원처리통계 검색 요청:', searchData);
+        // 추후 API 조회 로직 연동 시 사용
     };
 
     // 엑셀 저장 버튼 이벤트 핸들러
     const handleExcelDownload = () => {
-        console.log('엑셀 다운로드 실행');
+        console.log('민원처리통계 엑셀 다운로드 실행');
     };
 
     return (
-        <div className="wrap report_wrap">
+        <div className="wrap statistic_wrap">
             {/* 왼쪽 서브 네비게이션 영역 */}
             <div className="subnav">
                 <nav>
                     <ul>
                         {subNavItems.map((item) => {
-                            // 현재 URL 주소가 설정된 메뉴의 path와 완전히 일치하면 'click' 클래스 부여
-                            const isSubActive = pathname === item.path;
+                            // 현재 URL 주소가 민원처리통계(statistic01, 02, 03) 계열이면 세 번째 메뉴 활성화
+                            const isStatisticMenu = pathname.startsWith(`/${userRole}/statistic0`);
+                            const isSubActive = item.id === 'statistic' ? isStatisticMenu : pathname === item.path;
+
                             return (
                                 <li key={item.id} className={isSubActive ? 'click' : ''}>
                                     <Link href={item.path}>
@@ -62,28 +65,36 @@ export default function ReportPage() {
                 </nav>
             </div>
 
-            {/* 오른쪽 서브 아티클 (검색 및 그리드) 영역 */}
+            {/* 오른쪽 서브 아티클 영역 */}
             <div className="subarticle">
+                {/* 내부 탭 영역 (일별 / 월별 / 년별) */}
+                <nav className="tab">
+                    <ul>
+                        {tabItems.map((tab) => {
+                            const isTabActive = pathname === tab.path;
+                            return (
+                                <li key={tab.id} className={isTabActive ? 'click' : ''}>
+                                    <Link href={tab.path}>
+                                        {tab.name}
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </nav>
+
                 {/* 검색영역 */}
                 <div className="searchBox">
                     <div className="search_left">
-                        <dl className="dlfirst">
-                            <dt>기간</dt>
+                        <dl>
+                            <dt>일자</dt>
                             <dd>
                                 <input
                                     type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                />
-                                ~
-                                <input
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
+                                    value={targetDate}
+                                    onChange={(e) => setTargetDate(e.target.value)}
                                 />
                             </dd>
-                        </dl>
-                        <dl className="dlnth2">
                             <dt>PM사</dt>
                             <dd>
                                 <select
@@ -96,30 +107,6 @@ export default function ReportPage() {
                                     <option value="스윙">스윙</option>
                                 </select>
                             </dd>
-                            <dt>처리상태</dt>
-                            <dd>
-                                <select
-                                    className="sisel"
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                >
-                                    <option value="전체">전체</option>
-                                    <option value="회수완료">회수완료</option>
-                                    <option value="견인완료">견인완료</option>
-                                </select>
-                            </dd>
-                        </dl>
-                        <dl className="dlnth3">
-                            <dt>검색어</dt>
-                            <dd>
-                                <input
-                                    type="text"
-                                    className="searchinput"
-                                    placeholder="검색어 입력"
-                                    value={keyword}
-                                    onChange={(e) => setKeyword(e.target.value)}
-                                />
-                            </dd>
                         </dl>
                         <button className="btnSearch" onClick={handleSearch}>검색</button>
                     </div>
@@ -127,10 +114,15 @@ export default function ReportPage() {
                     <button className="btnExcel" onClick={handleExcelDownload}>엑셀저장</button>
                 </div>
 
-                {/* 데이터 결과 영역 */}
+                {/* 차트 및 그리드 결과 영역 */}
                 <div className="infoContent">
+                    <div className="chartbox">
+                        <div>차트</div>
+                        {/* 여기에 Recharts나 Chart.js 같은 라이브러리 연동 */}
+                    </div>
                     <div className="gridbox">
-                        <div>그리드(그리드내부스크롤, 창 사이즈에 따라 실시간으로 사이즈 변하게)</div>
+                        <div>그리드(그리드 박스 내에서 세로스크롤 생기지 않도록 자기 높이대로 세로 사이즈 늘어나게 해야 합니다)</div>
+                        {/* 그리드가 세로 스롤 없이 높이가 유연하게 늘어나도록 퍼블리싱 스타일링 대응 구역 */}
                     </div>
                 </div>
             </div>
