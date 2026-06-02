@@ -88,22 +88,37 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             /** 에러 발생 및 연결 끊김 처리 */
             sse.onerror = (err: any) => {
-                console.log("SSE 에러 발생 혹은 연결 끊김:", err);
-                
-                if (!err?.error) return;
-
-                if (sse) {
+                console.error("### [SSE] 에러 발생 혹은 연결 끊김:", err);
+    
+                if (sse && sse.readyState === 2) {
+                    console.log("[SSE] 연결이 완전히 종료 상태(CLOSED)로 전환되었습니다.");
                     sse.close();
                     sse = null;
                 }
 
-                if (err?.status === 401 || err?.status === 403) {
-                    console.log("인증 에러가 발생하여 재연결을 중단합니다. (토큰 재발급 필요)");
+                 const statusCode = err?.status || err?.target?.status || err?.error?.status;
+                console.log(`[SSE] 감지된 HTTP 상태 코드: ${statusCode}`);
+
+                if (statusCode === 401 || statusCode === 403) {
+                    if (sse) {
+                        sse.close();
+                        sse = null;
+                    }
                     return;
                 }
 
-                // 사용자가 직접 종료한 게 아니라면 재연결 로직 실행
+                if (statusCode === 502 || statusCode === 504) {
+                    console.warn("### [SSE] 502/504 에러 감지 (인프라/웹서버 일시적 순시 끊김). 잠시 후 재연결을 시도합니다.");
+                }
+
                 if (!closedByUser) {
+                    console.log("[SSE] 사용자에 의한 종료가 아니므로 재연결 프로세스(handleReconnect)를 가동합니다.");
+                    
+                    if (sse) {
+                        sse.close();
+                        sse = null;
+                    }
+                    
                     handleReconnect();
                 }
             };
