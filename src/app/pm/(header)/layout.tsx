@@ -38,22 +38,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         };
         fetchAlarms();
     }, [setInitialList, alarmLength, accessToken]);
+
     useEffect(() => {
-        let sse: EventSource | null = null;
+        let sse: EventSourcePolyfill | null = null;
         let reconnectTimer: NodeJS.Timeout | null = null;
-        let closedByUser = false;
         let retryCount = 0;
-        const MAX_RETRIES = 5;
+        let closedByUser = false; // 사용자가 페이지를 이탈하거나 언마운트할 때 체크용
+        const MAX_RETRY_COUNT = 5; // 최대 재연결 시도 횟수
 
         const connectSSE = () => {
             const token = accessToken;
-
-            console.log(" SSE 연결 시도...");
+            console.log("SSE 연결 시도...", `(시도 횟수: ${retryCount})`);
 
             if (!token) return;
 
-            // 기존 SSE가 살아있으면 종료
-            if (sse) sse.close();
+            if (sse) {
+                sse.close();
+            }
+            
+            if (reconnectTimer) {
+                clearTimeout(reconnectTimer);
+                reconnectTimer = null;
+            }
+
             try {
                 sse = new EventSourcePolyfill(`${process.env.NEXT_PUBLIC_API_URL}/sse/connect`, {
                     headers: {
@@ -62,102 +69,88 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     heartbeatTimeout: 60000
                 });
             } catch (e) {
-                console.log("서버 연결에 실패했습니다.");
+                console.log("서버 객체 생성 실패:", e);
+                //handleReconnect();
                 return;
             }
 
             /** 연결 성공 */
             sse.onopen = () => {
-                 console.log("SSE 연결됨");
+                console.log("SSE 연결 완료");
                 retryCount = 0;
-                if (reconnectTimer) {
-                    clearTimeout(reconnectTimer);
-                    reconnectTimer = null;
-                }
+                closedByUser = false; 
             };
 
             /** 서버 이벤트 */
             sse.addEventListener("PING", (e: any) => {
-                const {sseResponse} = JSON.parse(e.data);
-                 console.log("SSE 연결 지속...");
+                console.log("SSE 연결 지속... (PING)");
             });
 
+            /** 에러 발생 및 연결 끊김 처리 */
+            sse.onerror = (err: any) => {
+                console.log("SSE 에러 발생 혹은 연결 끊김:", err);
+                
+                if (!err?.error) return;
 
-            sse.onerror = async (err: any) => {
-                console.log("on error");
-                if (closedByUser) return;
-                sse?.close();
+                if (sse) {
+                    sse.close();
+                    sse = null;
+                }
 
-                const status = err.status;
-                console.log(status)
-                // const token = store.getState().auth.accessToken;
-                //
-                // if (!token) {
-                //     return;
-                // }
+                if (err?.status === 401 || err?.status === 403) {
+                    console.log("인증 에러가 발생하여 재연결을 중단합니다. (토큰 재발급 필요)");
+                    return;
+                }
 
-                // if (err.status === 401 || err.status === 403) {
-                //     if (isRefreshing) return;
-                //
-                //     isRefreshing = true;
-                //     try {
-                //         const { accessToken: newToken } = await refreshToken();
-                //         store.dispatch(setAccessToken(newToken));
-                //     } catch (refreshError) {
-                //         handleSessionExpiry("로그인 정보가 만료되었습니다. 다시 로그인 해주세요.");
-                //     } finally {
-                //         isRefreshing = false;
-                //     }
-                //     return;
-                // }
-
-                if (status === undefined) {
-                    // if (retryCount < MAX_RETRIES) {
-                    //     retryCount++;
-                    //     if (!reconnectTimer) {
-                    //         reconnectTimer = setTimeout(() => {
-                    //             reconnectTimer = null;
-                    //             connectSSE();
-                    //         }, 3000);
-                    //     }
-                    //     return;
-                    // } else {
-                    //     (window as any).isMaintenanceMode = true;
-                    //
-                    //     // if (window.location.pathname !== "/maintenance") {
-                    //     //     setIsRedirecting(true);
-                    //     //     window.location.replace("/maintenance");
-                    //     //     return;
-                    //     // }
-                    // }
-                } else {
-               //     handleSessionExpiry("서버와의 연결이 끊어졌습니다. 다시 로그인해 주세요.");
-                    console.log("else~~~~~~~~~~~~~~~~");
+                // 사용자가 직접 종료한 게 아니라면 재연결 로직 실행
+                if (!closedByUser) {
+                    handleReconnect();
                 }
             };
+        };
+
+        /** 재연결 스케줄러 */
+        const handleReconnect = () => {
+            if (retryCount >= MAX_RETRY_COUNT) {
+                console.log(`최대 재연결 시도 횟수(${MAX_RETRY_COUNT}회)를 초과했습니다. 재연결을 중단합니다.`);
+                return;
+            }
+
+            retryCount++;
+            const delay = Math.min(2000 * Math.pow(2, retryCount - 1), 30000); 
+
+            console.log(`${delay / 1000}초 후에 재연결을 시도합니다...`);
+
+            reconnectTimer = setTimeout(() => {
+                connectSSE();
+            }, delay);
         };
 
         connectSSE();
 
         return () => {
+            console.log("SSE 연결을 사용자에 의해 종료합니다.");
             closedByUser = true;
-            if (reconnectTimer) clearTimeout(reconnectTimer);
-            sse?.close();
+            if (reconnectTimer) {
+                clearTimeout(reconnectTimer);
+                reconnectTimer = null;
+            }
+            if (sse) {
+                sse.close();
+                sse = null;
+            }
         };
     }, [accessToken]);
 
-    // 컴포넌트가 브라우저에 완전히 마운트된 후에만 화면을 보여줌
     const isClient = useSyncExternalStore(
         emptySubscribe,
         () => true,  // 클라이언트(브라우저)일 때 값
         () => false  // 서버일 때 값
     );
+
     if (!isClient) {
         return <div className="loading-screen"></div>; // 또는 빈 화면
     }
-
-
-
 
     return (
         <div className={`wrap ${pathname === "/pm" ? "main-wrap" : "sub-wrap"}`}>
