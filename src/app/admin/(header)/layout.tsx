@@ -44,15 +44,15 @@ export default function AdminHeaderLayout({ children }: { children: React.ReactN
     }
 
     return (
-  <div>
-        {/* 1. HTML 상단의 공통 헤더 컴포넌트 배치 */}
-    <AdminHeader userRole={userRole}/>
-    <div className={`wrap ${wrapClass}`}>
-        {/* 2. 하위 페이지 내용(subnav, searchBox, gridbox 등)이 들어오는 구역 */}
-        {/* HTML 구조상 wrap 바로 밑에 subnav와 subarticle이 나란히 배치되므로 그대로 뚫어줍니다 */}
-        {children}
-    </div>
-  </div>
-)
-    ;
+        <div>
+            {/* 1. HTML 상단의 공통 헤더 컴포넌트 배치 */}
+            <AdminHeader userRole={userRole}/>
+            <div className={`wrap ${wrapClass}`}>
+                {/* 2. 하위 페이지 내용(subnav, searchBox, gridbox 등)이 들어오는 구역 */}
+                {/* HTML 구조상 wrap 바로 밑에 subnav와 subarticle이 나란히 배치되므로 그대로 뚫어줍니다 */}
+                {children}
+            </div>
+        </div>
+    )
+        ;
 }
