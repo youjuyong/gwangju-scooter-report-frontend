@@ -55,80 +55,40 @@ self.addEventListener("push" , function (e) {
   );
 });
 
-
 /**
  * 알림 클릭 → React 페이지 이동
  */
-// 더욱 직관적이고 빠른 실행을 위해 async/await 구조로 변경한 코드
 self.addEventListener("notificationclick", (event) => {
- event.notification.close();
+  event.notification.close();
   
   const relativeUrl = event.notification.data?.url || "/";
   const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
 
-  event.waitUntil((async () => {
-    const clientList = await clients.matchAll({ type: "window", includeUncontrolled: true });
-    
-    const matchingClient = clientList.find(client => client.url.startsWith(self.location.origin));
-
-    if (matchingClient) {
-      matchingClient.postMessage({ type: "NAVIGATE", url: relativeUrl });
-      
-      if (matchingClient.url !== absoluteUrl && "navigate" in matchingClient) {
-        await matchingClient.navigate(absoluteUrl);
-      }
-      return matchingClient.focus();
-    }
-
-    return clients.openWindow(absoluteUrl);
-  })());
+  event.waitUntil(
+    clients.openWindow(absoluteUrl)
+  );
 });
+
 // self.addEventListener("notificationclick", (event) => {
-//   event.notification.close();
+//  event.notification.close();
   
 //   const relativeUrl = event.notification.data?.url || "/";
 //   const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
-//   console.log(absoluteUrl);
-//   event.waitUntil(
-//     clients.matchAll({ type: "window", includeUncontrolled: true })
-//       .then((clientList) => {
-//         const matchingClient = clientList.find(client => {
-//           return client.url.startsWith(self.location.origin);
-//         });
 
-//         if (matchingClient) {
-//           matchingClient.postMessage({ type: "NAVIGATE", url: relativeUrl });
-//           return matchingClient.focus();
-//         }
+//   event.waitUntil((async () => {
+//     const clientList = await clients.matchAll({ type: "window", includeUncontrolled: true });
+    
+//     const matchingClient = clientList.find(client => client.url.startsWith(self.location.origin));
 
-//         return clients.openWindow(absoluteUrl);
-//       })
-//   );
-// });
-// self.addEventListener("notificationclick", (event) => {
-//   event.notification.close();
-  
-//   const relativeUrl = event.notification.data?.url || "/";
-//   console.log("알림 클릭 relativeUrl:", relativeUrl);
-//   const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
+//     if (matchingClient) {
+//       matchingClient.postMessage({ type: "NAVIGATE", url: relativeUrl });
+      
+//       if (matchingClient.url !== absoluteUrl && "navigate" in matchingClient) {
+//         await matchingClient.navigate(absoluteUrl);
+//       }
+//       return matchingClient.focus();
+//     }
 
-//   event.waitUntil(
-//     clients.matchAll({ type: "window", includeUncontrolled: true })
-//       .then((clientList) => {
-        
-//         if (clientList.length > 0) {
-//           const client = clientList[0]; 
-          
-//           if ("focus" in client) {
-//             return client.focus().then((focusedClient) => {
-//               if (focusedClient) {
-//                 focusedClient.postMessage({ type: "NAVIGATE", url: relativeUrl });
-//               }
-//             });
-//           }
-//         }
-        
-//         return clients.openWindow(absoluteUrl);
-//       })
-//   );
+//     return clients.openWindow(absoluteUrl);
+//   })());
 // });
