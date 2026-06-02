@@ -1,6 +1,8 @@
 // src/components/NoticeBoardList.tsx
 import Link from "next/link";
 import { NoticeResponse } from "@/types/notice";
+import {useAuthStore} from "@/store/authStore";
+import {cookies} from "next/headers";
 
 interface NoticeBoardListProps {
     apiEndpoint: string; // 각 분기별 백엔드 API 주소 (예: '/api/ntc', '/api/pm/ntc')
@@ -15,35 +17,48 @@ export default async function NoticeBoardList({
                                               }: NoticeBoardListProps) {
     let notices: NoticeResponse[] = [];
     let noticesMain: NoticeResponse[] = [];
+    const getAuthType = () => {
+        if (apiEndpoint.includes("admin")) return "admin";
+        if (apiEndpoint.includes("pm")) return "pm";
+        if (apiEndpoint.includes("tow")) return "tow";
+        return "";
+    };
+    const authType = getAuthType();
+    const cookieStore = await cookies();
+    // 로그인 시 쿠키에 넣어둔 토큰 값을 서버에서 바로 가로챔
+    const accessToken = cookieStore.get(`${authType}AccessToken`)?.value;
 
     try {
         const baseUrl = process.env.NEXT_PUBLIC_INTERNAL_API_URL;
         // Props로 받은 apiEndpoint를 활용해 동적으로 데이터를 가져옵니다.
-        const response = await fetch(`${baseUrl}${apiEndpoint}?page=0&size=999&mainExpsrYn=N`, {
+        const response = await fetch(`${baseUrl}${apiEndpoint}?mainExpsrYn=N`, {
             method: 'GET',
             cache: 'no-store',
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`
             },
         });
-        const responseMain = await fetch(`${baseUrl}${apiEndpoint}?page=0&size=999&mainExpsrYn=Y`, {
+        const responseMain = await fetch(`${baseUrl}${apiEndpoint}?mainExpsrYn=Y`, {
             method: 'GET',
             cache: 'no-store',
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`
             },
         });
+
 
         if (!response.ok) {
             throw new Error(`API 호출 실패: ${response.status}`);
         }
         const result = await response.json();
-        notices = Array.isArray(result) ? result : (result.data?.content || []);
+        notices = Array.isArray(result) ? result : (result.data || []);
         if (!responseMain.ok) {
             throw new Error(`API 호출 실패: ${responseMain.status}`);
         }
         const resultMain = await responseMain.json();
-        noticesMain = Array.isArray(resultMain) ? resultMain : (resultMain.data?.content || []);
+        noticesMain = Array.isArray(resultMain) ? resultMain : (resultMain.data || []);
 
     } catch (error) {
         console.error(`${title} 서버 페칭 에러:`, error);
@@ -70,7 +85,7 @@ export default async function NoticeBoardList({
                         </li>
                     ))
                 ) : (
-                    <li className="text-center py-10">등록된 공지사항이 없습니다.</li>
+                    <li className="text-center py-10">등록된 필독 공지사항이 없습니다.</li>
                 )}
                 {notices.length > 0 ? (
                     notices.map((notice: any) => (

@@ -13,7 +13,7 @@ export const getMainNoticeListApi = async (request: NoticeRequestForm): Promise<
     return response.data.data.content;
 }
 /**
- * 메인 공지사항
+ * 공지사항 상세
  */
 export const getMainNoticeApi = async (ntcId:string ): Promise<NoticeResponse[]> => {
     const response = await api.get(BASE_CODE_URL + ntcId );
