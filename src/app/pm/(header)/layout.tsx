@@ -70,7 +70,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 });
             } catch (e) {
                 console.log("서버 객체 생성 실패:", e);
-                //handleReconnect();
+                handleReconnect();
                 return;
             }
 

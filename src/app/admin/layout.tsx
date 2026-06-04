@@ -4,7 +4,7 @@ import "../../assets/style_admin/css/style.css";
 import "../../assets/style_admin/css/m_style.css";
 
 export const metadata: Metadata = {
-    manifest: "/manifest-pm.json",
+    manifest: "/manifest-admin.json",
 };
 
 export default function RootLayout({
