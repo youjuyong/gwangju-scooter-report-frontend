@@ -7,6 +7,7 @@ interface NoticeBoardDetailProps {
     backUrl: string;     // [뒤로 가기] 버튼을 눌렀을 때 이동할 목록 페이지 주소 (예: '/pm/notice')
     title?: string;      // 헤더 제목 (기본값: 공지사항)
 }
+const baseUrl = process.env.NEXT_PUBLIC_INTERNAL_API_URL;
 
 export default async function NoticeBoardDetail({
                                                     ntcId,
@@ -17,7 +18,7 @@ export default async function NoticeBoardDetail({
     let notice: any = null;
 
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_INTERNAL_API_URL;
+  
 
         // Props로 받은 apiEndpoint와 ntcId를 조합하여 호출합니다.
         const response = await fetch(`${baseUrl}${apiEndpoint}/${ntcId}`, {
@@ -60,46 +61,38 @@ export default async function NoticeBoardDetail({
                         </colgroup>
 
                         <tbody>
-                        <tr>
-                            <th scope="row">제목</th>
-                            <td className="title">{notice.ttlNm}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">작성일</th>
-                            <td className="notiday">
-                                <time dateTime={notice.regDt?.split(' ')[0]}>{notice.regDt}</time>
-                            </td>
-                        </tr>
-                        {/* 첨부파일이름으로 표기 , 첨부파일이 없으면 안나오게 */}
-                        {notice?.files && notice.files.length > 0 && (
                             <tr>
-                                <th scope="row">첨부파일</th>
-                                <td className="borderBottom">
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        {/* 배열 내부의 모든 파일을 돌면서 다운로드 링크 생성  */}
-                                        {notice.files.map((file: any, idx: number) => (
-                                            <div key={file.fileId || idx} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                {' '}
-                                                <a
-                                                    href={`/api/system/files/download/${file.fileId}`}
-                                                    download
-                                                    aria-label={`${file.orgnlFileNm} 다운로드`}
-                                                    style={{ color: '#0066cc', textDecoration: 'underline' }}
-                                                >
-                                                    {file.orgnlFileNm}
-                                                </a>
-                                            </div>
-                                        ))}
-                                    </div>
+                                <th scope="row">제목</th>
+                                <td className="title">{notice.ttlNm}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">작성일</th>
+                                <td className="notiday">
+                                    <time dateTime={notice.regDt?.split(' ')[0]}>{notice.regDt}</time>
                                 </td>
                             </tr>
-                        )}
-                        <tr>
-                            <th scope="row">내용</th>
-                            <td className="content" style={{whiteSpace: 'pre-wrap', verticalAlign: 'top'}}>
-                                {notice.cnData}
-                            </td>
-                        </tr>
+                            
+                            {notice.files && notice.files.length > 0 && (
+                                <tr>
+                                    <th scope="row">첨부파일</th>
+                                    <td className="borderBottom">
+                                        <a 
+                                            href={`${baseUrl}/api/system/files/download/${notice.files[0].fileId}`} 
+                                            download 
+                                            aria-label={`${notice.files[0].orgnlFileNm} 다운로드`}
+                                        >
+                                            {notice.files[0].orgnlFileNm}
+                                        </a>
+                                    </td>
+                                </tr>
+                            )}
+
+                            <tr>
+                                <th scope="row">내용</th>
+                                <td className="content" style={{whiteSpace: 'pre-wrap', verticalAlign: 'top'}}>
+                                    {notice.cnData}
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
