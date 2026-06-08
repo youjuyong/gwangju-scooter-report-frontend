@@ -273,7 +273,7 @@ input:not(:checked) + .modeslider .on {color: #fff;}
 .btnSearch{font-size: 0; color: transparent; width:34px; height: 34px; background: url(../images/btn_search.png)center #d22517 no-repeat; margin: 0 0 0 10px}
 .btnSearch:hover{ background: url(../images/btn_search.png)center #e32010 no-repeat;}
 .btnSearch:active{ background: url(../images/btn_search.png)center #bc1407 no-repeat;}
-.wrap .searchBox .pmsel{width: 100px;}
+.wrap .searchBox .pmsel{width: 120px;}
 .wrap .searchBox .sisel{width: 100px;}
 .wrap .searchBox .searchinput{width: 180px}
 
@@ -298,16 +298,16 @@ input:not(:checked) + .modeslider .on {color: #fff;}
 /*공지사항*/
 .searchBox .btnSet{position: absolute; left: 10px; width: auto;}
 .searchBox .btnSet button{padding: 0 10px; width: 60px}
-.popup_notice{width: 900px;}
+.popup_notice{width: 800px;}
 .popup_notice th{width: 90px; }
 .noticon{padding: 10px 0 0 0}
-.popup_notice .notititle input{width: 100%;}
+.popup.popup_notice .notititle input{width: 100%;}
 .noticon textarea{width: 100%; height: 350px;}
 .popup.popup_notice input, .popup.popup_notice select{width: 170px}
 .popup label{margin-right: 10px;}
 
 
-.popup_notice input[type="file"]{width: 90%;}
+.popup_notice input[type="file"]{width:100%;}
 input[type="file"]{background: none; border: none; padding: 0;  box-shadow:none; -webkit-box-shadow:none; width: 90%; font-size: 13px;}
 input[type="file"]::file-selector-button{padding:0px 10px; border:none;
     background:#57585e; color:#fff; border-radius:6px; cursor:pointer; font-size: 12px; height: 28px; box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
