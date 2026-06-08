@@ -1,12 +1,13 @@
 {
-  "name": "kickboard-report",
+   "name": "kickboard-report",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "build:deploy": "next build && xcopy /E /I /Y public .next\\standalone\\public && xcopy /E /I /Y .next\\static .next\\standalone\\.next\\static && powershell Compress-Archive -Path .next\\standalone\\* -DestinationPath .\\deploy.zip -Force"
   },
   "dependencies": {
     "@highcharts/react": "^5.0.1",
