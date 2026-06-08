@@ -71,10 +71,29 @@ export default async function NoticeBoardDetail({
                             </td>
                         </tr>
                         {/* 첨부파일이름으로 표기 , 첨부파일이 없으면 안나오게 */}
-                        <tr>
-                            <th scope="row">첨부파일</th>
-                            <td className="borderBottom"><a href={`/api/system/files/download/${notice.files[0].fileId}`} download aria-label="파일이름이 나옵니다">{notice.files[0].orgnlFileNm}</a></td>
-                        </tr>
+                        {notice?.files && notice.files.length > 0 && (
+                            <tr>
+                                <th scope="row">첨부파일</th>
+                                <td className="borderBottom">
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        {/* 배열 내부의 모든 파일을 돌면서 다운로드 링크 생성  */}
+                                        {notice.files.map((file: any, idx: number) => (
+                                            <div key={file.fileId || idx} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                {' '}
+                                                <a
+                                                    href={`/api/system/files/download/${file.fileId}`}
+                                                    download
+                                                    aria-label={`${file.orgnlFileNm} 다운로드`}
+                                                    style={{ color: '#0066cc', textDecoration: 'underline' }}
+                                                >
+                                                    {file.orgnlFileNm}
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </td>
+                            </tr>
+                        )}
                         <tr>
                             <th scope="row">내용</th>
                             <td className="content" style={{whiteSpace: 'pre-wrap', verticalAlign: 'top'}}>
