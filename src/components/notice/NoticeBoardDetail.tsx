@@ -32,6 +32,7 @@ export default async function NoticeBoardDetail({
 
         const result = await response.json();
         notice = result.data;
+        console.log(notice);
 
     } catch (error) {
         console.error(`${title} 상세 서버 페칭 에러:`, error);
@@ -72,8 +73,7 @@ export default async function NoticeBoardDetail({
                         {/* 첨부파일이름으로 표기 , 첨부파일이 없으면 안나오게 */}
                         <tr>
                             <th scope="row">첨부파일</th>
-                            <td className="borderBottom"><a href="" download aria-label="파일이름이 나옵니다">파일이름이
-                                나옵니다.</a></td>
+                            <td className="borderBottom"><a href={`/api/system/files/download/${notice.files[0].fileId}`} download aria-label="파일이름이 나옵니다">{notice.files[0].orgnlFileNm}</a></td>
                         </tr>
                         <tr>
                             <th scope="row">내용</th>
