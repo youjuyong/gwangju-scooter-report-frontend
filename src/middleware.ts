@@ -13,13 +13,13 @@ import type { NextRequest } from 'next/server'
 
     if (corporateRoles.includes(firstSegment)) {
         //운영단말 로그인 개발후 삭제
-        if (process.env.NODE_ENV === 'development' && firstSegment === 'admin') {
-            return NextResponse.next({
-                request: {
-                    headers: requestHeaders,
-                },
-            });
-        }
+        // if (process.env.NODE_ENV === 'development' && firstSegment === 'admin') {
+        //     return NextResponse.next({
+        //         request: {
+        //             headers: requestHeaders,
+        //         },
+        //     });
+        // }
         if (pathname.endsWith('/login')) {
             return NextResponse.next();
         }

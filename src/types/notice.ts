@@ -18,6 +18,27 @@ export interface NoticeResponse {
     verVl: string | null;
     mainExpsrYn: string;  // 메인 노출 여부 ('Y' / 'N')
     regDt: string;        // 등록일
+    expsrBgngDt : string ;
+    expsrEndDt :  string ;
+    files : string | null;
+    inqCnt : number;
+    targets : string | null;
+    mdfcnDt : string;
+    writer :{
+        userNm :string;
+    }
+}
+
+export interface NoticeAddRequestForm {
+    ttlNm: string;
+    cnData: string;
+    ntcTypeCd?: string | null;
+    verVl?: string | null;
+    mainExpsrYn?: 'Y' | 'N';
+    noticeFiles?: File[] | any[];
+    expsrBgngDt?: string;
+    expsrEndDt?: string;
+    userTypeCds: string[];
 }
 
 // // 전체 응답 구조
