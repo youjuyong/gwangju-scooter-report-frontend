@@ -1,11 +1,12 @@
 "use client";
 
-import React, {useState} from "react";
+import React, {useState,useEffect} from "react";
 import ReportLocation from "@/components/citizen/report/ReportLocation";
 import ReportCitizenQRCode from "@/components/citizen/report/ReportCitizenQRCode";
 import ReportCitizen from "@/components/citizen/report/ReportCitizen";
 import ReportSuccess from "@/components/citizen/report/ReportSuccess";
 import ReportTerms from "@/components/citizen/report/ReportTerms";
+import {registerGuestMenuLog} from "@/services/common/commonApi";
 
 export default function ReportPage() {
     const [step, setStep] = useState<"QR" | "FORM" | "MAP" | "SUCCESS" | "AGREE">("QR");
@@ -27,7 +28,7 @@ export default function ReportPage() {
         firstImgPreview: "",
         secondImgPreview: "",
     };
-
+    
     const [formData, setFormData] = useState(initialFormData);
 
     const updateFormData = (newData: Partial<typeof formData>) => {
@@ -40,6 +41,17 @@ export default function ReportPage() {
         setFormData(initialFormData);
     };
 
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerGuestMenuLog("CIT2000"); 
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
+        
     switch (step) {
         case "QR":
             return (

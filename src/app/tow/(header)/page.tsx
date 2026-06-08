@@ -8,6 +8,8 @@ import { getOutlineType } from "@/services/common/commonApi";
 import Cookies from "js-cookie";
 import KakaoMapSection from "@/components/dashboard/KakaoMapContainer";
 import {getTowDclrListApi} from "@/services/report/reportApi_tow";
+import { registerMenuLog } from "@/services/common/commonApi";
+
 const pmtoken = Cookies.get("pmAccessToken");
 
 export default function MainHome() {
@@ -62,6 +64,14 @@ export default function MainHome() {
                 )
             }
         }
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("TOW1000"); 
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
     }, []);
 
     const [bachList, setBachList] = useState<any[]>([]);

@@ -17,3 +17,24 @@ export const getOutlineType = async () => {
 
     return response.data.data;
 };
+
+
+export const registerGuestMenuLog = async (menuId: string) => {
+    const response = await api.post(`system/menu/guest-log`, null, {
+        params: { 
+            menuId: menuId 
+        }
+    });
+
+    return response.data;
+};
+
+export const registerMenuLog = async (menuId: string) => {
+    const response = await api.post(`system/menu/log`, null, {
+        params: { 
+            menuId: menuId 
+        }
+    });
+
+    return response.data;
+};

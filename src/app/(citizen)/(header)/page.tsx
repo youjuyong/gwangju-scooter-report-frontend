@@ -7,6 +7,7 @@ import MainNotice from "@/components/notice/MainNotice";
 import {useRouter} from "next/navigation";
 import {getAlarmListApi} from "@/services/alarm/alarmApi";
 import {useAlarmStore} from "@/store/alamStore";
+import {registerGuestMenuLog} from "@/services/common/commonApi";
 import {useEffect} from "react";
 
 
@@ -58,6 +59,17 @@ function HomeSection({accessToken}: { accessToken: string | null }) {
         };
         fetchAlarms();
     }, [setInitialList, alarmLength, accessToken]);
+
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerGuestMenuLog("CIT1000"); 
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     const handleReport = () => {
         router.push("/report");

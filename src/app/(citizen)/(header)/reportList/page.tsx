@@ -3,6 +3,7 @@
 import React, {useEffect, useState} from "react";
 import {getReportList} from "@/services/report/reportApi";
 import {useRouter} from "next/navigation";
+import {registerGuestMenuLog} from "@/services/common/commonApi";
 import LoadingOverlay from "@/components/LoadingOverlay";
 
 export default function ReportListPage() {
@@ -24,6 +25,14 @@ export default function ReportListPage() {
                 setIsLoading(false);
             }
         };
+        const recordMenuLog = async () => {
+                try {
+                    await registerGuestMenuLog("CIT3000"); 
+                } catch (error) {
+                    console.error("메뉴 이력 적재 실패:", error);
+                }
+            };
+        recordMenuLog();
         fetchList();
     }, []);
 

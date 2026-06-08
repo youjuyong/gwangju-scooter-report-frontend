@@ -6,6 +6,7 @@ import {useKakaoLoader} from "react-kakao-maps-sdk";
 import {getMyBachList, getPmDclrListApi} from "@/services/report/reportApi";
 import {getOutlineType} from "@/services/common/commonApi";
 import Cookies from "js-cookie";
+import { registerMenuLog } from "@/services/common/commonApi";
 import KakaoMapSection from "@/components/dashboard/KakaoMapContainer";
 
 const pmtoken = Cookies.get("pmAccessToken");
@@ -62,6 +63,15 @@ export default function MainHome() {
                 )
             }
         }
+
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("PMS1000"); 
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
     }, []);
 
     const [bachList, setBachList] = useState<any[]>([]);
