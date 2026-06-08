@@ -19,6 +19,7 @@ export default function MainNotice() {
                     mainExpsrYn: 'Y'
                 });
                 setNotices(result);
+
             } catch (error) {
                 console.error("공지 로딩 실패:", error);
             }
