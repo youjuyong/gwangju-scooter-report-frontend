@@ -200,17 +200,17 @@ export default function NoticePage() {
         }
     };
 
-    // //메뉴 이동 이력
-    // useEffect(() => {
-    //     const recordMenuLog = async () => {
-    //         try {
-    //             await registerMenuLog("OPR3100");
-    //         } catch (error) {
-    //             console.error("메뉴 이력 적재 실패:", error);
-    //         }
-    //     };
-    //     recordMenuLog();
-    // }, []);
+    //메뉴 이동 이력
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR3100");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
     return (
         <div className="wrap">
             {/* 왼쪽 서브 네비게이션 영역 */}
