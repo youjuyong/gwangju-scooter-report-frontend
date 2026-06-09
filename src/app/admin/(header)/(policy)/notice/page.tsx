@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 // 라온텍 그리드 라이브러리 임포트
 import { RaontecGridHandle, RaontecTanstackGrid, CustomColumnDef } from "@rxjacx/raontec-grid";
-import {addNoticeListApi, getMainNoticeListApi} from "@/services/notice/noticeApi";
+import {addNoticeListApi, getAdminNoticeListApi, getMainNoticeListApi} from "@/services/notice/noticeApi";
 import NoticeModal from "@/components/admin/popup/NoticePopup";
 import {NoticeAddRequestForm} from "@/types/notice";
-import {registerGuestMenuLog} from "@/services/common/commonApi";
+import {registerGuestMenuLog, registerMenuLog} from "@/services/common/commonApi";
 
-// 💡 보내주신 실제 API 응답 규격 반영
+// 보내주신 실제 API 응답 규격 반영
 export interface NoticeResponse {
     ntcId: string;
     ntcTypeCd: {
@@ -132,7 +132,7 @@ export default function NoticePage() {
     const fetchNotices = useCallback(async (searchKeyword = '') => {
         try {
            // 실제 프로젝트 연동 방식 예시:
-             const result = await getMainNoticeListApi({
+             const result = await getAdminNoticeListApi({
                 page: 0,
                 size: 999,
             });
@@ -183,7 +183,7 @@ export default function NoticePage() {
         setIsModalOpen(true); // 모달 열기
     };
 
-    // 💡 모달에서 '저장' 버튼을 최종적으로 눌렀을 때 실행되는 함수
+    // 모달에서 '저장' 버튼을 최종적으로 눌렀을 때 실행되는 함수
     const handleSaveNotice = async (formData: NoticeAddRequestForm) => {
         try {
             // 통신 시작 전 로더를 띄우거나 버튼 더블클릭 방지 로직을 두면 좋습니다.
@@ -200,17 +200,17 @@ export default function NoticePage() {
         }
     };
 
-    //메뉴 이동 이력
-    useEffect(() => {
-        const recordMenuLog = async () => {
-            try {
-                await registerGuestMenuLog("OPR3100");
-            } catch (error) {
-                console.error("메뉴 이력 적재 실패:", error);
-            }
-        };
-        recordMenuLog();
-    }, []);
+    // //메뉴 이동 이력
+    // useEffect(() => {
+    //     const recordMenuLog = async () => {
+    //         try {
+    //             await registerMenuLog("OPR3100");
+    //         } catch (error) {
+    //             console.error("메뉴 이력 적재 실패:", error);
+    //         }
+    //     };
+    //     recordMenuLog();
+    // }, []);
     return (
         <div className="wrap">
             {/* 왼쪽 서브 네비게이션 영역 */}
