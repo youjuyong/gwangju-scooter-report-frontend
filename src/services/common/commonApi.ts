@@ -13,9 +13,25 @@ export const getCodeType = async (code: string) => {
 
 
 export const getOutlineType = async () => {
-    const response = await api.get(`system/outline`);
+    if (typeof window !== 'undefined') {
+        const cachedData = localStorage.getItem('outline_type_cache');
+        const cachedTime = localStorage.getItem('outline_type_cache_time');
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
-    return response.data.data;
+        if (cachedData && cachedTime) {
+            if (Date.now() - Number(cachedTime) < ONE_DAY_MS) {
+                return JSON.parse(cachedData);
+            }
+        }
+    }
+
+    const response = await api.get(`system/outline`);
+    const freshData = response.data.data;
+
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('outline_type_cache', JSON.stringify(freshData));
+        localStorage.setItem('outline_type_cache_time', String(Date.now()));
+    }
 };
 
 
