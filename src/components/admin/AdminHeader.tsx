@@ -3,6 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import {authApi} from "@/services/api";
+import {deleteCookie} from "cookies-next";
+import axios from "axios";
+import {toast} from "react-hot-toast";
+import {useAlert} from "@/components/popup/PopupProvider";
+import {useFcmToken} from "@/hooks/useFcmToken";
+import {useAuthStore} from "@/store/authStore";
+import {useAlarmStore} from "@/store/alamStore";
 
 interface HeaderProps {
     // 현재 로그인한 사용자의 권한 (예: admin, pm, tow 등)
@@ -12,6 +20,19 @@ interface HeaderProps {
 export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
     const router = useRouter();
     const pathname = usePathname();
+    const showAlert = useAlert();
+    const { getDeviceInfo } = useFcmToken();
+    const deviceType = getDeviceInfo();
+    const getAuthType = () => {
+        if (pathname.startsWith("/admin")) return "admin";
+        if (pathname.startsWith("/pm")) return "pm";
+        if (pathname.startsWith("/tow")) return "tow";
+        return "reporter";
+    };
+    const authType = getAuthType();
+    const state = useAuthStore();
+    const clearStore = useAlarmStore((state) => state.clearStore);
+    const prefix = authType === "reporter" ? "" : `/${authType}`;
 
     // 실시간 시계 상태 관리
     const [currentTime, setCurrentTime] = useState('2026년 6월 1일 18:12');
@@ -36,9 +57,33 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
     }, []);
 
     // 로그아웃 처리
-    const handleLogout = () => {
-        alert('로그아웃 되었습니다.');
-        router.push(`/${userRole}/login`);
+    const handleLogout = async () => {
+        //if (!await showAlert("로그아웃 하시겠습니까?")) return;
+        try {
+
+            // 백엔드에 로그아웃 알림 (기기 정보 전달)
+            await authApi.post("/logout", { deviceType });
+
+            // 클라이언트 상태 및 쿠키 삭제
+            state.logout(authType);
+
+            deleteCookie(`${authType}AccessToken`);
+
+            delete axios.defaults.headers.common["Authorization"];
+            clearStore(); // 헤더 알림 리스트 삭제
+            toast.success("로그아웃되었습니다.");
+
+            // 로그아웃 후 해당 서비스의 로그인 페이지 또는 메인으로 이동
+            if (prefix) {
+                router.push(`${prefix}/login`);
+            } else {
+                router.push("/");
+            }
+
+        } catch (error) {
+            console.error("로그아웃 실패:", error);
+            toast.error("로그아웃 중 오류가 발생했습니다.");
+        }
     };
 
     // 메뉴 데이터 정의
