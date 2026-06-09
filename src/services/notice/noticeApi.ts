@@ -1,4 +1,4 @@
-import {NoticeAddRequestForm, NoticeRequestForm, NoticeResponse} from "@/types/notice";
+import {NoticeAddRequestForm, NoticeRequestForm, NoticeResponse, PolicyAddRequestForm} from "@/types/notice";
 import api from "@/services/api";
 
 const BASE_CODE_URL = '/ntc';
@@ -35,6 +35,7 @@ export const deleteNoticeApi = async (ntcId:string ): Promise<any> => {
     const response = await api.delete(BASE_CODE_URL +'/'+ ntcId );
     return response.data;
 }
+
 /**
  * 운영단말 공지사항 수정
  */
@@ -87,3 +88,19 @@ export const addNoticeListApi = async (request: NoticeAddRequestForm): Promise<N
 
     return response.data.data.content;
 };
+//------------------------------------------------------------------------
+/**
+ * 공지사항 유형별 조회 (약관 정책)
+ */
+export const getPolicyApi = async ( ): Promise<any> => {
+    const response = await api.get(BASE_CODE_URL +'/type?ntcTypeCd=NTCT02');
+    return response.data.data;
+}
+
+/**
+ * 공지사항 유형별 조회 (약관 정책)
+ */
+export const updatePolicyApi = async ( request: PolicyAddRequestForm): Promise<any> => {
+    const response = await api.post(BASE_CODE_URL +'/terms', request);
+    return response.data.data;
+}

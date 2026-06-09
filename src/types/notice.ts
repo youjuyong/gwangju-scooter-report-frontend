@@ -44,6 +44,11 @@ export interface NoticeAddRequestForm {
     userTypeCds: string[];
 }
 
+export interface PolicyAddRequestForm {
+    ttlNm : string,
+    cnData: string
+}
+
 // // 전체 응답 구조
 // export interface NoticeResponse {
 //     data: {
