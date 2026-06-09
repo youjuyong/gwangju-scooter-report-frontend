@@ -1,8 +1,9 @@
 // 공지사항 조회를 위한 요청 파라미터 구조
 export interface NoticeRequestForm {
-    page: number;
-    size: number;
+    page: number,
+    size: number,
     mainExpsrYn?: 'Y' | 'N';
+    keyword: string,
 }
 
 // 공지사항 단건 아이템 타입

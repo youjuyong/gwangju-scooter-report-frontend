@@ -97,6 +97,7 @@ export default function NoticePage() {
              const result = await getAdminNoticeListApi({
                 page: 0,
                 size: 999,
+                 keyword: searchKeyword,
             });
             setNoticeGridData(result);
 
@@ -108,6 +109,7 @@ export default function NoticePage() {
             console.error("공지사항 목록 로딩 실패:", error);
         }
     }, []);
+
 
     // 페이지 첫 진입 시 리스트 로드
     useEffect(() => {
@@ -150,7 +152,7 @@ export default function NoticePage() {
     };
 
     const handleSearch = () => {
-        fetchNotices(keyword);
+        fetchNotices(keyword.trim());
     };
 
     // 등록 버튼 클릭 이벤트 수정
