@@ -109,9 +109,22 @@ export const getPmDclrComplete = async (formData: FormData) => {
 /**
  * 킥보드 pm 신고 진행 장비 검증
  */
-export const getReportStatus = async (qrId: string): Promise<ApiResponse<any>> => {
+export const getReportStatus = async (qrId: string, token: string): Promise<ApiResponse<any>> => {
     const response = await api.get<ApiResponse<any>>(`/pm/device/verify/report-status`, {
-        params: {qrcdVl: qrId}
+        params: {qrcdVl: qrId},
+        headers: token ? {Authorization: `Bearer ${token}`} : undefined
+    });
+
+    return response.data;
+}
+
+/**
+ * 킥보드 tow 신고 진행 장비 검증
+ */
+export const getTowReportStatus = async (qrId: string, token: string): Promise<ApiResponse<any>> => {
+    const response = await api.get<ApiResponse<any>>(`/tow/device/verify/report-status`, {
+        params: {qrcdVl: qrId},
+        headers: token ? {Authorization: `Bearer ${token}`} : undefined
     });
 
     return response.data;

@@ -3,9 +3,10 @@
 import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {BusinessInfo} from "@/types/report";
-import {getBusinessList, getReportStatus} from "@/services/report/reportApi";
+import {getBusinessList, getTowReportStatus} from "@/services/report/reportApi";
 import {Scanner} from "@yudiel/react-qr-scanner";
 import {useAlert} from "@/components/popup/PopupProvider";
+import {useAuthStore} from "@/store/authStore";
 
 export default function ReportPage() {
     const [formData, setFormData] = useState({
@@ -23,13 +24,14 @@ export default function ReportPage() {
     });
 
     const router = useRouter();
-    const [isCamera, setIsCamera] = useState<boolean>(false);
+    const [isCamera, setIsCamera] = useState<boolean>(true);
     const [businessList, setBusinessList] = useState<BusinessInfo[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const isValid = formData.brand.trim() !== "" && formData.deviceId.trim() !== "";
     const [isValidated, setIsValidated] = useState<boolean>(false);
     const [dclrId, setDclrId] = useState<string>("");
     const showAlert = useAlert();
+    const accessToken = useAuthStore((state) => state.reporter?.accessToken);
     const updateFormData = (newData: Partial<typeof formData>) => {
         setFormData((prev) => ({...prev, ...newData}));
     };
@@ -62,6 +64,8 @@ export default function ReportPage() {
                 brand: selectedBiz ? selectedBiz.bzentyNm : "",
                 brandId: value
             });
+        } else if (name === "deviceId") {
+            updateFormData({[name]: value.toUpperCase()});
         } else {
             updateFormData({[name]: value});
         }
@@ -125,11 +129,15 @@ export default function ReportPage() {
         const selectedDclrId = await checkValidated();
 
         if (selectedDclrId && isValid) {
-            router.push(`/reportDetail/${selectedDclrId}`);
+            router.push(`/tow/reportDetail/${selectedDclrId}`);
         }
     };
 
     const checkValidated = async (): Promise<string | false> => {
+        if (!accessToken) {
+            showAlert("로그인 정보가 만료되었습니다. 다시 로그인해 주세요.");
+            return false;
+        }
         if (!formData.brandId || !formData.deviceId) {
             showAlert("브랜드와 킥보드 ID를 먼저 입력해주세요.");
             return false;
@@ -138,7 +146,7 @@ export default function ReportPage() {
         if (!selectedBiz) return false;
 
         try {
-            const res = await getReportStatus(formData.deviceId);
+            const res = await getTowReportStatus(formData.deviceId, accessToken);
             if (res.success && res.data.dclrId) {
                 setIsValidated(true);
                 setDclrId(res.data.dclrId);
@@ -207,6 +215,7 @@ export default function ReportPage() {
                                             value={formData.brandId || ""}
                                             onChange={handleInputChange}
                                             required
+                                            style={{textTransform: 'uppercase'}}
                                         >
                                             <option value="" disabled>
                                                 {isLoading ? "로딩 중..." : "선택"}

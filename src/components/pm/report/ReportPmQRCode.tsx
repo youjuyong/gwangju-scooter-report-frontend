@@ -29,6 +29,7 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
     const showAlert = useAlert();
     const pmUserInfo = useAuthStore((state) => state.pm.userInfo);
     const userBzentyNm = pmUserInfo?.bzentyNm;
+    const accessToken = useAuthStore((state) => state.reporter?.accessToken);
 
     useEffect(() => {
         const fetchBrands = async () => {
@@ -145,15 +146,21 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
     };
 
     const checkValidated = async (): Promise<string | false> => {
+        if (!accessToken) {
+            showAlert("로그인 정보가 만료되었습니다. 다시 로그인해 주세요.");
+            return false;
+        }
+
         if (!formData.brandId || !formData.deviceId) {
             showAlert("브랜드와 킥보드 ID를 먼저 입력해주세요.");
             return false;
         }
+
         const selectedBiz = businessList.find(b => b.bzentyId === formData.brandId);
         if (!selectedBiz) return false;
 
         try {
-            const res = await getReportStatus(formData.deviceId);
+            const res = await getReportStatus(formData.deviceId, accessToken);
             if (res.success && res.data.dclrId) {
                 setIsValidated(true);
                 setDclrId(res.data.dclrId);
