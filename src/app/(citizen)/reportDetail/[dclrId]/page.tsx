@@ -99,13 +99,13 @@ export default function ReportDetail() {
                             <div className="re_con">
                                 <dl>
                                     <dt>처리일시</dt>
-                                    <dd>{report.prcsDt || "-"}</dd>
+                                    <dd>{report.prcrHis?.prcsDt || "-"}</dd>
                                 </dl>
                                 <dl>
                                     <dt className="result_photo_title">업체에서 등록한 사진</dt>
                                     <dd className="result_meimg">
-                                        {report.prcsImgUrls && report.prcsImgUrls.length > 0 ? (
-                                            report.prcsImgUrls.map((url: string, index: number) => (
+                                        {report.completeImgUrls && report.completeImgUrls.length > 0 ? (
+                                            report.completeImgUrls.map((url: string, index: number) => (
                                                 <div key={`prcs-img-${index}`}
                                                      className={`imgli ${index === 1 ? "lastimgli" : ""}`}>
                                                     <div className="imgsize">
