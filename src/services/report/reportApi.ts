@@ -54,8 +54,10 @@ export const registerReport = async (formData: FormData) => {
 /**
  * 본인 신고 내역 전체 조회
  */
-export const getReportList = async () => {
-    const response = await api.get<ApiResponse<any>>(`/dclr/my-list`);
+export const getReportList = async (token?: string) => {
+    const response = await api.get<ApiResponse<any>>(`/dclr/my-list`,{
+        headers: token ? {Authorization: `Bearer ${token}`} : undefined
+    });
     return response.data;
 };
 

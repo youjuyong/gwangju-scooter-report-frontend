@@ -1,10 +1,13 @@
 "use client";
 
+import Cookies from "js-cookie";
 import React, {useEffect, useState} from "react";
 import {getReportList} from "@/services/report/reportApi";
 import {useRouter} from "next/navigation";
 import {registerGuestMenuLog} from "@/services/common/commonApi";
 import LoadingOverlay from "@/components/LoadingOverlay";
+
+const pmtoken = Cookies.get("reporterAccessToken");
 
 export default function ReportListPage() {
     const [reportList, setReportList] = useState<any[]>([]);
@@ -15,7 +18,7 @@ export default function ReportListPage() {
     useEffect(() => {
         const fetchList = async () => {
             try {
-                const res = await getReportList();
+                const res = await getReportList(pmtoken);
                 if (res.success) {
                     setReportList(res.data);
                 }
