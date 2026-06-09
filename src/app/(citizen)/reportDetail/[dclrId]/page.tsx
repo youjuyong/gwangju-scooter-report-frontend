@@ -99,7 +99,7 @@ export default function ReportDetail() {
                             <div className="re_con">
                                 <dl>
                                     <dt>처리일시</dt>
-                                    <dd>{report.prcsDt || "-"}</dd>
+                                    <dd>{report.prcrHis?.prcsDt || "-"}</dd>
                                 </dl>
                                 <dl>
                                     <dt className="result_photo_title">업체에서 등록한 사진</dt>
