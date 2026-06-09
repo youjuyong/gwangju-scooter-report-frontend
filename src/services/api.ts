@@ -38,9 +38,13 @@ const handleDuplicateLogin = async (errorResponse: any, state: any, authType: st
     const userRole = errorResponse.data?.data?.role as MemberRole;
     const serverMessage = errorResponse.data?.message || "다른 기기에서 로그인되어 연결이 종료되었습니다.";
 
+    if (typeof window !== 'undefined') {
 
-    if (typeof window !== 'undefined' && (window as any).showAlert) {
-        await (window as any).showAlert(serverMessage);
+        if (authType === 'admin' || !(window as any).showAlert) {
+            alert(serverMessage);
+        } else {
+            await (window as any).showAlert(serverMessage);
+        }
     }
 
     state.logout(authType);
@@ -168,7 +172,7 @@ api.interceptors.response.use(
 
                 const currentGroup = state[authType];
 
-                // ✅ userInfo가 null일 경우를 대비해 기본 객체({ name: null, id: null, role: null })를 병합
+                //  userInfo가 null일 경우를 대비해 기본 객체({ name: null, id: null, role: null })를 병합
                 const safeUserInfo = currentGroup.userInfo || { name: null, id: null, role: null, bzentyNm: null };
 
                 if (authType === 'admin') state.setAdminAuth(newAccessToken, safeUserInfo);
