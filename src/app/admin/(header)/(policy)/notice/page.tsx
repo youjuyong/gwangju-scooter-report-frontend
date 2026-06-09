@@ -5,7 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 // 라온텍 그리드 라이브러리 임포트
 import { RaontecGridHandle, RaontecTanstackGrid, CustomColumnDef } from "@rxjacx/raontec-grid";
-import {addNoticeListApi, getAdminNoticeListApi, getMainNoticeListApi} from "@/services/notice/noticeApi";
+import {
+    addNoticeListApi,
+    deleteNoticeApi,
+    getAdminNoticeListApi,
+    getMainNoticeListApi
+} from "@/services/notice/noticeApi";
 import NoticeModal from "@/components/admin/popup/NoticePopup";
 import {NoticeAddRequestForm, NoticeResponse} from "@/types/notice";
 import {registerGuestMenuLog, registerMenuLog} from "@/services/common/commonApi";
@@ -117,17 +122,34 @@ export default function NoticePage() {
             return;
         }
         setSelectedNotice(rowData);
-        console.log("선택된 행 데이터 피드백:", rowData);
+        //console.log("선택된 행 데이터 피드백:", rowData);
     };
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
+        // 1. 체크박스 선택 검증
         if (checkedNotices.length <= 0) {
             alert("삭제할 공지사항 항목들을 왼쪽 체크박스에서 선택해 주세요.");
             return;
         }
+        // 2. 삭제 컨펌 알림창
         if (window.confirm(`선택된 ${checkedNotices.length}건의 공지사항을 정말 삭제하시겠습니까?`)) {
-            const deleteIds = checkedNotices.map(item => item.ntcId);
-            console.log("삭제 타겟 ntcIds:", deleteIds);
+            try {
+                const deleteIds = checkedNotices.map(item => item.ntcId);
+                console.log("삭제 요청 대상 ntcIds:", deleteIds);
+
+                await Promise.all(
+                    deleteIds.map(id => deleteNoticeApi(id))
+                );
+
+                alert("선택한 공지사항이 성공적으로 삭제되었습니다.");
+
+                fetchNotices();
+                setCheckedNotices([]);
+
+            } catch (error) {
+                console.error("공지사항 삭제 실패:", error);
+                alert("삭제 처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
+            }
         }
     };
 
@@ -159,8 +181,6 @@ export default function NoticePage() {
     const onDoubleClickNoticeRow = (rowData: any) => {
         // 💡 rowData가 존재하는지 확인 후 안전하게 ntcId를 보관합니다.
         if (!rowData) return;
-
-        console.log("더블클릭된 행 전체 데이터:", rowData);
 
         setSelectedNtcId(rowData.ntcId);
         setIsDetailOpen(true);

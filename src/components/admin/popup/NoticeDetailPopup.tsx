@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NoticeResponse } from '@/types/notice';
-import { getMainNoticeApi } from "@/services/notice/noticeApi"; // 💡 updateNoticeApi 추가
+import {getMainNoticeApi, updateNoticeApi} from "@/services/notice/noticeApi";
 
 interface NoticeDetailModalProps {
     isOpen: boolean;
@@ -23,8 +23,9 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [content, setContent] = useState('');
-    const [file, setFile] = useState<File | null>(null);
-    const [existingFileName, setExistingFileName] = useState<string | null>(null);
+
+    const [existingFiles, setExistingFiles] = useState<any[]>([]); // 서버에서 온 파일들
+    const [newFiles, setNewFiles] = useState<File[]>([]);           // 새로 업로드할 파일들
 
     useEffect(() => {
         const fetchDetail = async () => {
@@ -54,92 +55,108 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
         setTitle(data.ttlNm || '');
         setIsFixed(data.mainExpsrYn === 'Y');
         setContent(data.cnData || '');
-        setDisplayYn(data.mainExpsrYn || 'Y');
+        setDisplayYn(data.exprsYn || 'Y'); // 백엔드 필드명 exprsYn 반영
 
-        // 💡 [해결책] 표출 기간 데이터 바인딩 안정화 (null 및 포맷 체크)
+        // 1. 표출 시작일 바인딩 ("2026-06-09 00:00" -> 공백 기준 분리)
         if (data.expsrBgngDt && typeof data.expsrBgngDt === 'string') {
-            setStartDate(data.expsrBgngDt.includes('T') ? data.expsrBgngDt.split('T')[0] : data.expsrBgngDt);
+            setStartDate(data.expsrBgngDt.split(' ')[0]);
         } else {
             setStartDate('');
         }
 
+        // 2. 표출 종료일 바인딩 (null 처리 방어 코드)
         if (data.expsrEndDt && typeof data.expsrEndDt === 'string') {
-            setEndDate(data.expsrEndDt.includes('T') ? data.expsrEndDt.split('T')[0] : data.expsrEndDt);
+            setEndDate(data.expsrEndDt.split(' ')[0]);
         } else {
             setEndDate('');
         }
 
-        // 객체 바인딩 오류 해결
-        if (data.files) {
-            setExistingFileName(typeof data.files === 'object' ? data.files.orgnlFileNm : data.files);
+        // 3. 첨부파일 바인딩 (files 배열 처리)
+        if (data.files && Array.isArray(data.files)) {
+            setExistingFiles(data.files);
         } else {
-            setExistingFileName(null);
+            setExistingFiles([]);
         }
+        setNewFiles([]); // 초기화
 
-        // 💡 [해결책] 표출범위 바인딩 - 배열(userTypeCds) 및 문자열(targets) 교차 검증 구조로 변경
-        const targetStr = data.targets || '';
-        const userTypeCds = Array.isArray(data.userTypeCds) ? data.userTypeCds : [];
+        // 4. 표출범위 바인딩 (백엔드 targetArr 객체 배열 완벽 분석 매핑)
+        const targetList = Array.isArray(data.targetArr) ? data.targetArr : [];
+
+        // 해당 코드가 배열 안에 존재하는지 검사
+        const hasUser = targetList.some((t: any) => t.userTypeCd === 'MNUT05');
+        const hasPm = targetList.some((t: any) => t.userTypeCd === 'MNUT03');
+        const hasTow = targetList.some((t: any) => t.userTypeCd === 'MNUT04');
 
         setTargets({
-            user: targetStr.includes('USER') || targetStr.includes('MNUT05') || userTypeCds.includes('MNUT05'),
-            pm: targetStr.includes('PM') || targetStr.includes('MNUT03') || userTypeCds.includes('MNUT03'),
-            tow: targetStr.includes('TOW') || targetStr.includes('MNUT04') || userTypeCds.includes('MNUT04'),
+            user: hasUser,
+            pm: hasPm,
+            tow: hasTow
         });
     };
-
-    // 모달 오픈 시 백엔드 단건 상세 정보 조회
-
 
     const handleTargetChange = (key: 'user' | 'pm' | 'tow') => {
         if (isReadOnly) return;
         setTargets(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
-    // 💡 저장 버튼 구현 완료
-    // const handleConfirmUpdate = async () => {
-    //     const formattedStartDate = startDate ? `${startDate}T00:00:00` : '';
-    //     const formattedEndDate = endDate ? `${endDate}T23:59:59` : '';
-    //
-    //     const userTypeCds: string[] = [];
-    //     if (targets.user) userTypeCds.push('MNUT05');
-    //     if (targets.pm) userTypeCds.push('MNUT03');
-    //     if (targets.tow) userTypeCds.push('MNUT04');
-    //
-    //     if (!title.trim() || !content.trim()) {
-    //         alert("필수 항목을 입력해주세요.");
-    //         return;
-    //     }
-    //     if (userTypeCds.length === 0) {
-    //         alert("표출범위를 하나 이상 선택해주세요.");
-    //         return;
-    //     }
-    //
-    //     const formData = new FormData();
-    //     formData.append('ntcId', ntcId);
-    //     formData.append('ttlNm', title);
-    //     formData.append('cnData', content);
-    //     formData.append('ntcTypeCd', 'NTCT01');
-    //     formData.append('mainExpsrYn', isFixed ? 'Y' : 'N');
-    //     formData.append('expsrBgngDt', formattedStartDate);
-    //     formData.append('expsrEndDt', formattedEndDate);
-    //     userTypeCds.forEach(cd => formData.append('userTypeCds', cd));
-    //     if (file) formData.append('noticeFiles', file);
-    //
-    //     try {
-    //         await updateNoticeApi(formData);
-    //         alert("공지사항이 성공적으로 수정되었습니다.");
-    //
-    //         // 수정 완료 후 최신 데이터로 다시 패치하여 팝업 갱신
-    //         const updatedData = await getMainNoticeApi(ntcId);
-    //         initFormData(updatedData);
-    //
-    //         setIsReadOnly(true); // 다시 읽기 모드 전환
-    //         onRefreshList();     // 부모 그리드 리프레시
-    //     } catch (error) {
-    //         console.error("수정 실패:", error);
-    //         alert("수정 중 오류가 발생했습니다.");
-    //     }
-    // };
+    const handleConfirmUpdate = async () => {
+        const formattedStartDate = startDate ? `${startDate}T00:00:00` : '';
+        const formattedEndDate = endDate ? `${endDate}T23:59:59` : '';
+
+        const userTypeCds: string[] = [];
+        if (targets.user) userTypeCds.push('MNUT05');
+        if (targets.pm) userTypeCds.push('MNUT03');
+        if (targets.tow) userTypeCds.push('MNUT04');
+
+        if (!title.trim() || !content.trim()) {
+            alert("제목과 내용을 입력해주세요.");
+            return;
+        }
+
+        // [체크 2] 표출범위 필수 검사 (배열이 비어있으면 차단)
+        if (userTypeCds.length === 0) {
+            alert("표출범위를 최소 하나 이상 선택해주세요. (사용자, PM사, 견인업체 중 선택)");
+            return;
+        }
+
+        // [체크 3] 시작 일시 필수 검사 (input type="date" 특성상 빈 문자열 체크)
+        if (!startDate) {
+            alert("표출시작일을 선택해주세요.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('ntcId', ntcId);
+        formData.append('ttlNm', title);
+        formData.append('cnData', content);
+        formData.append('ntcTypeCd', 'NTCT01');
+        formData.append('mainExpsrYn', isFixed ? 'Y' : 'N');
+        formData.append('exprsYn', displayYn);
+        formData.append('expsrBgngDt', formattedStartDate);
+        formData.append('expsrEndDt', formattedEndDate);
+
+        userTypeCds.forEach(cd => formData.append('userTypeCds', cd));
+
+        // 살아남은 기존 파일 ID 전송
+        existingFiles.forEach(file => formData.append('existingFileIds', file.fileId));
+        // 신규 추가 파일 전송
+        newFiles.forEach(file => formData.append('noticeFiles', file));
+
+        console.log(formData);
+        try {
+            await updateNoticeApi(formData);
+            alert("공지사항이 성공적으로 수정되었습니다.");
+
+            const updatedData = await getMainNoticeApi(ntcId);
+            initFormData(updatedData);
+
+            setIsReadOnly(true);
+            onRefreshList();
+        } catch (error) {
+            console.error("수정 실패:", error);
+            alert("수정 중 오류가 발생했습니다.");
+        }
+    };
 
     if (isLoading) {
         return (
@@ -215,22 +232,108 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
                             <tr>
                                 <th>첨부파일</th>
                                 <td>
-                                    <input
-                                        type="file"
-                                        disabled={isReadOnly}
-                                        onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                    />
-                                    {existingFileName && isReadOnly && (
-                                        <p className="file-info" style={{ marginTop: '5px', fontSize: '13px', color: '#666' }}>
-                                            📄 기존 파일: {existingFileName}
-                                        </p>
+                                    {isReadOnly ? (
+                                        /* 🔎 1. 상세보기 모드 (다운로드 링크 표출, 없으면 숨김 행 처리 원할 시 껍데기 유지) */
+                                        existingFiles.length > 0 ? (
+                                            <div style={{display: 'flex', flexDirection: 'column', gap: '6px'}}>
+                                                {existingFiles.map((file, idx) => (
+                                                    <div key={file.fileId || idx}>
+                                                        <a
+                                                            href={`/api/system/files/download/${file.fileId}`}
+                                                            download
+                                                            aria-label={`${file.orgnlFileNm} 다운로드`}
+                                                            style={{
+                                                                color: '#0066cc',
+                                                                textDecoration: 'underline',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            {file.orgnlFileNm}
+                                                        </a>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <span style={{color: '#999', fontSize: '13px'}}>등록된 첨부파일이 없습니다.</span>
+                                        )
+                                    ) : (
+                                        /* 🛠️ 2. 수정하기 모드 (다중 파일 업로드 및 개별 X 삭제) */
+                                        <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                                            <input
+                                                type="file"
+                                                multiple
+                                                onChange={(e) => {
+                                                    if (e.target.files) {
+                                                        const selectedFiles = Array.from(e.target.files);
+                                                        setNewFiles(prev => [...prev, ...selectedFiles]);
+                                                    }
+                                                }}
+                                            />
+                                            {(existingFiles.length > 0 || newFiles.length > 0) && (
+                                                <div style={{display: 'flex', flexDirection: 'column', gap: '6px'}}>
+                                                    {/* 기존 파일 목록 & X 삭제 */}
+                                                    {existingFiles.map((file, idx) => (
+                                                        <div key={file.fileId || idx} style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '8px'
+                                                        }}>
+                                                            <span style={{
+                                                                fontSize: '13px',
+                                                                color: '#555'
+                                                            }}> {file.orgnlFileNm}</span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setExistingFiles(prev => prev.filter((_, i) => i !== idx))}
+                                                                style={{
+                                                                    background: 'none',
+                                                                    border: 'none',
+                                                                    color: '#e15252',
+                                                                    fontWeight: 'bold',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    {/* 신규 파일 목록 & X 삭제 */}
+                                                    {newFiles.map((file, idx) => (
+                                                        <div key={idx} style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '8px'
+                                                        }}>
+                                                            <span style={{
+                                                                fontSize: '13px',
+                                                                color: '#0066cc'
+                                                            }}>{file.name}</span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setNewFiles(prev => prev.filter((_, i) => i !== idx))}
+                                                                style={{
+                                                                    background: 'none',
+                                                                    border: 'none',
+                                                                    color: '#e15252',
+                                                                    fontWeight: 'bold',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
                                 </td>
                             </tr>
                             <tr>
                                 <th>표출여부</th>
                                 <td>
-                                    <select value={displayYn} disabled={isReadOnly} onChange={(e) => setDisplayYn(e.target.value)}>
+                                    <select value={displayYn} disabled={isReadOnly}
+                                            onChange={(e) => setDisplayYn(e.target.value)}>
                                         <option value="Y">표출함</option>
                                         <option value="N">표출안함</option>
                                     </select>
@@ -277,11 +380,13 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
                             {isReadOnly ? (
                                 <>
                                     <button onClick={() => setIsReadOnly(false)}>수정</button>
-                                    <button className="red" onClick={() => {/* 삭제 로직 필요시 추가 */}}>삭제</button>
+                                    <button className="red" onClick={() => {/* 삭제 로직 필요시 추가 */
+                                    }}>삭제
+                                    </button>
                                 </>
                             ) : (
                                 <>
-                                    {/*<button className="red" onClick={handleConfirmUpdate}>저장</button>*/}
+                                    <button className="red" onClick={handleConfirmUpdate}>저장</button>
                                 </>
                             )}
                         </div>

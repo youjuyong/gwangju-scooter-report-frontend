@@ -33,6 +33,7 @@ export interface NoticeResponse {
 export interface NoticeAddRequestForm {
     ttlNm: string;
     cnData: string;
+    exprsYn : string;
     ntcTypeCd?: string | null;
     verVl?: string | null;
     mainExpsrYn?: 'Y' | 'N';

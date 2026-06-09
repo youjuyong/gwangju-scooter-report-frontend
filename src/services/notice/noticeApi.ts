@@ -29,6 +29,26 @@ export const getMainNoticeApi = async (ntcId:string ): Promise<NoticeResponse> =
     return response.data.data;
 }
 /**
+ * 공지사항 삭제
+ */
+export const deleteNoticeApi = async (ntcId:string ): Promise<any> => {
+    const response = await api.delete(BASE_CODE_URL +'/'+ ntcId );
+    return response.data;
+}
+/**
+ * 운영단말 공지사항 수정
+ */
+export const updateNoticeApi = async (formData: FormData): Promise<NoticeResponse> => {
+    const ntcId = formData.get('ntcId') as string;
+    const response = await api.put(`${BASE_CODE_URL}/${ntcId}`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+
+    return response.data.data;
+};
+/**
  * 공지사항 추가
  */
 export const addNoticeListApi = async (request: NoticeAddRequestForm): Promise<NoticeResponse[]> => {
@@ -39,6 +59,7 @@ export const addNoticeListApi = async (request: NoticeAddRequestForm): Promise<N
     formData.append('cnData', request.cnData);
     formData.append('mainExpsrYn', request.mainExpsrYn || 'N');
     formData.append('ntcTypeCd', request.ntcTypeCd || 'NTCT01' );
+    formData.append('exprsYn', request.exprsYn || 'N' );
 
     if (request.expsrBgngDt) formData.append('expsrBgngDt', request.expsrBgngDt);
     if (request.expsrEndDt) formData.append('expsrEndDt', request.expsrEndDt);
