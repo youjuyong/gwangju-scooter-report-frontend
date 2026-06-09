@@ -16,6 +16,7 @@ export interface NoticeResponse {
     ttlNm: string;        // 제목
     cnData: string;       // 내용
     verVl: string | null;
+    exprsYn :string;
     mainExpsrYn: string;  // 메인 노출 여부 ('Y' / 'N')
     regDt: string;        // 등록일
     expsrBgngDt : string ;

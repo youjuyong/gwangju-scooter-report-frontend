@@ -7,33 +7,9 @@ import { usePathname } from 'next/navigation';
 import { RaontecGridHandle, RaontecTanstackGrid, CustomColumnDef } from "@rxjacx/raontec-grid";
 import {addNoticeListApi, getAdminNoticeListApi, getMainNoticeListApi} from "@/services/notice/noticeApi";
 import NoticeModal from "@/components/admin/popup/NoticePopup";
-import {NoticeAddRequestForm} from "@/types/notice";
+import {NoticeAddRequestForm, NoticeResponse} from "@/types/notice";
 import {registerGuestMenuLog, registerMenuLog} from "@/services/common/commonApi";
 import NoticeDetailPopup from "@/components/admin/popup/NoticeDetailPopup";
-
-// 보내주신 실제 API 응답 규격 반영
-export interface NoticeResponse {
-    ntcId: string;
-    ntcTypeCd: {
-        cdId: string;
-        cdNm: string;
-    };
-    ntcTypeNm: string | null;
-    ttlNm: string;        // 제목
-    cnData: string;       // 내용
-    verVl: string | null;
-    mainExpsrYn: string;  // 메인 노출 여부 ('Y' / 'N')
-    regDt: string;        // 등록일
-    expsrBgngDt : string ;
-    expsrEndDt :  string ;
-    files : string | null;
-    inqCnt : number;
-    targets : string | null;
-    mdfcnDt : string;
-    writer :{
-        userNm :string;
-    }
-}
 
 export default function NoticePage() {
     const pathname = usePathname();
@@ -68,11 +44,6 @@ export default function NoticePage() {
             accessorKey: 'mainExpsrYn',
             meta: { filterType: "check" }
         },
-        // {
-        //     header: '첨부파일',
-        //     accessorKey: 'files',
-        //     enableColumnFilter: false
-        // },
         {
             header: '작성자',
             accessorKey: 'writer.userNm' as any,
@@ -102,26 +73,9 @@ export default function NoticePage() {
             enableColumnFilter: false
         },
         {
-            header: '현재표출여부', //todo 컬럼 추가되면 내용 단순화하기
-            accessorKey: 'currentExpsrYn' as any, // 타입 에러 방지용 키 지정 (아무 키나 상관없음)
-            enableColumnFilter: false,
-            cell: ({ row }) => {
-                const { expsrBgngDt, expsrEndDt } = row.original;
-
-                if (!expsrBgngDt || !expsrEndDt) return 'N';
-
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-
-                const startDate = new Date(expsrBgngDt);
-                startDate.setHours(0, 0, 0, 0);
-
-                const endDate = new Date(expsrEndDt);
-                endDate.setHours(0, 0, 0, 0);
-
-                const isExposing = today >= startDate && today <= endDate;
-                return isExposing ? 'Y' : 'N';
-            }
+            header: '현재표출여부',
+            accessorKey: 'exprsYn' , // 타입 에러 방지용 키 지정 (아무 키나 상관없음)
+            meta: { filterType: "check" }
         },
     ], []);
 
