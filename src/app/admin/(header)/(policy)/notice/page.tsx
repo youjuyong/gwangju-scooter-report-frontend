@@ -9,6 +9,7 @@ import {addNoticeListApi, getAdminNoticeListApi, getMainNoticeListApi} from "@/s
 import NoticeModal from "@/components/admin/popup/NoticePopup";
 import {NoticeAddRequestForm} from "@/types/notice";
 import {registerGuestMenuLog, registerMenuLog} from "@/services/common/commonApi";
+import NoticeDetailPopup from "@/components/admin/popup/NoticeDetailPopup";
 
 // 보내주신 실제 API 응답 규격 반영
 export interface NoticeResponse {
@@ -47,6 +48,8 @@ export default function NoticePage() {
     // 2. 그리드 제어용 Ref 선언
     const noticeGridRef = useRef<RaontecGridHandle>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [selectedNtcId, setSelectedNtcId] = useState<string >('');
 
     // 3. 💡 실제 API 규격 명칭에 맞게 컬럼 매핑(accessorKey) 수정
     const noticeGridColumns = useMemo<CustomColumnDef<NoticeResponse>[]>(() => [
@@ -61,7 +64,7 @@ export default function NoticePage() {
 
         },
         {
-            header: '사단고정',
+            header: '상단고정',
             accessorKey: 'mainExpsrYn',
             meta: { filterType: "check" }
         },
@@ -199,7 +202,15 @@ export default function NoticePage() {
             alert("등록 중 오류가 발생했습니다. 다시 시도해주세요.");
         }
     };
+    const onDoubleClickNoticeRow = (rowData: any) => {
+        // 💡 rowData가 존재하는지 확인 후 안전하게 ntcId를 보관합니다.
+        if (!rowData) return;
 
+        console.log("더블클릭된 행 전체 데이터:", rowData);
+
+        setSelectedNtcId(rowData.ntcId);
+        setIsDetailOpen(true);
+    };
     //메뉴 이동 이력
     useEffect(() => {
         const recordMenuLog = async () => {
@@ -273,6 +284,7 @@ export default function NoticePage() {
                             globalCellClickEvent={onClickNoticeRow} // 클릭 하이라이트 및 수정 연동
                             // enablePagination={true}
                             // rowsPerPage={10}
+                            globalCellDbClickEvent={(row) => onDoubleClickNoticeRow(row)}
                         />
                     </div>
                 </div>
@@ -281,6 +293,15 @@ export default function NoticePage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveNotice}
+            />
+            <NoticeDetailPopup
+                isOpen={isDetailOpen}
+                ntcId={selectedNtcId} // 💡 ID값만 심플하게 전달
+                onClose={() => {
+                    setIsDetailOpen(false);
+                    setSelectedNtcId('');
+                }}
+                onRefreshList={fetchNotices}
             />
         </div>
 
