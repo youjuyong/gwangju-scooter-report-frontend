@@ -132,20 +132,15 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (isValidated) {
-            if (dclrId) {
-                router.push(`/reportDetail/${dclrId}`);
-            } else {
-                const retryDclrId = await checkValidated();
-                if (retryDclrId && isValid) router.push(`/reportDetail/${retryDclrId}`);
-            }
+        if (isValidated && dclrId) {
+            router.push(`/reportDetail/${dclrId}`);
             return;
         }
 
         const selectedDclrId = await checkValidated();
 
-        if (selectedDclrId && isValid) {
-            router.push(`/reportDetail/${selectedDclrId}`);
+        if (selectedDclrId) {
+            router.push(`/pm/reportDetail/${selectedDclrId}`);
         }
     };
 
