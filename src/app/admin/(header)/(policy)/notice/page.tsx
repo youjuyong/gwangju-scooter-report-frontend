@@ -99,7 +99,6 @@ export default function NoticePage() {
                 size: 999,
             });
             setNoticeGridData(result);
-            console.log(result);
 
             // 데이터 갱신 시 기존 선택 상태 초기화
             setSelectedNotice(null);
@@ -135,12 +134,9 @@ export default function NoticePage() {
         if (window.confirm(`선택된 ${checkedNotices.length}건의 공지사항을 정말 삭제하시겠습니까?`)) {
             try {
                 const deleteIds = checkedNotices.map(item => item.ntcId);
-                console.log("삭제 요청 대상 ntcIds:", deleteIds);
-
                 await Promise.all(
                     deleteIds.map(id => deleteNoticeApi(id))
                 );
-
                 alert("선택한 공지사항이 성공적으로 삭제되었습니다.");
 
                 fetchNotices();
@@ -166,7 +162,6 @@ export default function NoticePage() {
     const handleSaveNotice = async (formData: NoticeAddRequestForm) => {
         try {
             // 통신 시작 전 로더를 띄우거나 버튼 더블클릭 방지 로직을 두면 좋습니다.
-            console.log(formData);
             const result = await addNoticeListApi(formData);
 
             alert("공지사항이 성공적으로 등록되었습니다.");

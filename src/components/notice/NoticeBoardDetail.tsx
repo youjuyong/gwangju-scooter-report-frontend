@@ -33,7 +33,6 @@ export default async function NoticeBoardDetail({
 
         const result = await response.json();
         notice = result.data;
-        console.log(notice);
 
     } catch (error) {
         console.error(`${title} 상세 서버 페칭 에러:`, error);

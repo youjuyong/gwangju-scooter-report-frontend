@@ -50,7 +50,6 @@ export default function ReportList({
                 dclrSttsCd: statusFilter
             };
             const data = await getPmDclrListApi(requestParams, token);
-            // console.log(data);
             setReports(data || []);
         } catch (error) {
             console.error(`${title} 데이터 로드 실패:`, error);

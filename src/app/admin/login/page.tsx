@@ -69,7 +69,7 @@ export default function LoginPage() {
 
         try {
             const response = await loginService.login({userId, pswd, forceLogin});
-            console.log(response);
+
             const apiResponse = response;
             const accessToken = apiResponse.data?.accessToken;
 
@@ -123,10 +123,8 @@ export default function LoginPage() {
 
         } catch (err: any) {
             toast.dismiss(toastId);
-                console.log(err.response);
             if (err.response?.status === 409) {
                 const userRole = err.response.data?.role;
-                console.log(userRole);
                 if (userRole == "REPORT_USER ") {
                     return handleLogin(undefined, true);
                 } else {

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NoticeResponse } from '@/types/notice';
-import {getMainNoticeApi, updateNoticeApi} from "@/services/notice/noticeApi";
+import {deleteNoticeApi, getMainNoticeApi, updateNoticeApi} from "@/services/notice/noticeApi";
 
 interface NoticeDetailModalProps {
     isOpen: boolean;
@@ -141,8 +141,6 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
         existingFiles.forEach(file => formData.append('existingFileIds', file.fileId));
         // 신규 추가 파일 전송
         newFiles.forEach(file => formData.append('noticeFiles', file));
-
-        console.log(formData);
         try {
             await updateNoticeApi(formData);
             alert("공지사항이 성공적으로 수정되었습니다.");
@@ -155,6 +153,23 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
         } catch (error) {
             console.error("수정 실패:", error);
             alert("수정 중 오류가 발생했습니다.");
+        }
+    };
+    const handleDeleteNotice = async () => {
+        if (window.confirm("이 공지사항을 정말로 삭제하시겠습니까?")) {
+            try {
+                setIsLoading(true);
+                await deleteNoticeApi(ntcId); // 단건 삭제 API 호출
+                alert("공지사항이 정상적으로 삭제되었습니다.");
+
+                onRefreshList(); // 부모 목록 그리드 새로고침
+                onClose();       // 팝업 닫기
+            } catch (error) {
+                console.error("공지사항 팝업 내 삭제 실패:", error);
+                alert("삭제 처리 중 오류가 발생했습니다.");
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -380,9 +395,7 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
                             {isReadOnly ? (
                                 <>
                                     <button onClick={() => setIsReadOnly(false)}>수정</button>
-                                    <button className="red" onClick={() => {/* 삭제 로직 필요시 추가 */
-                                    }}>삭제
-                                    </button>
+                                    <button className="red" onClick={handleDeleteNotice}>삭제</button>
                                 </>
                             ) : (
                                 <>
