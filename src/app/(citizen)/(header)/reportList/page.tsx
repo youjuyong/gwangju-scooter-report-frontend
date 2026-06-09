@@ -52,7 +52,7 @@ export default function ReportListPage() {
                     <p className="none renone">신고 내역이 없습니다.</p>
                 ) : (
                     reportList.map((item) => {
-                        const isCompleted = ['DEST04', 'DEST08'].includes(item.dclrStts?.cdId);
+                        const isCompleted = ['DEST04', 'DEST09'].includes(item.dclrStts?.cdId);
                         const statusClass = isCompleted ? 'si2' : 'si1';
                         const firstImage = (item.imgUrls && item.imgUrls.length > 0 && item.imgUrls[0].startsWith("data:image"))
                             ? item.imgUrls[0]
