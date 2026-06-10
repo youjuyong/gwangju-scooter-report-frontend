@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, {useState, useEffect, useMemo, useRef, useCallback, useContext} from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -11,6 +11,8 @@ import { RaontecGridHandle, RaontecTanstackGrid, CustomColumnDef } from "@rxjacx
 import {createPmCompanyApi, getPmCompanyListApi, updatePmCompanyApi} from "@/services/system/systemApi";
 import PmPopup from "@/components/admin/popup/PmPopup";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import { ExcelContext } from '@/components/admin/ExcelContext';
+import ExcelDownload from "@/components/admin/ExcelDownload";
 
 
 // 💡 확정된 백엔드 응답 인터페이스 정의
@@ -26,7 +28,8 @@ export interface pmResponse {
 export default function PmPage() {
     const pathname = usePathname();
     const userRole = "admin";
-
+    //엑셀 다운로드
+    const {setGrid, setFileName}: any = useContext(ExcelContext);
     // 1. 상태 관리
     const [gridData, setGridData] = useState<pmResponse[]>([]);
     const [checkedRows, setCheckedRows] = useState<pmResponse[]>([]);
@@ -126,6 +129,8 @@ export default function PmPage() {
             const data = await getPmCompanyListApi();
             setGridData(data);
 
+
+
             setSelectedRow(null);
             setCheckedRows([]);
             pmGridRef.current?.clearSelectedRow();
@@ -140,7 +145,16 @@ export default function PmPage() {
 
     useEffect(() => {
         fetchPmCompanies();
+
     }, [fetchPmCompanies]);
+
+    //엑셀 다운로드
+    useEffect(() => {
+        if (pmGridRef.current) {
+            setGrid(pmGridRef.current); // 라온텍 그리드 인스턴스 주입
+            setFileName("PM업체_목록"); // 저장될 엑셀 파일명 지정
+        }
+    }, [gridData, setGrid, setFileName]); // 데이터 갱신 시 자동 동기화
 
 
     const handleCreate = () => {
@@ -235,8 +249,11 @@ export default function PmPage() {
                         <button onClick={handleCreate}>+ 등록</button>
                         <button onClick={handleUpdate}>수정</button>
                         <button onClick={handleDelete}>삭제</button>
+                        {/*//엑셀 다운로드*/}
+                        <ExcelDownload></ExcelDownload>
                     </div>
                 </div>
+
 
                 <div className="infoContent">
                     <div className="gridbox" >
