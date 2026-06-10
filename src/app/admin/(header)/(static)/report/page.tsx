@@ -1,19 +1,43 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, {useEffect, useMemo, useState, useCallback, useRef} from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { RaontecGridHandle, RaontecTanstackGrid, CustomColumnDef } from "@rxjacx/raontec-grid";
+import {AdminReportForm, AdminReportResponse} from "@/types/adminReport";
+import api from "@/services/api";
+import {getReportListApi} from "@/services/report/adminReportApi";
+
+interface PmCompany {
+    bzentyId: string;
+    bzentyNm: string;
+}
+
+interface Status {
+    clsfCd   : string;
+    cdNm: string;
+}
 
 export default function ReportPage() {
     const pathname = usePathname();
     const userRole = "admin";
 
     // 1. 검색 필터 상태 관리 (기능 컴포넌트화를 위한 state)
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+    const [startDate, setStartDate] =  useState(new Date().toISOString().split('T')[0]);
+    const [pmCompanyList, setPmCompanyList] = useState<PmCompany[]>([]);
+    const [statusOptions, setStatusOptions] = useState<any[]>([]);
+    const [endDate, setEndDate] =  useState(new Date().toISOString().split('T')[0]);
     const [pmCompany, setPmCompany] = useState('전체');
     const [status, setStatus] = useState('전체');
     const [keyword, setKeyword] = useState('');
+
+    //그리드
+    const [noticeGridData, setNoticeGridData] = useState<AdminReportResponse[]>([]);
+    const reportGridRef = useRef<RaontecGridHandle>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [selectedReportId, setSelectedReportId] = useState<string >('');
+    const [selectedReport, setSelectedReport] = useState<AdminReportResponse | null>(null); // 단일 행 클릭 데이터 State
 
     // 2. 왼쪽 서브 내비게이션 메뉴 데이터 정의
     const subNavItems = [
@@ -23,22 +47,138 @@ export default function ReportPage() {
         { id: 'menuStat', name: '메뉴기능활용통계', path: `/${userRole}/statistic_menu01` },
     ];
 
-    // 검색 버튼 이벤트 핸들러
-    const handleSearch = () => {
-        const searchData = {
-            startDate,
-            endDate,
-            pmCompany,
-            status,
-            keyword
+    useEffect(() => {
+        const fetchPmCompanies = async () => {
+            try {
+                const response = await api.get('/pm/pm-companies');
+                const data = response.data;
+                setPmCompanyList(data);
+
+                if (data && data.length > 0) {
+                    setPmCompany(data[0].bzentyId);
+                }
+            } catch (error) {
+                console.error("PM사 목록 로드 실패:", error);
+            }
         };
-        console.log('검색 요청 데이터:', searchData);
-        // 추후 API 연동 시 이 지점에서 fetch나 axios를 활용하시면 됩니다.
+
+        fetchPmCompanies();
+    }, []);
+
+    useEffect( ()=>{
+         const fetchDestList = async ()=>{
+             try{
+                 const response = await api.get('/code/DEST');
+                 const data = response.data.data;
+
+             }catch (error){
+                 console.error("처리상태 리스트 로드 실패:", error);
+             }
+         };
+
+        fetchDestList();
+    },[]);
+
+    // 이력 데이터 조회
+    const fetchData = useCallback(async (searchParams: AdminReportForm) => {
+        try {
+            console.log("서버로 전송할 데이터:", searchParams);
+            ///예시: await axios.get('/api/admin/report', { params: searchParams });
+            const result = await getReportListApi(searchParams);
+            console.log(result);
+            setNoticeGridData(result);
+        } catch (error) {
+            console.error(error);
+        }
+    }, []);
+
+    const noticeGridColumns = useMemo<CustomColumnDef<AdminReportResponse>[]>(() => [
+        {
+            header : '이력ID',
+            accessorKey : 'prcsHstryId'
+        }
+        ,
+        {
+            header: '신고일시',
+            accessorKey: 'dclDt',
+            meta: { filterType: "check" }
+
+        },
+        {
+            header: '신고ID',
+            accessorKey: 'dclrId',
+        },
+        {
+            header: 'PM사',
+            accessorKey: 'bzentyNm',
+            meta: { filterType: "check" }
+        },
+        {
+            header: '킥보드ID',
+            accessorKey: 'qrVal',
+        },
+        {
+            header: '주소',
+            accessorKey: 'dclrAddrTxt',
+        },
+        {
+            header: '위반유형',
+            accessorKey: 'vltnTypeNm',
+        },
+        {
+            header: '신고자ID(*마스킹)',
+            accessorKey: 'dclrUserId',
+            enableColumnFilter: false
+        },
+        {
+            header: '수거자',
+            accessorKey: 'prcrId',
+        },
+        {
+            header: '처리상태',
+            accessorKey: 'prcsStpNm' , // 타입 에러 방지용 키 지정 (아무 키나 상관없음)
+            meta: { filterType: "check" }
+        },
+    ], []);
+
+    const handleSearch = () => {
+
+        const requestData: AdminReportForm = {
+            startDate: startDate,
+            endDate: endDate,
+            bzentyId: pmCompany,    // pmCompany 값을 bzentyId로 변경
+            dclrSttsCd: status === '전체' ? null : status,     // status 값을 dclrSttsCd로 변경
+            keyword: keyword,
+        };
+
+        fetchData(requestData);
     };
 
     // 엑셀 저장 버튼 이벤트 핸들러
     const handleExcelDownload = () => {
         console.log('엑셀 다운로드 실행');
+    };
+
+    const onClickReportRow = (rowData: any) => {
+        console.log("13141414412")
+        console.log(rowData.rowKey )
+        if (rowData.rowKey && selectedReport?.bzentyId === rowData.bzentyId) {
+      //      setSelectedNotice(null);
+            return;
+        }
+    //    setSelectedNotice(rowData);
+        console.log("선택된 행 데이터 피드백:", rowData);
+    };
+
+    const onDoubleClickNoticeRow = (rowData: any) => {
+        console.log("sfsfsdfs");
+        // 💡 rowData가 존재하는지 확인 후 안전하게 ntcId를 보관합니다.
+        if (!rowData) return;
+
+        console.log("더블클릭된 행 전체 데이터:", rowData);
+
+       // setSelectedNtcId(rowData.ntcId);
+        setIsDetailOpen(true);
     };
 
     return (
@@ -91,9 +231,15 @@ export default function ReportPage() {
                                     value={pmCompany}
                                     onChange={(e) => setPmCompany(e.target.value)}
                                 >
-                                    <option value="전체">전체</option>
-                                    <option value="지쿠">지쿠</option>
-                                    <option value="스윙">스윙</option>
+                                    {pmCompanyList.length === 0 ? (
+                                        <option value="">등록된 PM사 없음</option>
+                                    ) : (
+                                        pmCompanyList.map((company) => (
+                                            <option key={company.bzentyId} value={company.bzentyId}>
+                                                {company.bzentyNm}
+                                            </option>
+                                        ))
+                                    )}
                                 </select>
                             </dd>
                             <dt>처리상태</dt>
@@ -104,8 +250,12 @@ export default function ReportPage() {
                                     onChange={(e) => setStatus(e.target.value)}
                                 >
                                     <option value="전체">전체</option>
-                                    <option value="회수완료">회수완료</option>
-                                    <option value="견인완료">견인완료</option>
+                                    {statusOptions.map((item) => (
+                                        // 사용자에게는 cdNm(신고승인데기 등)을 보여주고, 진짜 값은 cdId(DEST01 등)로 관리
+                                        <option key={item.cdId} value={item.cdId}>
+                                            {item.cdNm}
+                                        </option>
+                                    ))}
                                 </select>
                             </dd>
                         </dl>
@@ -130,7 +280,16 @@ export default function ReportPage() {
                 {/* 데이터 결과 영역 */}
                 <div className="infoContent">
                     <div className="gridbox">
-                        <div>그리드(그리드내부스크롤, 창 사이즈에 따라 실시간으로 사이즈 변하게)</div>
+                        {/*<div>그리드(그리드내부스크롤, 창 사이즈에 따라 실시간으로 사이즈 변하게)</div>*/}
+                        <RaontecTanstackGrid
+                            ref={reportGridRef}
+                            data={noticeGridData}
+                            columns={noticeGridColumns}
+                            globalCellClickEvent={onClickReportRow} // 클릭 하이라이트 및 수정 연동
+                            // enablePagination={true}
+                           // rowsPerPage={10}
+                            globalCellDbClickEvent={(row) => onDoubleClickNoticeRow(row)}
+                        />
                     </div>
                 </div>
             </div>
