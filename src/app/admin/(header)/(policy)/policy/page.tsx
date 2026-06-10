@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 // 💡 약관 조회 및 수정 API 임포트
 import {getPolicyApi, updatePolicyApi,} from "@/services/notice/noticeApi";
+import {registerMenuLog} from "@/services/common/commonApi";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 export default function PolicyPage() {
     const pathname = usePathname();
@@ -91,9 +93,22 @@ export default function PolicyPage() {
             setIsLoading(false);
         }
     };
+    //메뉴 이동 이력
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR3200");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     if (isLoading && policyContent === '') {
-        return <div className="wrap"><div className="subarticle"><h3>약관 데이터를 가져오는 중...</h3></div></div>;
+        return <LoadingOverlay
+            message={"데이터를 로딩 중입니다..."}
+        />;
     }
 
     return (

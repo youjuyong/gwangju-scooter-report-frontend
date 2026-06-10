@@ -16,7 +16,8 @@ export default function MainNotice() {
                 const result = await getMainNoticeListApi({
                     page: 0,
                     size: 3,
-                    mainExpsrYn: 'Y'
+                    mainExpsrYn: 'Y',
+                    keyword: '',
                 });
                 setNotices(result);
 
