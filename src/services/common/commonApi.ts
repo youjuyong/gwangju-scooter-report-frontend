@@ -27,7 +27,7 @@ export const getOutlineType = async () => {
 
     const response = await api.get(`system/outline`);
     const freshData = response.data.data;
-ㅅ
+
     if (typeof window !== 'undefined') {
         localStorage.setItem('outline_type_cache', JSON.stringify(freshData));
         localStorage.setItem('outline_type_cache_time', String(Date.now()));
