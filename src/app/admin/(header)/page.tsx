@@ -8,8 +8,8 @@ import {CityOutline} from "@/components/dashboard/CityOutline";
 
 export default function DashboardPage() {
     const [isToggleChecked, setIsToggleChecked] = useState(false);
-    const [isLeftOff, setIsLeftOff] = useState(false);
     const [activeListId, setActiveListId] = useState<number | null>(null);
+    const [isLeftOff, setIsLeftOff] = useState(false);
     const [isUpperOff, setIsUpperOff] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [status, setStatus] = useState("");
@@ -25,19 +25,41 @@ export default function DashboardPage() {
     const [mapInstance, setMapInstance] = useState<any>(null);
     const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
 
+    const [isMobileSize, setIsMobileSize] = useState<boolean>(
+        typeof window !== "undefined" ? window.innerWidth <= 1430 : false
+    );
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const handleResizeMode = () => {
+            const mobileSize = window.innerWidth <= 1430;
+            setIsMobileSize(mobileSize);
+        };
+
+        window.addEventListener("resize", handleResizeMode);
+        return () => window.removeEventListener("resize", handleResizeMode);
+    }, []);
+
     useEffect(() => {
         if (!mapInstance || !position) return;
+
+        mapInstance.relayout();
 
         const {kakao} = window;
         const projection = mapInstance.getProjection();
 
         const currentLatLng = new kakao.maps.LatLng(position.lat, position.lng);
-
         const pixelPoint = projection.pointFromCoords(currentLatLng);
 
-        const mobileSize = typeof window !== "undefined" && window.innerWidth <= 1430;
-        const offsetY = isUpperOff ? 0 : ((mobileSize ? 86 : 51) / 2);
-        const offsetX = isLeftOff ? 0 : (320 / 2);
+        const realTimeIsMobile = window.innerWidth <= 1430;
+
+        let offsetX = isLeftOff ? 0 : (320 / 2);
+        if (!realTimeIsMobile && isLeftOff) {
+            offsetX = offsetX + 160;
+        }
+
+        const offsetY = isUpperOff ? 0 : ((isMobileSize ? 86 : 51) / 2);
 
         const correctedPixel = new kakao.maps.Point(
             pixelPoint.x + offsetX,
@@ -46,12 +68,84 @@ export default function DashboardPage() {
 
         const correctedLatLng = projection.coordsFromPoint(correctedPixel);
 
-        setMapCenter({
+        const center = {
             lat: correctedLatLng.getLat(),
             lng: correctedLatLng.getLng()
-        });
+        };
 
+        setMapCenter(center);
+
+        mapInstance.setCenter(correctedLatLng);
     }, [isLeftOff, isUpperOff, mapInstance, position]);
+
+    useEffect(() => {
+        if (!mapInstance) return;
+
+        const handleResize = () => {
+            const {kakao} = window;
+            if (!kakao || !mapInstance) return;
+
+            const targetCenter = mapCenter || position;
+            if (!targetCenter) return;
+
+            mapInstance.relayout();
+
+            const projection = mapInstance.getProjection();
+
+            const currentLatLng = new kakao.maps.LatLng(targetCenter.lat, targetCenter.lng);
+            const pixelPoint = projection.pointFromCoords(currentLatLng);
+
+            const realTimeIsMobile = window.innerWidth <= 1430;
+
+            const moveLatLng = new kakao.maps.LatLng(targetCenter.lat, targetCenter.lng);
+
+            let offsetX = 0;
+            if (!isLeftOff) {
+                offsetX = isMobileSize ? 0 : (320 / 2);
+            }
+
+            let offsetY = 0;
+            if (!isUpperOff) {
+                const topBarHeight = isMobileSize ? 86 : 51;
+                offsetY = topBarHeight / 2;
+            }
+
+            const correctedPixel = new kakao.maps.Point(
+                pixelPoint.x + offsetX,
+                pixelPoint.y + offsetY
+            );
+
+            const correctedLatLng = projection.coordsFromPoint(correctedPixel);
+            mapInstance.setCenter(correctedLatLng);
+
+            if (isLeftOff || isUpperOff) {
+                let offsetX = 0;
+                let offsetY = 0;
+                if (!realTimeIsMobile) {
+                    if (isLeftOff) {
+                        offsetX = offsetX + 160;
+                    }
+                    if (isUpperOff) {
+                        offsetY = offsetY + ((realTimeIsMobile ? 86 : 51) / 2);
+                    }
+                }
+                const correctedPixel = new kakao.maps.Point(
+                    pixelPoint.x + offsetX,
+                    pixelPoint.y + offsetY
+                );
+
+                const correctedLatLng = projection.coordsFromPoint(correctedPixel);
+                mapInstance.setCenter(correctedLatLng);
+            } else {
+                mapInstance.setCenter(moveLatLng);
+            }
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, [mapInstance, mapCenter, position, isLeftOff, isUpperOff]);
 
     const handleListClick = (id: number) => {
         setActiveListId(id);
@@ -479,33 +573,20 @@ export default function DashboardPage() {
                     <div className="map">
                         {typeof window !== "undefined" && window.kakao && position && (
                             <Map
-                                center={mapCenter || position}
+                                center={mapCenter || position || {lat: 37.42870, lng: 127.25618}}
                                 style={{width: "100%", height: "100%", minHeight: "300px"}}
                                 level={3}
                                 onCreate={(map) => setMapInstance(map)}
+                                onDragEnd={(map) => {
+                                    const actualCenter = map.getCenter();
+                                    setMapCenter({
+                                        lat: actualCenter.getLat(),
+                                        lng: actualCenter.getLng()
+                                    });
+                                }}
                                 onIdle={(map) => {
-                                    const {kakao} = window;
-                                    const projection = map.getProjection();
-
-                                    const currentMapCenter = map.getCenter();
-                                    const centerPixel = projection.pointFromCoords(currentMapCenter);
-
-                                    const isMobileSize = typeof window !== "undefined" && window.innerWidth <= 1430;
-                                    const offsetY = isUpperOff ? 0 : ((isMobileSize ? 86 : 51) / 2);
-                                    const offsetX = isLeftOff ? 0 : (320 / 2);
-
-                                    const markerPixel = new kakao.maps.Point(
-                                        centerPixel.x - offsetX,
-                                        centerPixel.y - offsetY
-                                    );
-
-                                    const loc = projection.coordsFromPoint(markerPixel);
-
-                                    const lat = loc.getLat();
-                                    const lng = loc.getLng();
-
-                                    setPosition({lat, lng});
-                                    fetchAddressInfo(lat, lng);
+                                    const actualCenter = map.getCenter();
+                                    fetchAddressInfo(actualCenter.getLat(), actualCenter.getLng());
                                 }}
                             >
                                 <MapMarker position={position}/>
