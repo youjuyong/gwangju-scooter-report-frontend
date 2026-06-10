@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { NoticeResponse } from '@/types/notice';
 import {deleteNoticeApi, getMainNoticeApi, updateNoticeApi} from "@/services/notice/noticeApi";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 interface NoticeDetailModalProps {
     isOpen: boolean;
@@ -32,7 +33,6 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
             try {
                 setIsLoading(true);
                 const data = await getMainNoticeApi(ntcId);
-                console.log("백엔드 상세 응답 데이터 확인:", data);
                 initFormData(data);
                 setIsReadOnly(true);
             } catch (error) {
@@ -48,6 +48,24 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
             fetchDetail();
         }
     }, [isOpen, ntcId]);
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // 팝업이 열려있고 ESC 키(Escape)를 누른 경우
+            if (isOpen && e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        // 팝업이 열려있을 때만 전역 윈도우에 이벤트 등록
+        if (isOpen) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        // 컴포넌트가 닫히거나 언마운트될 때 메모리 누수 방지를 위해 이벤트 제거
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose]); // 의존성 배열에 isOpen과 onClose 바인딩
 
     if (!isOpen || !ntcId) return null;
     // 데이터 매핑 공통 함수
@@ -173,11 +191,12 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
         }
     };
 
+
     if (isLoading) {
         return (
-            <div className="popupWrap" style={{ display: 'block' }}>
-                <div className="popupInner"><div className="popup"><h3>로딩 중...</h3></div></div>
-            </div>
+            <LoadingOverlay
+                message={"데이터를 로딩 중입니다..."}
+            />
         );
     }
 

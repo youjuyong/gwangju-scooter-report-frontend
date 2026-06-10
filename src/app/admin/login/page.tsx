@@ -128,7 +128,6 @@ export default function LoginPage() {
                 if (userRole == "REPORT_USER ") {
                     return handleLogin(undefined, true);
                 } else {
-                     console.log("test");
                     if (window.confirm("다른 기기에서 로그인중입니다.\n여기서 로그인하시겠습니까?")) {
                         return handleLogin(undefined, true);
                     }
