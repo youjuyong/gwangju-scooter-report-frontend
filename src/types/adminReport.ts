@@ -1,7 +1,7 @@
 export interface AdminReportForm {
     startDate: string;
     endDate: string;
-    bzentyId:string;
+    bzentyId:string | null;
     dclrSttsCd: string | null;
     keyword: string  | null;
 }

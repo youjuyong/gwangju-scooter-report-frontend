@@ -7,15 +7,12 @@ import { RaontecGridHandle, RaontecTanstackGrid, CustomColumnDef } from "@rxjacx
 import {AdminReportForm, AdminReportResponse} from "@/types/adminReport";
 import api from "@/services/api";
 import {getReportListApi} from "@/services/report/adminReportApi";
+import NoticeDetailPopup from "@/components/admin/popup/NoticeDetailPopup";
+import ReportDetailPopup from "@/components/admin/popup/ReportDetailPopup";
 
 interface PmCompany {
     bzentyId: string;
     bzentyNm: string;
-}
-
-interface Status {
-    clsfCd   : string;
-    cdNm: string;
 }
 
 export default function ReportPage() {
@@ -32,7 +29,7 @@ export default function ReportPage() {
     const [keyword, setKeyword] = useState('');
 
     //그리드
-    const [noticeGridData, setNoticeGridData] = useState<AdminReportResponse[]>([]);
+    const [reportGridData, setNoticeGridData] = useState<AdminReportResponse[]>([]);
     const reportGridRef = useRef<RaontecGridHandle>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -48,54 +45,51 @@ export default function ReportPage() {
     ];
 
     useEffect(() => {
+        //pm사 조회
         const fetchPmCompanies = async () => {
             try {
                 const response = await api.get('/pm/pm-companies');
                 const data = response.data;
                 setPmCompanyList(data);
 
-                if (data && data.length > 0) {
-                    setPmCompany(data[0].bzentyId);
-                }
             } catch (error) {
                 console.error("PM사 목록 로드 실패:", error);
             }
         };
-
-        fetchPmCompanies();
-    }, []);
-
-    useEffect( ()=>{
-         const fetchDestList = async ()=>{
-             try{
-                 const response = await api.get('/code/DEST');
-                 const data = response.data.data;
-
-             }catch (error){
-                 console.error("처리상태 리스트 로드 실패:", error);
-             }
-         };
+        //처리상태 옵션 조회
+        const fetchDestList = async ()=>{
+            try{
+                const response = await api.get('/code/DEST');
+                const data = response.data.data;
+                setStatusOptions(data);
+            }catch (error){
+                console.error("처리상태 리스트 로드 실패:", error);
+            }
+        };
 
         fetchDestList();
-    },[]);
+        fetchPmCompanies();
+    }, []);
 
     // 이력 데이터 조회
     const fetchData = useCallback(async (searchParams: AdminReportForm) => {
         try {
-            console.log("서버로 전송할 데이터:", searchParams);
-            ///예시: await axios.get('/api/admin/report', { params: searchParams });
             const result = await getReportListApi(searchParams);
-            console.log(result);
             setNoticeGridData(result);
+
+            setSelectedReport(null);
+            reportGridRef.current?.clearSelectedRow();
+            reportGridRef.current?.clearRowSelection();
         } catch (error) {
             console.error(error);
         }
     }, []);
 
-    const noticeGridColumns = useMemo<CustomColumnDef<AdminReportResponse>[]>(() => [
+    const reportGridColumns = useMemo<CustomColumnDef<AdminReportResponse>[]>(() => [
         {
             header : '이력ID',
-            accessorKey : 'prcsHstryId'
+            accessorKey : 'prcsHstryId',
+            meta: { id: 'prcsHstryId', isKey: true } // 고유 Key(PK) 설정
         }
         ,
         {
@@ -142,11 +136,10 @@ export default function ReportPage() {
     ], []);
 
     const handleSearch = () => {
-
         const requestData: AdminReportForm = {
             startDate: startDate,
             endDate: endDate,
-            bzentyId: pmCompany,    // pmCompany 값을 bzentyId로 변경
+            bzentyId: pmCompany === '전체' ? null : pmCompany,    // pmCompany 값을 bzentyId로 변경
             dclrSttsCd: status === '전체' ? null : status,     // status 값을 dclrSttsCd로 변경
             keyword: keyword,
         };
@@ -160,26 +153,29 @@ export default function ReportPage() {
     };
 
     const onClickReportRow = (rowData: any) => {
-        console.log("13141414412")
-        console.log(rowData.rowKey )
         if (rowData.rowKey && selectedReport?.bzentyId === rowData.bzentyId) {
       //      setSelectedNotice(null);
             return;
         }
+        console.log(rowData);
+            setSelectedReportId(rowData.bzentyId);
+            setSelectedReport(rowData);
+            setIsDetailOpen(true);
     //    setSelectedNotice(rowData);
         console.log("선택된 행 데이터 피드백:", rowData);
     };
 
-    const onDoubleClickNoticeRow = (rowData: any) => {
-        console.log("sfsfsdfs");
-        // 💡 rowData가 존재하는지 확인 후 안전하게 ntcId를 보관합니다.
-        if (!rowData) return;
-
-        console.log("더블클릭된 행 전체 데이터:", rowData);
-
-       // setSelectedNtcId(rowData.ntcId);
-        setIsDetailOpen(true);
-    };
+    // const onDoubleClickNoticeRow = (rowData: any) => {
+    //     console.log("sfsfsdfs");
+    //     // 💡 rowData가 존재하는지 확인 후 안전하게 ntcId를 보관합니다.
+    //     if (!rowData) return;
+    //
+    //     console.log("더블클릭된 행 전체 데이터:", rowData);
+    //
+    //     setSelectedReportId(rowData.bzentyId);
+    //     console.log(selectedReportId)
+    //     setIsDetailOpen(true);
+    // };
 
     return (
         <div className="wrap report_wrap">
@@ -231,6 +227,7 @@ export default function ReportPage() {
                                     value={pmCompany}
                                     onChange={(e) => setPmCompany(e.target.value)}
                                 >
+                                    <option value="전체">전체</option>
                                     {pmCompanyList.length === 0 ? (
                                         <option value="">등록된 PM사 없음</option>
                                     ) : (
@@ -283,16 +280,36 @@ export default function ReportPage() {
                         {/*<div>그리드(그리드내부스크롤, 창 사이즈에 따라 실시간으로 사이즈 변하게)</div>*/}
                         <RaontecTanstackGrid
                             ref={reportGridRef}
-                            data={noticeGridData}
-                            columns={noticeGridColumns}
+                            data={reportGridData}
+                            columns={reportGridColumns}
                             globalCellClickEvent={onClickReportRow} // 클릭 하이라이트 및 수정 연동
                             // enablePagination={true}
-                           // rowsPerPage={10}
-                            globalCellDbClickEvent={(row) => onDoubleClickNoticeRow(row)}
+                  //          rowsPerPage={10}
+                          //  globalCellDbClickEvent={onClickReportRow}
                         />
                     </div>
                 </div>
             </div>
+            {isDetailOpen && selectedReport && (
+                <ReportDetailPopup
+                    data={selectedReport}
+                    onClose={() => {
+                        setIsDetailOpen(false);
+                        setSelectedReportId('');
+                        setSelectedReport(null);
+                    }}
+
+                    isOpen={isDetailOpen}
+                    bzentyId={selectedReportId}
+                    onRefreshList={()=> fetchData({
+                        startDate: startDate,
+                        endDate: endDate,
+                        bzentyId: pmCompany,    // pmCompany 값을 bzentyId로 변경
+                        dclrSttsCd: status === '전체' ? null : status,     // status 값을 dclrSttsCd로 변경
+                        keyword: keyword,
+                    })}
+                />
+            )}
         </div>
     );
 }
