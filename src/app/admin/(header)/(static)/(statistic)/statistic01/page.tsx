@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useMemo, useRef, useContext} from 'react';
 import { createLineChartOptions } from "@/utils/highchart";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import api from "@/services/api";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import {CustomColumnDef, RaontecGridHandle, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
+import {PrivacyReportResponse} from "@/types/adminReport";
+import ExcelDownload from "@/components/admin/ExcelDownload";
+import {ExcelContext} from "@/components/admin/ExcelContext";
 
 interface PmCompany {
     bzentyId: string; 
@@ -23,6 +27,12 @@ export default function StatisticDayPage() {
     const [chartOptions, setChartOptions] = useState<Highcharts.Options | null>(null);
     const [loading, setLoading] = useState(false);
     const [isSearched, setIsSearched] = useState(false);
+
+    //그리드
+    const [reportGridData, setComplainGridData] = useState<PrivacyReportResponse[]>([]);
+    const reportGridRef = useRef<RaontecGridHandle>(null);
+    //엑셀
+    const {setGrid, setFileName}: any = useContext(ExcelContext);
 
     const subNavItems = [
         { id: 'report', name: '신고처리이력', path: `/${userRole}/report` },
@@ -56,6 +66,14 @@ export default function StatisticDayPage() {
         fetchPmCompanies();
     }, []);
 
+    //엑셀 다운로드
+    useEffect(() => {
+        if (reportGridRef.current) {
+            setGrid(reportGridRef.current);
+            setFileName(`${targetDate}_일별민원처리통계`);
+        }
+    }, [reportGridData, setGrid, setFileName]);
+
     const handleSearch = async () => {
         if (!targetDate) return alert("일자를 선택해주세요.");
         setLoading(true);
@@ -79,9 +97,9 @@ export default function StatisticDayPage() {
             const chartTitle = data.companyName ? `[${data.companyName}] 시간별 민원 처리 추이` : '시간별 민원 처리 추이';
 
             const options = createLineChartOptions(chartTitle, hoursCategories, seriesData as any);
-            
-            setChartOptions(options);
 
+            setChartOptions(options);
+            setComplainGridData(data.gridData);
         } catch (error) {
             console.error("통계 조회 실패:", error);
         } finally {
@@ -89,10 +107,32 @@ export default function StatisticDayPage() {
         }
     };
 
-    const handleExcelDownload = () => {
-        console.log('민원처리통계 엑셀 다운로드 실행');
-    };
+    const useHourlyGridColumns = () => {
+        return useMemo<CustomColumnDef<any>[]>(() => {
+            const baseColumns: CustomColumnDef<any>[] = [
+                {
+                    header: '구분',
+                    accessorKey: 'category',
+                    meta: { id: 'category', isKey: true },
+                    enableSorting: false,
+                    enableColumnFilter: false
+                }
+            ];
 
+            // 0시부터 23시까지 고정 생성
+            const hourColumns = Array.from({ length: 24 }, (_, i) => {
+                const hour = `${i}`;
+                return {
+                    header: `${hour}시`,
+                    accessorKey: hour, // 백엔드 Map의 Key인 "0", "1", "2" 등과 매핑
+                    enableColumnFilter: false,
+                    enableSorting: false,
+                };
+            });
+
+            return [...baseColumns, ...hourColumns];
+        }, []);
+    };
     return (
         <div className="wrap statistic_wrap" style={{ width: '100%', maxWidth: '100%' }}>
             {/* 왼쪽 서브 네비게이션 영역 */}
@@ -159,6 +199,7 @@ export default function StatisticDayPage() {
                             </dd>
                         </dl>
                         <button className="btnSearch" onClick={handleSearch}>검색</button>
+                        <ExcelDownload></ExcelDownload>
                     </div>
                 </div>
 
@@ -182,7 +223,11 @@ export default function StatisticDayPage() {
                     </div>
 
                     <div className="new_grid_zone" style={{ width: '100%', marginTop: '20px' }}>
-                        {/* 그리드가 들어올 예정 */}
+                        <RaontecTanstackGrid
+                            ref={reportGridRef}
+                            columns={useHourlyGridColumns()}
+                            data={reportGridData}
+                        />
                     </div>
 
                 </div>

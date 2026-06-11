@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef, useContext,useMemo} from 'react';
 import { createLineChartOptions } from "@/utils/highchart";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import api from "@/services/api";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import {PrivacyReportResponse} from "@/types/adminReport";
+import {RaontecGridHandle,CustomColumnDef, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
+import ExcelDownload from "@/components/admin/ExcelDownload";
+import {ExcelContext} from "@/components/admin/ExcelContext";
 
 interface PmCompany {
     bzentyId: string; 
@@ -39,6 +43,11 @@ export default function StatisticDayPage() {
     const [chartOptions, setChartOptions] = useState<Highcharts.Options | null>(null);
     const [loading, setLoading] = useState(false);
     const [isSearched, setIsSearched] = useState(false);
+    //그리드
+    const [reportGridData, setComplainGridData] = useState<PrivacyReportResponse[]>([]);
+    const reportGridRef = useRef<RaontecGridHandle>(null);
+    //엑셀
+    const {setGrid, setFileName}: any = useContext(ExcelContext);
 
     const subNavItems = [
         { id: 'report', name: '신고처리이력', path: `/${userRole}/report` },
@@ -73,6 +82,14 @@ export default function StatisticDayPage() {
         fetchPmCompanies();
     }, []);
 
+    //엑셀 다운로드
+    useEffect(() => {
+        if (reportGridRef.current) {
+            setGrid(reportGridRef.current);
+            setFileName(`${targetYear}년_연별민원처리통계`);
+        }
+    }, [reportGridData, setGrid, setFileName]);
+
     const handleSearchYearly = async () => {
         if (!targetYear) return alert("조회 연도를 선택해주세요.");
         if (!pmCompany) return alert("PM사를 선택해주세요.");
@@ -104,7 +121,7 @@ export default function StatisticDayPage() {
             // 공통 테마 유틸 함수 재사용
             const options = createLineChartOptions(chartTitle, monthsCategories, seriesData as any);
             setChartOptions(options);
-
+            setComplainGridData(data.gridData);
         } catch (error) {
             console.error("연별 통계 조회 실패:", error);
         } finally {
@@ -112,10 +129,32 @@ export default function StatisticDayPage() {
         }
     };
 
-    const handleExcelDownload = () => {
-        console.log('민원처리통계 엑셀 다운로드 실행');
-    };
+    const useYearlyGridColumns = () => {
+        return useMemo<CustomColumnDef<any>[]>(() => {
+            const baseColumns: CustomColumnDef<any>[] = [
+                {
+                    header: '구분',
+                    accessorKey: 'category',
+                    meta: { id: 'category', isKey: true },
+                    enableSorting: false,
+                    enableColumnFilter: false
+                }
+            ];
 
+            // 1월부터 12월까지 고정 생성
+            const monthColumns = Array.from({ length: 12 }, (_, i) => {
+                const month = `${i + 1}`;
+                return {
+                    header: `${month}월`,
+                    accessorKey: month, // 백엔드 Map의 Key인 "1", "2" ... "12"와 매핑
+                    enableColumnFilter: false,
+                    enableSorting: false,
+                };
+            });
+
+            return [...baseColumns, ...monthColumns];
+        }, []);
+    };
 
 
     
@@ -194,6 +233,7 @@ export default function StatisticDayPage() {
                             </dd>
                         </dl>
                         <button className="btnSearch" onClick={handleSearchYearly}>검색</button>
+                        <ExcelDownload></ExcelDownload>
                     </div>
                 </div>
 
@@ -217,7 +257,11 @@ export default function StatisticDayPage() {
                     </div>
 
                     <div className="new_grid_zone" style={{ width: '100%', marginTop: '20px' }}>
-                        {/* 그리드가 들어올 예정 */}
+                        <RaontecTanstackGrid
+                            ref={reportGridRef}
+                            columns={useYearlyGridColumns()}
+                            data={reportGridData}
+                        />
                     </div>
 
                 </div>

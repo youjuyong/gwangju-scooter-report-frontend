@@ -1,12 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef, useContext,useMemo} from 'react';
 import { createLineChartOptions } from "@/utils/highchart";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import api from "@/services/api";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import {PrivacyReportResponse} from "@/types/adminReport";
+import {RaontecGridHandle, CustomColumnDef, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
+import ExcelDownload from "@/components/admin/ExcelDownload";
+import {ExcelContext} from "@/components/admin/ExcelContext";
+
 
 interface PmCompany {
     bzentyId: string; 
@@ -26,11 +31,18 @@ export default function StatisticDayPage() {
     const userRole = "admin";
 
     const [targetMonth, setTargetMonth] = useState(getTodayMonth());
+    const [searchedMonth, setSearchedMonth] = useState('2026-06');
     const [pmCompanyList, setPmCompanyList] = useState<PmCompany[]>([]);
     const [pmCompany, setPmCompany] = useState('');
     const [chartOptions, setChartOptions] = useState<Highcharts.Options | null>(null);
     const [loading, setLoading] = useState(false);
     const [isSearched, setIsSearched] = useState(false);
+    const [totalDays, setTotaldays] = useState(0);
+    //그리드
+    const [reportGridData, setComplainGridData] = useState<PrivacyReportResponse[]>([]);
+    const reportGridRef = useRef<RaontecGridHandle>(null);
+    //엑셀
+    const {setGrid, setFileName}: any = useContext(ExcelContext);
 
     const subNavItems = [
         { id: 'report', name: '신고처리이력', path: `/${userRole}/report` },
@@ -65,10 +77,21 @@ export default function StatisticDayPage() {
         fetchPmCompanies();
     }, []);
 
+    //엑셀 다운로드
+    useEffect(() => {
+        if (reportGridRef.current) {
+            setGrid(reportGridRef.current);
+            setFileName(`${targetMonth}_월별민원처리통계`);
+        }
+    }, [reportGridData, setGrid, setFileName]);
+
     const handleSearchMonthly = async () => {
         if (!targetMonth) return alert("조회 월을 선택해주세요.");
         if (!pmCompany) return alert("PM사를 선택해주세요.");
-        
+
+        setComplainGridData([]);
+        setTotaldays(0);
+        setSearchedMonth(targetMonth);
         setLoading(true);
         setIsSearched(true);
         
@@ -99,8 +122,10 @@ export default function StatisticDayPage() {
             const chartTitle = data.companyName ? `[${data.companyName}] 월간 민원 처리 추이` : '월간 민원 처리 추이';
             
             const options = createLineChartOptions(chartTitle, daysCategories, seriesData as any);
-            setChartOptions(options);
 
+            setChartOptions(options);
+            setComplainGridData(data.gridData);
+            setTotaldays(data.totalDays)
         } catch (error) {
             console.error("월별 통계 조회 실패:", error);
         } finally {
@@ -108,8 +133,42 @@ export default function StatisticDayPage() {
         }
     };
 
-    const handleExcelDownload = () => {
-        console.log('민원처리통계 엑셀 다운로드 실행');
+    const getStatGridColumns = (totalDays: number, currentMonth: string) => {
+        // 안전장치: 아직 월 선택이 안 되었을 때 방어
+        if (!currentMonth) return [];
+
+        // 1. 넘겨받은 월("2026-02")을 쪼개서 달력 기준 진짜 마지막 날짜 계산
+        const [yearStr, monthStr] = currentMonth.split('-');
+        const searchYear = Number(yearStr);
+        const searchMonth = Number(monthStr);
+        const realLastDay = new Date(searchYear, searchMonth, 0).getDate();
+
+        // 2. 서버가 준 날짜 수와 달력 날짜 중 안전한 값 선택
+        const finalDaysCount = Math.min(totalDays || 30, realLastDay);
+
+        // 3. 고정 컬럼 (구분)
+        const baseColumns: any[] = [
+            {
+                header: '구분',
+                accessorKey: 'category',
+                meta: { id: 'category', isKey: true },
+                enableSorting: false,
+                enableColumnFilter: false
+            }
+        ];
+
+        // 4. 동적 날짜 컬럼 생성 (28일이면 딱 28개만 생성됨)
+        const dayColumns = Array.from({ length: finalDaysCount }, (_, i) => {
+            const day = `${i + 1}`;
+            return {
+                header: `${day}일`,
+                accessorKey: day,
+                enableColumnFilter: false,
+                enableSorting: false,
+            };
+        });
+
+        return [...baseColumns, ...dayColumns];
     };
 
     return (
@@ -178,30 +237,35 @@ export default function StatisticDayPage() {
                             </dd>
                         </dl>
                         <button className="btnSearch" onClick={handleSearchMonthly}>검색</button>
+                        <ExcelDownload></ExcelDownload>
                     </div>
                 </div>
 
-                <div className="infoContent" style={{ width: '100%' }}>
-                    <div className="chartbox" style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+                <div className="infoContent" style={{width: '100%'}}>
+                    <div className="chartbox" style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
                         {loading ? (
-                            <div className="loading" style={{ margin: 'auto',color: '#fff'  }}>데이터를 불러오는 중입니다...</div>
+                            <div className="loading" style={{margin: 'auto'}}>데이터를 불러오는 중입니다...</div>
                         ) : !isSearched ? (
-                            <div className="placeholder" style={{ margin: 'auto', color: '#888' }}>조건을 선택한 후 검색 버튼을 눌러주세요.</div>
+                            <div className="placeholder" style={{margin: 'auto', color: '#888'}}>조건을 선택한 후 검색 버튼을
+                                눌러주세요.</div>
                         ) : (
                             chartOptions && (
-                                <div style={{ width: '100%', overflow: 'hidden' }}>
+                                <div style={{width: '100%', overflow: 'hidden'}}>
                                     <HighchartsReact
                                         highcharts={Highcharts}
                                         options={chartOptions}
-                                        containerProps={{ style: { width: '100%' } }} 
+                                        containerProps={{style: {width: '100%'}}}
                                     />
                                 </div>
                             )
                         )}
                     </div>
-
-                    <div className="new_grid_zone" style={{ width: '100%', marginTop: '20px' }}>
-                        {/* 그리드가 들어올 예정 */}
+                    <div className="new_grid_zone" style={{width: '100%', marginTop: '20px'}}>
+                        <RaontecTanstackGrid
+                            ref={reportGridRef}
+                            columns={getStatGridColumns(totalDays, searchedMonth)}
+                            data={reportGridData}
+                        />
                     </div>
 
                 </div>

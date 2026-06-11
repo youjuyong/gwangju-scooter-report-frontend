@@ -49,9 +49,6 @@ export default function ReportPage() {
 
     useEffect(() => {
         handleSearch(); // 화면이 열리자마자 검색
-    }, []);
-
-    useEffect(() => {
         //pm사 조회
         const fetchPmCompanies = async () => {
             try {
