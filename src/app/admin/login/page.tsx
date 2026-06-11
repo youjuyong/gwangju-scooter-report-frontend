@@ -2,9 +2,7 @@
 
 import React, {useEffect, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
-import {useAlert} from "@/components/popup/PopupProvider";
 import {MemberRole, useAuthStore} from "@/store/authStore";
-import {useFcmToken} from "@/hooks/useFcmToken";
 import {toast} from "react-hot-toast";
 import {loginService} from "@/services/auth/loginApi";
 import {setCookie} from "cookies-next";
@@ -17,9 +15,6 @@ export default function LoginPage() {
     const [isMounted, setIsMounted] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
-    const showAlert = useAlert();
-    const state = useAuthStore();
-    const {logout, updateFcmToken} = state;
 
     useEffect(() => {
         setIsMounted(true);
@@ -31,7 +26,6 @@ export default function LoginPage() {
         }
     }, []);
 
-    const Token = useAuthStore((state) => state);
     const getAuthType = () => {
         if (pathname.startsWith("/admin")) return "admin";
         if (pathname.startsWith("/pm")) return "pm";
@@ -41,26 +35,14 @@ export default function LoginPage() {
     const authType = getAuthType();
     const prefix = authType === "reporter" ? "" : `/${authType}`;
 
-
-    const accessToken = useAuthStore((state) => state[authType].accessToken);
     const {setAdminAuth, setPmAuth, setTowAuth, setReporterAuth} = useAuthStore();
-
-
-    const {
-        handleAllowNotification,
-        getDeviceInfo,
-        saveTokenToServer,
-        fetchFcmTokenForCallback
-    } = useFcmToken();
 
     const ERROR_MESSAGES: Record<string, string> = {
         "E008": "비밀번호 오류 횟수 초과로 계정이 잠겼습니다. 관리자에게 문의하세요.",
     };
 
-
     const handleLogin = async (e?: React.FormEvent, forceLogin: boolean = false) => {
         if (e) e.preventDefault();
-        console.log('handleLogin!!!admin!! :::');
         if (!userId) return toast.error("아이디를 입력해주세요.");
         if (!pswd) return toast.error("비밀번호를 입력해주세요.");
 
@@ -94,28 +76,6 @@ export default function LoginPage() {
                 maxAge: 60 * 60 * 24,
                 path: '/',
             });
-
-            // FCM 프로세스
-            const processFcm = async () => {
-                try {
-                    toast.loading("알림 설정을 동기화 중입니다...", {id: toastId});
-                    const deviceType = getDeviceInfo();
-
-                    let fcmToken = null;
-                    if (deviceType === "iOS") {
-                        fcmToken = await fetchFcmTokenForCallback();
-                    } else {
-                        fcmToken = await handleAllowNotification();
-                    }
-                    if (fcmToken) {
-                        updateFcmToken(authType, fcmToken);
-                        await saveTokenToServer(fcmToken, accessToken);
-                    }
-                } catch (fcmErr) {
-                    console.error("FCM 동기화 실패:", fcmErr);
-                }
-            };
-            await processFcm();
 
             toast.success(`${userNm}님, 반갑습니다!`, {id: toastId});
 
