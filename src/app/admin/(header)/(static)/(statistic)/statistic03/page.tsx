@@ -200,7 +200,7 @@ export default function StatisticDayPage() {
                 <div className="infoContent" style={{ width: '100%' }}>
                     <div className="chartbox" style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
                         {loading ? (
-                            <div className="loading" style={{ margin: 'auto' }}>데이터를 불러오는 중입니다...</div>
+                            <div className="loading" style={{ margin: 'auto' ,color: '#fff' }}>데이터를 불러오는 중입니다...</div>
                         ) : !isSearched ? (
                             <div className="placeholder" style={{ margin: 'auto', color: '#888' }}>조건을 선택한 후 검색 버튼을 눌러주세요.</div>
                         ) : (
