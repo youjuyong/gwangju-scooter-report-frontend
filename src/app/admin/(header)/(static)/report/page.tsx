@@ -111,6 +111,11 @@ export default function ReportPage() {
 
         },
         {
+            header: '처리일시',
+            accessorKey: 'prcsDt',
+            meta: { filterType: "check" }
+        },
+        {
             header: '신고ID',
             accessorKey: 'dclrId',
         },
