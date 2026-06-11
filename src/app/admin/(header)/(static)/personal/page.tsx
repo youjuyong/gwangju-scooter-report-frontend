@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState,useContext} from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import {CustomColumnDef, RaontecGridHandle, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
+import {PrivacyReportForm, PrivacyReportResponse} from "@/types/adminReport";
+import {getPrivacyReportListApi} from "@/services/report/adminReportApi";
+import ExcelDownload from "@/components/admin/ExcelDownload";
+import {ExcelContext} from "@/components/admin/ExcelContext";
 
 export default function PersonalPage() {
     const pathname = usePathname();
@@ -11,6 +16,11 @@ export default function PersonalPage() {
     // 1. 년도 선택 상태 관리 (기본값: 2026)
     const [selectedYear, setSelectedYear] = useState('2026');
 
+    //그리드
+    const [reportGridData, setPrivacyGridData] = useState<PrivacyReportResponse[]>([]);
+    const reportGridRef = useRef<RaontecGridHandle>(null);
+    //엑셀
+    const {setGrid, setFileName}: any = useContext(ExcelContext);
     // 2. 왼쪽 서브 내비게이션 메뉴 데이터 정의
     const subNavItems = [
         { id: 'report', name: '신고처리이력', path: `/${userRole}/report` },
@@ -19,16 +29,66 @@ export default function PersonalPage() {
         { id: 'menuStat', name: '메뉴기능활용통계', path: `/${userRole}/statistic_menu01` },
     ];
 
+    //1. 현재 올해가 몇 년도인지 실시간으로 가져옵니다. (예: 2026)
+    const currentYear = new Date().getFullYear();
+    const startYear = 2026; // 시작 기준 년도
+
+    //2026년부터 올해까지의 년도 배열을 자동으로 생성
+    const yearList = Array.from(
+        { length: currentYear - startYear + 1 },
+        (_, index) => startYear + index
+    );
+
+    const reportGridColumns = useMemo<CustomColumnDef<PrivacyReportResponse>[]>(() => [
+        {
+            header : '이력ID',
+            accessorKey : 'delLogId',
+            meta: { id: 'delLogId', isKey: true } // 고유 Key(PK) 설정
+        }
+        ,
+        {
+            header: '파기건수',
+            accessorKey: 'delNocs',
+            meta: { filterType: "check" }
+
+        },
+        {
+            header: '파기날짜',
+            accessorKey: 'delDt',
+            meta: { filterType: "check" }
+        },
+
+    ], []);
+
+    useEffect(() => {
+        handleSearch(); // 화면이 열리자마자 검색
+    }, []);
+
+    //엑셀 다운로드
+    useEffect(() => {
+        if (reportGridRef.current) {
+            setGrid(reportGridRef.current);
+            setFileName("개인정보파기이력");
+        }
+    }, [reportGridData, setGrid, setFileName]);
+
     // 검색 버튼 이벤트 핸들러
     const handleSearch = () => {
-        console.log('검색 요청 년도:', selectedYear);
-        // 추후 API 연동 시 selectedYear 값을 쿼리 파라미터로 넘겨주시면 됩니다.
+        const requestData: PrivacyReportForm = {
+            targetYear : selectedYear
+        }
+        fetchData(requestData)
     };
 
-    // 엑셀 저장 버튼 이벤트 핸들러
-    const handleExcelDownload = () => {
-        console.log('개인정보파기이력 엑셀 다운로드 실행');
-    };
+    const fetchData = useCallback(async(searchParams:PrivacyReportForm)=>{
+       try{
+           const result = await getPrivacyReportListApi(searchParams);
+           setPrivacyGridData(result);
+
+       }catch (error){
+           console.error(error);
+       }
+    },[])
 
     return (
         <div className="wrap">
@@ -64,22 +124,27 @@ export default function PersonalPage() {
                                     value={selectedYear}
                                     onChange={(e) => setSelectedYear(e.target.value)}
                                 >
-                                    <option value="2026">2026</option>
-                                    <option value="2025">2025</option>
-                                    <option value="2024">2024</option>
+                                    {yearList.map((year) => (
+                                        <option key={year} value={year.toString()}>
+                                            {year}년
+                                        </option>
+                                    ))}
                                 </select>
                             </dd>
                         </dl>
                         <button className="btnSearch" onClick={handleSearch}>검색</button>
                     </div>
-
-                    <button className="btnExcel" onClick={handleExcelDownload}>엑셀저장</button>
+                    <ExcelDownload></ExcelDownload>
                 </div>
 
                 {/* 데이터 결과 영역 */}
                 <div className="infoContent">
                     <div className="gridbox">
-                        <div>그리드(그리드내부스크롤, 창 사이즈에 따라 실시간으로 사이즈 변하게)</div>
+                        <RaontecTanstackGrid
+                            ref={reportGridRef}
+                            data={reportGridData}
+                            columns={reportGridColumns}
+                        />
                     </div>
                 </div>
             </div>

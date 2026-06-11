@@ -25,3 +25,12 @@ export interface AdminReportResponse {
     dclDt : string;
 }
 
+export interface PrivacyReportForm{
+    targetYear : string;
+}
+
+export interface PrivacyReportResponse {
+    delLogId: string;
+    delNocs: number;
+    delDt: string;
+}

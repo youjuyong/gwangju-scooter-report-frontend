@@ -32,7 +32,6 @@ export default function ReportPage() {
     //그리드
     const [reportGridData, setNoticeGridData] = useState<AdminReportResponse[]>([]);
     const reportGridRef = useRef<RaontecGridHandle>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [selectedReportId, setSelectedReportId] = useState<string >('');
     const [selectedReport, setSelectedReport] = useState<AdminReportResponse | null>(null); // 단일 행 클릭 데이터 State
@@ -164,13 +163,11 @@ export default function ReportPage() {
         fetchData(requestData);
     };
 
-
     const onClickReportRow = (rowData: any) => {
         if (rowData.rowKey && selectedReport?.bzentyId === rowData.bzentyId) {
-      //      setSelectedNotice(null);
+            setSelectedReport(null);
             return;
         }
-        console.log(rowData);
             setSelectedReportId(rowData.bzentyId);
             setSelectedReport(rowData);
             setIsDetailOpen(true);
