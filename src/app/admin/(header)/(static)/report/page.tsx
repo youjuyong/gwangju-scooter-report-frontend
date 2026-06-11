@@ -141,7 +141,7 @@ export default function ReportPage() {
             enableColumnFilter: false
         },
         {
-            header: '수거자',
+            header: '처리자명',
             accessorKey: 'prcrId',
         },
         {
