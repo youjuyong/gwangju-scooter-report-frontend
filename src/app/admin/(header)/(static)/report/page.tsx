@@ -1,14 +1,15 @@
 "use client";
 
-import React, {useEffect, useMemo, useState, useCallback, useRef} from 'react';
+import React, {useEffect, useMemo, useState, useCallback, useRef, useContext} from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { RaontecGridHandle, RaontecTanstackGrid, CustomColumnDef } from "@rxjacx/raontec-grid";
 import {AdminReportForm, AdminReportResponse} from "@/types/adminReport";
 import api from "@/services/api";
 import {getReportListApi} from "@/services/report/adminReportApi";
-import NoticeDetailPopup from "@/components/admin/popup/NoticeDetailPopup";
 import ReportDetailPopup from "@/components/admin/popup/ReportDetailPopup";
+import ExcelDownload from "@/components/admin/ExcelDownload";
+import {ExcelContext} from "@/components/admin/ExcelContext";
 
 interface PmCompany {
     bzentyId: string;
@@ -35,6 +36,9 @@ export default function ReportPage() {
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [selectedReportId, setSelectedReportId] = useState<string >('');
     const [selectedReport, setSelectedReport] = useState<AdminReportResponse | null>(null); // 단일 행 클릭 데이터 State
+
+    //엑셀
+    const {setGrid, setFileName}: any = useContext(ExcelContext);
 
     // 2. 왼쪽 서브 내비게이션 메뉴 데이터 정의
     const subNavItems = [
@@ -118,6 +122,7 @@ export default function ReportPage() {
         {
             header: '위반유형',
             accessorKey: 'vltnTypeNm',
+            meta: { filterType: "check" }
         },
         {
             header: '신고자ID(*마스킹)',
@@ -161,21 +166,14 @@ export default function ReportPage() {
             setSelectedReportId(rowData.bzentyId);
             setSelectedReport(rowData);
             setIsDetailOpen(true);
-    //    setSelectedNotice(rowData);
         console.log("선택된 행 데이터 피드백:", rowData);
     };
 
-    // const onDoubleClickNoticeRow = (rowData: any) => {
-    //     console.log("sfsfsdfs");
-    //     // 💡 rowData가 존재하는지 확인 후 안전하게 ntcId를 보관합니다.
-    //     if (!rowData) return;
-    //
-    //     console.log("더블클릭된 행 전체 데이터:", rowData);
-    //
-    //     setSelectedReportId(rowData.bzentyId);
-    //     console.log(selectedReportId)
-    //     setIsDetailOpen(true);
-    // };
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
 
     return (
         <div className="wrap report_wrap">
@@ -265,12 +263,12 @@ export default function ReportPage() {
                                     placeholder="검색어 입력"
                                     value={keyword}
                                     onChange={(e) => setKeyword(e.target.value)}
+                                    onKeyDown={handleKeyDown}
                                 />
                             </dd>
                         </dl>
                         <button className="btnSearch" onClick={handleSearch}>검색</button>
                     </div>
-
                     <button className="btnExcel" onClick={handleExcelDownload}>엑셀저장</button>
                 </div>
 

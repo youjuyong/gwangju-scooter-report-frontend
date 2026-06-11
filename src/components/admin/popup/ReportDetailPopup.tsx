@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {getReportDetail} from "@/services/report/reportApi";
+import { useDrag } from "@/hooks/userDrag";
 
 interface ReportDetailModalProps {
     isOpen: boolean;
@@ -13,7 +14,7 @@ interface ReportDetailModalProps {
 
 export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefreshList,data }: ReportDetailModalProps){
     const [report, setReport] = useState<any>(null);
-
+    const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
 
     useEffect(() => {
         if (!data || !data.dclrId) return;
@@ -61,44 +62,55 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
     return(
     <div className="popupWrap">
         <div className="popupInner">
-            <div className="popup popup_kick">
-                <h3>신고정보</h3>
-                <button className="popupClose"  onClick={onClose}>닫기</button>
+            <div
+                className="popup popup_kick"
+                style={{  // 팝업 드래그
+                    transform: `translate(${position.x}px, ${position.y}px)`,
+                    transition: isDragging ? 'none' : 'transform 0.1s ease'
+                }}
+            >
+                <h3   // 팝업 드래그
+                    onMouseDown={handleMouseDown}
+                    style={{cursor: 'move', userSelect: 'none'}}
+                >
+                    신고정보
+                </h3>
+                <button className="popupClose" onClick={onClose}>닫기</button>
                 <div className="popupconten">
                     <p className={`state ${statusClass}`}>
-                        {data.prcsStpNm}  {/*미승인 st1 , 미배정: st2, 처리중: st3 , 처리완료: st4 , 견인미승인:st5 , 견인요청: st6 , 견인처리중: st7 , 견인완료: st8 */}
+                        {data.prcsStpNm} {/*미승인 st1 , 미배정: st2, 처리중: st3 , 처리완료: st4 , 견인미승인:st5 , 견인요청: st6 , 견인처리중: st7 , 견인완료: st8 */}
                     </p>
                     <div className="address">경기도 광주시 탄벌동 28-4</div>
                     <table>
                         <tbody>
-                            <tr>
-                                <th>신고일시</th>
-                                <td>{data.dclDt}</td>
-                            </tr>
-                            <tr>
-                                <th>신고번호</th>
-                                <td>{data.dclrId}</td>
-                            </tr>
-                            <tr>
-                                <th>신고자ID</th>
-                                <td>{data.dclrUserId}</td>
-                            </tr>
-                            <tr>
-                                <th>위반유형</th>
-                                <td>{data.vltnTypeNm}</td>
-                            </tr>
-                            <tr>
-                                <th>상세설명</th>
-                                <td>{data.dclrCn || "상세 설명이 없습니다."}</td>
-                            </tr>
-                            <tr>
-                                <th>PM사</th>
-                                <td>{data.bzentyNm}</td>
-                            </tr>
-                            <tr>
-                                <th>킥보드ID</th>
-                                <td>{data.qrVal}</td>
-                            </tr>
+                        <tr>
+                            <th>신고일시</th>
+                            <td>{data.dclDt}</td>
+                        </tr>
+                        <tr>
+                            <th>신고번호</th>
+                            <td>{data.dclrId}</td>
+                        </tr>
+                        <tr>
+                            <th>신고자ID</th>
+                            <td>{data.dclrUserId}</td>
+                        </tr>
+                        <tr>
+                            <th>위반유형</th>
+                            <td>{data.vltnTypeNm}</td>
+                        </tr>
+                        <tr>
+                            <th>상세설명</th>
+                            <td>{data.dclrCn || "상세 설명이 없습니다."}</td>
+                        </tr>
+                        <tr>
+                            <th>PM사</th>
+                            <td>{data.bzentyNm}</td>
+                        </tr>
+                        <tr>
+                            <th>킥보드ID</th>
+                            <td>{data.qrVal}</td>
+                        </tr>
                         </tbody>
                     </table>
 
@@ -115,24 +127,24 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
                     <div className="table2">
                         <table>
                             <tbody>
-                                {data?.prcrId && (
-                                    <tr>
-                                        <th>처리자ID</th>
-                                        <td>{data.prcrId}</td>
-                                    </tr>
-                                )}
-                                {data?.prcsDt && (
-                                    <tr>
-                                        <th>처리일시</th>
-                                        <td className="blue">{data.prcsDt}</td>
-                                    </tr>
-                                )}
-                                {data?.prcsRsn && (
-                                    <tr>
-                                        <th>처리사유</th>
-                                        <td>{data.prcsRsn}</td>
-                                    </tr>
-                                )}
+                            {data?.prcrId && (
+                                <tr>
+                                    <th>처리자ID</th>
+                                    <td>{data.prcrId}</td>
+                                </tr>
+                            )}
+                            {data?.prcsDt && (
+                                <tr>
+                                    <th>처리일시</th>
+                                    <td className="blue">{data.prcsDt}</td>
+                                </tr>
+                            )}
+                            {data?.prcsRsn && (
+                                <tr>
+                                    <th>처리사유</th>
+                                    <td>{data.prcsRsn}</td>
+                                </tr>
+                            )}
                             </tbody>
                         </table>
                     </div>
