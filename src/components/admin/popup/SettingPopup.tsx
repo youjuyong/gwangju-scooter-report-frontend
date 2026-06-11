@@ -30,6 +30,25 @@ export default function SettingPopup({
     const [startTime, setStartTime] = useState("07:00");
     const [endTime, setEndTime] = useState("17:00");
     const [isUsed, setIsUsed] = useState("사용");
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // 팝업이 열려있고 ESC 키(Escape)를 누른 경우
+            if (isOpen && e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        // 팝업이 열려있을 때만 전역 윈도우에 이벤트 등록
+        if (isOpen) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        // 컴포넌트가 닫히거나 언마운트될 때 메모리 누수 방지를 위해 이벤트 제거
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose]); // 의존성 배열에 isOpen과 onClose 바인딩
+
 
     // 2. 팝업이 열리거나 initialData가 변경될 때 데이터 동기화
     useEffect(() => {

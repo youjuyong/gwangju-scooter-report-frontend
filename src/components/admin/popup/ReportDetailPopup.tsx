@@ -39,6 +39,24 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
             isMounted = false; // 컴포넌트가 언마운트되거나 data가 바뀌면 이전 요청 차단
         };
     }, [data ,isOpen]);
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // 팝업이 열려있고 ESC 키(Escape)를 누른 경우
+            if (isOpen && e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        // 팝업이 열려있을 때만 전역 윈도우에 이벤트 등록
+        if (isOpen) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        // 컴포넌트가 닫히거나 언마운트될 때 메모리 누수 방지를 위해 이벤트 제거
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose]); // 의존성 배열에 isOpen과 onClose 바인딩
 
     if (!isOpen || !bzentyId) return null;
 
@@ -57,6 +75,7 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
         }
     };
     const statusClass = getStatusStyle(data?.prcsStpCd) || "si1";
+
 
 
     return(
