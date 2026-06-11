@@ -86,14 +86,18 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
         }
     };
 
-    // 메뉴 데이터 정의
+    //  디렉토리 구조 기반 대메뉴 및 기본 이동(이정표) 경로 정의
     const menuItems = [
         { id: 'dashboard', classNum: 'menu1', name: '대시보드', path: `/${userRole}` },
-        { id: 'report', classNum: 'menu2', name: '이력/통계', path: `/${userRole}/report` },
-        { id: 'notice', classNum: 'menu3', name: '정책관리', path: `/${userRole}/notice` },
-        { id: 'pm', classNum: 'menu4', name: '시스템관리', path: `/${userRole}/pm` },
-        { id: 'member', classNum: 'menu5', name: '사용자관리', path: `/${userRole}/member` },
+        { id: 'static', classNum: 'menu2', name: '이력/통계', path: `/${userRole}/report` }, // 하위 폴더 personal 구조 반영
+        { id: 'policy', classNum: 'menu3', name: '정책관리', path: `/${userRole}/notice` },   // 하위 폴더 notice 구조 반영
+        { id: 'system', classNum: 'menu4', name: '시스템관리', path: `/${userRole}/pm` },      // 하위 폴더 pm 구조 반영
+        { id: 'user', classNum: 'menu5', name: '사용자관리', path: `/${userRole}/member` },   // 하위 폴더 manager 구조 반영
     ];
+
+    //  URL 경로에서 핵심 카테고리 세그먼트 추출
+    // 예: "/admin/personal" -> "personal", "/admin/statistic_menu01" -> "statistic_menu01"
+    const currentCategory = pathname.split('/')[2] || 'dashboard';
 
     return (
         <header>
@@ -101,10 +105,32 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
             <nav>
                 <ul>
                     {menuItems.map((item) => {
-                        // 현재 페이지 주소가 메뉴 경로로 시작하면 'click' 클래스 추가
-                        const isActive = item.id === 'dashboard'
-                            ? pathname === item.path
-                            : pathname.startsWith(item.path);
+                        let isActive = false;
+
+                        // 💡 3. 실제 폴더 구조 트리와 주소 세그먼트 그룹 매핑 매칭
+                        if (item.id === 'dashboard') {
+                            isActive = currentCategory === 'dashboard' || pathname === `/${userRole}`;
+                        }
+                        else if (item.id === 'static') {
+                            // (static) 그룹에 포함된 실제 하위 라우트 폴더명들 전부 매핑
+                            isActive = [
+                                'personal', 'report',
+                                'statistic01', 'statistic02', 'statistic03',
+                                'statistic_menu01', 'statistic_menu02', 'statistic_menu03'
+                            ].includes(currentCategory);
+                        }
+                        else if (item.id === 'policy') {
+                            // (policy) 그룹 하위 폴더명 매핑
+                            isActive = ['notice', 'policy'].includes(currentCategory);
+                        }
+                        else if (item.id === 'system') {
+                            // (system) 그룹 하위 폴더명 매핑
+                            isActive = ['pm', 'point', 'seting'].includes(currentCategory);
+                        }
+                        else if (item.id === 'user') {
+                            // (user) 그룹 하위 폴더명 매핑
+                            isActive = ['manager', 'member'].includes(currentCategory);
+                        }
 
                         return (
                             <li
