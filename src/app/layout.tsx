@@ -7,6 +7,7 @@ import React from "react";
 import Script from "next/script";
 import {PopupProvider} from "@/components/popup/PopupProvider";
 import { headers } from "next/headers";
+import Providers from "@/components/providers";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -84,11 +85,13 @@ export default async function RootLayout({
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased ${bodyClass}`.trim()}>
         <BFCacheHandler/>
         <Toaster/>
-        <FocusVisibleProvider>
-            <PopupProvider>
-                {children}
-            </PopupProvider>
-        </FocusVisibleProvider>
+        <Providers>
+            <FocusVisibleProvider>
+                <PopupProvider>
+                    {children}
+                </PopupProvider>
+            </FocusVisibleProvider>
+        </Providers>
         </body>
         </html>
     );

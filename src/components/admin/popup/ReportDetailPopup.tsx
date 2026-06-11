@@ -10,6 +10,7 @@ interface ReportDetailModalProps {
     onClose: () => void;
     onRefreshList: () => void;
     data:any | null;
+    isDashBoard?: boolean;
 }
 
 export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefreshList,data }: ReportDetailModalProps){
@@ -99,7 +100,7 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
                     <p className={`state ${statusClass}`}>
                         {data.prcsStpNm} {/*미승인 st1 , 미배정: st2, 처리중: st3 , 처리완료: st4 , 견인미승인:st5 , 견인요청: st6 , 견인처리중: st7 , 견인완료: st8 */}
                     </p>
-                    <div className="address">경기도 광주시 탄벌동 28-4</div>
+                    <div className="address">{data.dclrAddrTxt}</div>
                     <table>
                         <tbody>
                         <tr>

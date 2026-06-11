@@ -10,8 +10,6 @@ export const getCodeType = async (code: string) => {
 };
 
 
-
-
 export const getOutlineType = async () => {
     if (typeof window !== 'undefined') {
         const cachedData = localStorage.getItem('outline_type_cache');
@@ -37,8 +35,8 @@ export const getOutlineType = async () => {
 
 export const registerGuestMenuLog = async (menuId: string) => {
     const response = await api.post(`system/menu/guest-log`, null, {
-        params: { 
-            menuId: menuId 
+        params: {
+            menuId: menuId
         }
     });
 
@@ -47,10 +45,16 @@ export const registerGuestMenuLog = async (menuId: string) => {
 
 export const registerMenuLog = async (menuId: string) => {
     const response = await api.post(`system/menu/log`, null, {
-        params: { 
-            menuId: menuId 
+        params: {
+            menuId: menuId
         }
     });
 
     return response.data;
 };
+
+export const getDashboardList = async () => {
+    const response = await api.get(`/dclr/dashboard/list`);
+
+    return response.data;
+}
