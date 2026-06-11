@@ -75,6 +75,13 @@ export default function ReportPage() {
         fetchPmCompanies();
     }, []);
 
+    //엑셀 다운로드
+    useEffect(() => {
+        if (reportGridRef.current) {
+            setGrid(reportGridRef.current);
+            setFileName("신고처리이력");
+        }
+    }, [reportGridData, setGrid, setFileName]);
     // 이력 데이터 조회
     const fetchData = useCallback(async (searchParams: AdminReportForm) => {
         try {
@@ -269,7 +276,7 @@ export default function ReportPage() {
                         </dl>
                         <button className="btnSearch" onClick={handleSearch}>검색</button>
                     </div>
-                    <button className="btnExcel" onClick={handleExcelDownload}>엑셀저장</button>
+                    <ExcelDownload></ExcelDownload>
                 </div>
 
                 {/* 데이터 결과 영역 */}
