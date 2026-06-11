@@ -34,6 +34,21 @@ export const metadata: Metadata = {
     formatDetection: {
         telephone: false, // 전화번호 자동 링크 방지 (필요 시)
     },
+    openGraph: {
+        title: "경기도광주시 공유 킥보드 신고 시스템",
+        description: "경기도 광주시에서 불법 주차된 공유 킥보드를 신속하게 신고하세요.",
+        siteName: "경기도광주시 공유 킥보드 신고 시스템",
+        images: [
+            {
+                url: "/og-image.png", 
+                width: 1200,
+                height: 630,
+                alt: "경기도광주시 캐릭터",
+            },
+        ],
+        locale: "ko_KR",
+        type: "website",
+    },
 };
 
 export default async function RootLayout({
