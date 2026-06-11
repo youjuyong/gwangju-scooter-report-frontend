@@ -49,6 +49,10 @@ export default function ReportPage() {
     ];
 
     useEffect(() => {
+        handleSearch(); // 화면이 열리자마자 검색
+    }, []);
+
+    useEffect(() => {
         //pm사 조회
         const fetchPmCompanies = async () => {
             try {
@@ -74,6 +78,7 @@ export default function ReportPage() {
         fetchDestList();
         fetchPmCompanies();
     }, []);
+
 
     //엑셀 다운로드
     useEffect(() => {
@@ -159,10 +164,6 @@ export default function ReportPage() {
         fetchData(requestData);
     };
 
-    // 엑셀 저장 버튼 이벤트 핸들러
-    const handleExcelDownload = () => {
-        console.log('엑셀 다운로드 실행');
-    };
 
     const onClickReportRow = (rowData: any) => {
         if (rowData.rowKey && selectedReport?.bzentyId === rowData.bzentyId) {
