@@ -76,7 +76,7 @@ export default async function NoticeBoardDetail({
                                     <th scope="row">첨부파일</th>
                                     <td className="borderBottom">
                                         <a 
-                                            href={`${baseUrl}/api/system/files/download/${notice.files[0].fileId}`} 
+                                            href={`/api/system/files/download/${notice.files[0].fileId}`} 
                                             download 
                                             aria-label={`${notice.files[0].orgnlFileNm} 다운로드`}
                                         >
