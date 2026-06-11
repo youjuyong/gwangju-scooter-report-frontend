@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { NoticeResponse } from '@/types/notice';
 import {deleteNoticeApi, getMainNoticeApi, updateNoticeApi} from "@/services/notice/noticeApi";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import {useDrag} from "@/hooks/userDrag";
 
 interface NoticeDetailModalProps {
     isOpen: boolean;
@@ -27,6 +28,7 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
 
     const [existingFiles, setExistingFiles] = useState<any[]>([]); // 서버에서 온 파일들
     const [newFiles, setNewFiles] = useState<File[]>([]);           // 새로 업로드할 파일들
+    const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
 
     useEffect(() => {
         const fetchDetail = async () => {
@@ -203,8 +205,18 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
     return (
         <div className="popupWrap" style={{ display: 'block' }}>
             <div className="popupInner">
-                <div className="popup popup_notice">
-                    <h3>공지사항 {isReadOnly ? "상세보기" : "수정하기"}</h3>
+                <div className="popup popup_notice"
+                        style={{  // 팝업 드래그
+                            transform: `translate(${position.x}px, ${position.y}px)`,
+                            transition: isDragging ? 'none' : 'transform 0.1s ease'
+                        }}
+                    >
+                        <h3   // 팝업 드래그
+                            onMouseDown={handleMouseDown}
+                            style={{cursor: 'move', userSelect: 'none'}}
+                        >
+                            신고정보
+                        </h3>
                     <button className="popupClose" onClick={onClose}>닫기</button>
                     <div className="popupconten">
                         <table>

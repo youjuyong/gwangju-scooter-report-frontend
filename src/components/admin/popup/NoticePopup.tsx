@@ -2,6 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import {NoticeAddRequestForm} from "@/types/notice";
+import {useDrag} from "@/hooks/userDrag";
 
 interface NoticeModalProps {
     isOpen: boolean;
@@ -29,6 +30,7 @@ export default function NoticeModal({ isOpen, onClose, onSave }: NoticeModalProp
     const [endDate, setEndDate] = useState('');
     const [content, setContent] = useState('');
     const [file, setFile] = useState<File | null>(null);
+    const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
 
     if (!isOpen) return null;
     // 체크박스 핸들러
@@ -104,121 +106,132 @@ export default function NoticeModal({ isOpen, onClose, onSave }: NoticeModalProp
     };
 
     return (
-        <div className="popupWrap" style={{ display: 'block' }}> {/* Next.js 연동을 위해 display 블록 처리 */}
+        <div className="popupWrap" style={{display: 'block'}}> {/* Next.js 연동을 위해 display 블록 처리 */}
             <div className="popupInner">
-                <div className="popup popup_notice">
-                    <h3>공지사항 등록</h3>
-                    <button className="popupClose" onClick={onClose}>닫기</button>
-                    <div className="popupconten">
-                        <table>
-                            <tbody>
-                            <tr>
-                                <th>제목</th>
-                                <td className="notititle">
-                                    <input
-                                        type="text"
-                                        placeholder="제목을 입력하세요"
-                                        value={title}
-                                        onChange={(e) => setTitle(e.target.value)}
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>표출범위</th>
-                                <td>
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            checked={targets.user}
-                                            onChange={() => handleTargetChange('user')}
-                                        /> 사용자
-                                    </label>
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            checked={targets.pm}
-                                            onChange={() => handleTargetChange('pm')}
-                                        /> PM사
-                                    </label>
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            checked={targets.tow}
-                                            onChange={() => handleTargetChange('tow')}
-                                        /> 견인업체
-                                    </label>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>상단고정</th>
-                                <td>
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            checked={isFixed}
-                                            onChange={(e) => setIsFixed(e.target.checked)}
-                                        /> 고정
-                                    </label>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>첨부파일</th>
-                                <td>
-                                    <input
-                                        type="file"
-                                        onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>표출여부</th>
-                                <td>
-                                    <select value={displayYn} onChange={(e) => setDisplayYn(e.target.value)}>
-                                        <option value="Y">표출함</option>
-                                        <option value="N">표출안함</option>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>표출시작일</th>
-                                <td>
-                                    <input
-                                        type="date"
-                                        value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>표출종료일</th>
-                                <td>
-                                    <input
-                                        type="date"
-                                        value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="noticon" colSpan={2}>
+                <div className="popup popup_notice"
+                style={{  // 팝업 드래그
+                transform: `translate(${position.x}px, ${position.y}px)`,
+                transition: isDragging ? 'none' : 'transform 0.1s ease'
+                }}
+                >
+                <h3   // 팝업 드래그
+                onMouseDown={handleMouseDown}
+                style={{cursor: 'move', userSelect: 'none'}}
+                >
+                 신고정보
+            </h3>
+            <button className="popupClose" onClick={onClose}>닫기</button>
+            <div className="popupconten">
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>제목</th>
+                        <td className="notititle">
+                            <input
+                                type="text"
+                                placeholder="제목을 입력하세요"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>표출범위</th>
+                        <td>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={targets.user}
+                                    onChange={() => handleTargetChange('user')}
+                                /> 사용자
+                            </label>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={targets.pm}
+                                    onChange={() => handleTargetChange('pm')}
+                                /> PM사
+                            </label>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={targets.tow}
+                                    onChange={() => handleTargetChange('tow')}
+                                /> 견인업체
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>상단고정</th>
+                        <td>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={isFixed}
+                                    onChange={(e) => setIsFixed(e.target.checked)}
+                                /> 고정
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>첨부파일</th>
+                        <td>
+                            <input
+                                type="file"
+                                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>표출여부</th>
+                        <td>
+                            <select value={displayYn} onChange={(e) => setDisplayYn(e.target.value)}>
+                                <option value="Y">표출함</option>
+                                <option value="N">표출안함</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>표출시작일</th>
+                        <td>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>표출종료일</th>
+                        <td>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className="noticon" colSpan={2}>
                                         <textarea
                                             placeholder="내용을 입력하세요"
                                             value={content}
                                             onChange={(e) => setContent(e.target.value)}
                                         ></textarea>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
 
-                        {/* 버튼 그룹 */}
-                        <div className="btnSet">
-                            <button onClick={onClose}>취소</button>
-                            <button className="red" onClick={handleConfirm}>저장</button>
-                        </div>
-                    </div>
+                {/* 버튼 그룹 */}
+                <div className="btnSet">
+                    <button onClick={onClose}>취소</button>
+                    <button className="red" onClick={handleConfirm}>저장</button>
                 </div>
             </div>
         </div>
-    );
+</div>
+</div>
+)
+    ;
 }

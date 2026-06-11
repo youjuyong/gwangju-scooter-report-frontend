@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import {useDrag} from "@/hooks/userDrag";
 
 // 팝업 데이터 스펙 인터페이스 정의
 export interface SettingData {
@@ -30,6 +31,8 @@ export default function SettingPopup({
     const [startTime, setStartTime] = useState("07:00");
     const [endTime, setEndTime] = useState("17:00");
     const [isUsed, setIsUsed] = useState("사용");
+    const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // 팝업이 열려있고 ESC 키(Escape)를 누른 경우
@@ -81,57 +84,69 @@ export default function SettingPopup({
     return (
         <div className="popupWrap">
             <div className="popupInner">
-                <div className="popup popup_seting">
-                    <h3>{title || "신고 가능 시간"}</h3>
-                    <button className="popupClose" onClick={onClose}>닫기</button>
+                <div className="popup popup_seting"
+                style={{  // 팝업 드래그
+                transform: `translate(${position.x}px, ${position.y}px)`,
+                transition: isDragging ? 'none' : 'transform 0.1s ease'
+                }}
+                >
+                <h3   // 팝업 드래그
+                onMouseDown={handleMouseDown}
+                style={{cursor: 'move', userSelect: 'none'}}
+                >
+                    {title || "신고 가능 시간"}
 
-                    <div className="popupconten">
-                        <table>
-                            <tbody>
-                            <tr>
-                                <th>시작시간</th>
-                                <td>
-                                    <input
-                                        type="time"
-                                        value={startTime}
-                                        onChange={(e) => setStartTime(e.target.value)}
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>종료시간</th>
-                                <td>
-                                    <input
-                                        type="time"
-                                        value={endTime}
-                                        onChange={(e) => setEndTime(e.target.value)}
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>사용여부</th>
-                                <td>
-                                    <select
-                                        value={isUsed}
-                                        onChange={(e) => setIsUsed(e.target.value)}
-                                    >
-                                        <option value="사용">사용</option>
-                                        <option value="사용안함">사용안함</option>
-                                    </select>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+            </h3>
+            <button className="popupClose" onClick={onClose}>닫기</button>
 
-                        {/* 하단 제어 버튼 블록 */}
-                        <div className="btnSet">
-                            <button onClick={onClose}>취소</button>
-                            <button className="red" onClick={handleSave}>저장</button>
-                        </div>
-                    </div>
+            <div className="popupconten">
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>시작시간</th>
+                        <td>
+                            <input
+                                type="time"
+                                value={startTime}
+                                onChange={(e) => setStartTime(e.target.value)}
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>종료시간</th>
+                        <td>
+                            <input
+                                type="time"
+                                value={endTime}
+                                onChange={(e) => setEndTime(e.target.value)}
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>사용여부</th>
+                        <td>
+                            <select
+                                value={isUsed}
+                                onChange={(e) => setIsUsed(e.target.value)}
+                            >
+                                <option value="사용">사용</option>
+                                <option value="사용안함">사용안함</option>
+                            </select>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
 
+                {/* 하단 제어 버튼 블록 */}
+                <div className="btnSet">
+                    <button onClick={onClose}>취소</button>
+                    <button className="red" onClick={handleSave}>저장</button>
                 </div>
             </div>
+
         </div>
-    );
+</div>
+</div>
+)
+    ;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import {useDrag} from "@/hooks/userDrag";
 
 interface PmCompanyPopupProps {
     isOpen: boolean;
@@ -25,6 +26,7 @@ export default function PmPopup({ isOpen, onClose, initialData, onSave }: PmComp
     const [qrcdIdExtrRule, setQrcdIdExtrRule] = useState('');
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
 
     useEffect(() => {
         if (isOpen) {
@@ -120,69 +122,88 @@ export default function PmPopup({ isOpen, onClose, initialData, onSave }: PmComp
 
 
     return (
-        <div className="popupWrap" style={{ display: 'block' }}>
+        <div className="popupWrap" style={{display: 'block'}}>
             <div className="popupInner">
-                <div className="popup popup_pm">
-                    {/* initialData 유무에 따라 타이틀 텍스트 동적 분기 */}
-                    <h3>PM업체 {initialData ? "수정하기" : "등록하기"}</h3>
-                    <button className="popupClose" onClick={onClose} disabled={isLoading}>닫기</button>
-                    <div className="popupconten">
-                        <table>
-                            <tbody>
-                            <tr>
-                                <th>로고</th>
-                                <td>
-                                    <div className="logoimg">
-                                        <div className="imgbox" style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            {previewUrl ? (
-                                                <img src={previewUrl} alt="로고 미리보기" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                                            ) : (
-                                                "이미지 들어갈 곳"
-                                            )}
-                                        </div>
-                                        <div className="imginput">
-                                            <p>최적사이즈: 50px X 50px</p>
-                                            <input type="file" accept="image/*" onChange={handleFileChange} disabled={isLoading} />
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>업체명</th>
-                                <td>
-                                    <input type="text" placeholder="업체명을 입력하세요" value={companyName}
-                                           onChange={(e) => setCompanyName(e.target.value)}
-                                           disabled={isLoading} />
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>QR코드 URL 포맷</th>
-                                <td>
-                                    <input type="text" placeholder="예: https://example.com/qr?id={id}"
-                                           value={qrcdUrlForm} onChange={(e) => setQrcdUrlForm(e.target.value)}
-                                           disabled={isLoading} />
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>QR ID 추출 규칙</th>
-                                <td>
-                                    <input type="text" placeholder="추출 규칙 기술" value={qrcdIdExtrRule}
-                                           onChange={(e) => setQrcdIdExtrRule(e.target.value)}
-                                           disabled={isLoading} />
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                <div className="popup popup_pm"
 
-                        <div className="btnSet">
-                            <button onClick={onClose} disabled={isLoading}>취소</button>
-                            <button className="red" onClick={handleConfirmSave} disabled={isLoading}>
-                                {isLoading ? "저장 중..." : "저장"}
-                            </button>
-                        </div>
-                    </div>
+                style={{  // 팝업 드래그
+                transform: `translate(${position.x}px, ${position.y}px)`,
+                transition: isDragging ? 'none' : 'transform 0.1s ease'
+                }}
+                >
+                <h3   // 팝업 드래그
+                onMouseDown={handleMouseDown}
+                style={{cursor: 'move', userSelect: 'none'}}
+                >
+                    PM업체 {initialData ? "수정하기" : "등록하기"}
+            {/* initialData 유무에 따라 타이틀 텍스트 동적 분기 */}
+           </h3>
+            <button className="popupClose" onClick={onClose} disabled={isLoading}>닫기</button>
+            <div className="popupconten">
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>로고</th>
+                        <td>
+                            <div className="logoimg">
+                                <div className="imgbox" style={{
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    {previewUrl ? (
+                                        <img src={previewUrl} alt="로고 미리보기"
+                                             style={{width: '100%', height: '100%', objectFit: 'contain'}}/>
+                                    ) : (
+                                        "이미지 들어갈 곳"
+                                    )}
+                                </div>
+                                <div className="imginput">
+                                    <p>최적사이즈: 50px X 50px</p>
+                                    <input type="file" accept="image/*" onChange={handleFileChange}
+                                           disabled={isLoading}/>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>업체명</th>
+                        <td>
+                            <input type="text" placeholder="업체명을 입력하세요" value={companyName}
+                                   onChange={(e) => setCompanyName(e.target.value)}
+                                   disabled={isLoading}/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>QR코드 URL 포맷</th>
+                        <td>
+                            <input type="text" placeholder="예: https://example.com/qr?id={id}"
+                                   value={qrcdUrlForm} onChange={(e) => setQrcdUrlForm(e.target.value)}
+                                   disabled={isLoading}/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>QR ID 추출 규칙</th>
+                        <td>
+                            <input type="text" placeholder="추출 규칙 기술" value={qrcdIdExtrRule}
+                                   onChange={(e) => setQrcdIdExtrRule(e.target.value)}
+                                   disabled={isLoading}/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div className="btnSet">
+                    <button onClick={onClose} disabled={isLoading}>취소</button>
+                    <button className="red" onClick={handleConfirmSave} disabled={isLoading}>
+                        {isLoading ? "저장 중..." : "저장"}
+                    </button>
                 </div>
             </div>
         </div>
-    );
+</div>
+</div>
+)
+    ;
 }
