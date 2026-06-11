@@ -28,8 +28,7 @@ export interface pmResponse {
 export default function PmPage() {
     const pathname = usePathname();
     const userRole = "admin";
-    //엑셀 다운로드
-    const {setGrid, setFileName}: any = useContext(ExcelContext);
+
     // 1. 상태 관리
     const [gridData, setGridData] = useState<pmResponse[]>([]);
     const [checkedRows, setCheckedRows] = useState<pmResponse[]>([]);
@@ -148,13 +147,7 @@ export default function PmPage() {
 
     }, [fetchPmCompanies]);
 
-    //엑셀 다운로드
-    useEffect(() => {
-        if (pmGridRef.current) {
-            setGrid(pmGridRef.current); // 라온텍 그리드 인스턴스 주입
-            setFileName("PM업체_목록"); // 저장될 엑셀 파일명 지정
-        }
-    }, [gridData, setGrid, setFileName]); // 데이터 갱신 시 자동 동기화
+
 
 
     const handleCreate = () => {
@@ -249,8 +242,7 @@ export default function PmPage() {
                         <button onClick={handleCreate}>+ 등록</button>
                         <button onClick={handleUpdate}>수정</button>
                         <button onClick={handleDelete}>삭제</button>
-                        {/*//엑셀 다운로드*/}
-                        <ExcelDownload></ExcelDownload>
+
                     </div>
                 </div>
 

@@ -28,17 +28,15 @@ const SaveAndReset: React.FC<SaveAndResetProps> = ({showDownload=true,}) => {
     }
 
     return (
-        <div className="btnsaveset">
-            <ul>
-                {showDownload && (
-                    <li>
-                        <button disabled={isDownload} onClick={onClickExcelDown} className="btnfile">
-                            {isDownload ? "저장 중..." : "파일저장"}
+
+
+
+                        <button disabled={isDownload} onClick={onClickExcelDown} className="btnExcel">
+                            {isDownload ? "저장 중..." : "엑셀저장"}
                         </button>
-                    </li>)
-                }
-            </ul>
-        </div>
+
+
+
     )
 };
 

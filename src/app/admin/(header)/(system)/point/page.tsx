@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import ExcelDownload from "@/components/admin/ExcelDownload";
+import { ExcelContext } from '@/components/admin/ExcelContext';
 
 export default function PointPage() {
     const pathname = usePathname();
@@ -22,6 +24,16 @@ export default function PointPage() {
     const [pmCompany, setPmCompany] = useState('지쿠');
     const [pointName, setPointName] = useState('');
     const [coordinates, setCoordinates] = useState('37.555277 , 127.045416');
+    //엑셀 다운로드
+    const {setGrid, setFileName}: any = useContext(ExcelContext);
+
+    // //엑셀 다운로드
+    // useEffect(() => {
+    //     if (pmGridRef.current) {
+    //         setGrid(pmGridRef.current);
+    //         setFileName("배치포인트관리");
+    //     }
+    // }, [gridData, setGrid, setFileName]);
 
     // 3. 상단 기능 버튼 이벤트 핸들러
     const handleCreate = () => {
@@ -82,8 +94,8 @@ export default function PointPage() {
                         <button onClick={handleUpdate}>수정</button>
                         <button onClick={handleDelete}>삭제</button>
                     </div>
-
-                    <button className="btnExcel" onClick={handleExcelDownload}>엑셀저장</button>
+                    <ExcelDownload></ExcelDownload>
+                    {/*<button className="btnExcel" onClick={handleExcelDownload}>엑셀저장</button>*/}
                 </div>
 
                 {/* 본문 컨텐츠 영역 (그리드 + 지도) */}
