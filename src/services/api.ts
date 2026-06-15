@@ -1,7 +1,8 @@
 import axios from 'axios';
 import {useAuthStore} from '@/store/authStore';
 import { MemberRole } from '@/store/authStore';
-import {toast} from "react-hot-toast";
+import {deleteCookie} from "cookies-next";
+import { useAlarmStore } from '@/store/alamStore';
 
 // CSRF 및 기본 설정 전역 적용
 axios.defaults.withCredentials = true;
@@ -62,6 +63,28 @@ const handleDuplicateLogin = async (errorResponse: any, state: any, authType: st
     setTimeout(() => { isSessionExpiredAlertShown = false; }, 5000);
 };
 
+
+const clearAuthSession = (authType:any, prefix:any) => {
+    const { clearStore } = useAlarmStore.getState(); 
+    
+    const state = useAuthStore.getState();
+    state.logout(authType);
+
+    deleteCookie(`${authType}AccessToken`);
+
+    delete axios.defaults.headers.common["Authorization"];
+    
+    clearStore(); 
+
+    if (typeof window !== "undefined") {
+        if (prefix) {
+            window.location.href = `${prefix}/login`;
+        } else {
+            window.location.href = "/";
+        }
+    }
+};
+
 // 1. 인증/로그인 전용 인스턴스
 export const authApi = axios.create({
     baseURL: process.env.NEXT_PUBLIC_LOGIN_API_URL,
@@ -87,6 +110,7 @@ const api = axios.create({
 // 1. 요청 인터셉터
 api.interceptors.request.use(
     (config) => {
+        console.log(config);
         const authType = getAuthTypeByPath();
         const token = useAuthStore.getState()[authType].accessToken;
         const csrfToken = typeof document !== 'undefined'
@@ -162,12 +186,8 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const response = await axios.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
-                    {},
-                    {withCredentials: true}
-                );
-
+                const response = await authApi.post("/refresh");
+ 
                 const newAccessToken = response.data.data.accessToken;
 
                 const currentGroup = state[authType];
@@ -185,10 +205,11 @@ api.interceptors.response.use(
                 return api(originalRequest);
             } catch (refreshError) {
                 processQueue(refreshError, null);
-                state.logout(authType);
 
                 if (typeof window !== "undefined") {
-                    // window.location.href = `/${authType}/login`; // 해당 도메인 로그인 페이지로 이동
+                     window.alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
+                    const prefix = authType === "reporter" ? "" : `/${authType}`;
+                    clearAuthSession(authType, prefix); 
                 }
 
                 return Promise.reject(refreshError);
