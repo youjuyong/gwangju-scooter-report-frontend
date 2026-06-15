@@ -2,13 +2,15 @@
 
 import {useAuthStore} from "@/store/authStore";
 import {toast} from "react-hot-toast";
+import api from "@/services/api";
 import {useFcmToken} from "@/hooks/useFcmToken";
 import MainNotice from "@/components/notice/MainNotice";
 import {useRouter} from "next/navigation";
 import {getAlarmListApi} from "@/services/alarm/alarmApi";
 import {useAlarmStore} from "@/store/alamStore";
 import {registerGuestMenuLog} from "@/services/common/commonApi";
-import {useEffect} from "react";
+import {useEffect,useState} from "react";
+import {useAlert} from "@/components/popup/PopupProvider";
 
 
 export default function HomeContents() {
@@ -21,9 +23,16 @@ export default function HomeContents() {
 function HomeSection({accessToken}: { accessToken: string | null }) {
     const {getDeviceInfo} = useFcmToken();
     const router = useRouter();
+    const showAlert = useAlert();
+    const [timeConfig, setTimeConfig] = useState({ bgngHm: "07:00", endHm: "17:00" });
     const setInitialList = useAlarmStore((state) => state.setInitialList);
     const alarmList = useAlarmStore((state) => state.alarmList);
     const alarmLength = alarmList.length;
+
+const formatTime = (timeStr:string) => {
+        if (!timeStr || timeStr.length !== 4) return timeStr;
+        return `${timeStr.slice(0, 2)}:${timeStr.slice(2)}`;
+    };
 
     const oauthHandleLogin = async (provider: string) => {
         const currentOrigin = window.location.origin;
@@ -68,12 +77,46 @@ function HomeSection({accessToken}: { accessToken: string | null }) {
                 console.error("메뉴 이력 적재 실패:", error);
             }
         };
+        const fetchOperationTime = async () => {
+            try {
+                const response = await api.get('/dclr/operation-time');
+                
+                if (response.data && response.data.data) {
+                    const { bgngHm, endHm } = response.data.data;
+                    setTimeConfig({ 
+                        bgngHm: formatTime(bgngHm), 
+                        endHm: formatTime(endHm) 
+                    });
+                }
+            } catch (error) {
+                console.error("신고 운영 시간 조회 실패:", error);
+            }
+        };
+
+        fetchOperationTime();
         recordMenuLog();
     }, []);
 
-    const handleReport = () => {
-        router.push("/report");
-    };
+    const handleReport = async () => {
+        try {
+            const response = await api.get('/dclr/check-availability');
+            router.push("/report");
+            
+        } catch (error:any) {
+            const serverMessage = error.response?.data?.resultMsg 
+                        || error.response?.data?.data?.resultMsg 
+                        || error.response?.data?.error;
+        
+            if (serverMessage) {
+                  await showAlert(serverMessage);
+                    
+            } else {
+                await showAlert("현재는 신고 운영 시간이 아닙니다.");
+            }
+        }
+    }
+
+   
 
     return (
         <>
@@ -86,7 +129,7 @@ function HomeSection({accessToken}: { accessToken: string | null }) {
             </div>
 
             <div className={`main_loginbtnBox ${accessToken ? "login_on" : ""}`}>
-                <p className="guid">신고가능시간 <span>평일 07:00~17:00 (주말 및 공휴일 휴무)</span></p>
+                <p className="guid">신고가능시간 <span>평일 {timeConfig.bgngHm}~{timeConfig.endHm} (주말 및 공휴일 휴무)</span></p>
 
                 {!accessToken ? (
                     <div className="main_loginset">
