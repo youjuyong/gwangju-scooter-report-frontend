@@ -206,7 +206,7 @@ input:not(:checked) + .modeslider .on {color: #fff;}
 /*킥보드 상세정보 팝업*/
 .popupWrap{background: rgba(0,0,0,0.2); position:absolute; inset: 0; z-index: 999;  overflow-y: auto; box-sizing: border-box; width: 100%; height: 100%;}
 .popupInner{min-height: calc(100dvh - 0px); display: flex; justify-content: center; align-items: center;}
-.popup{position:relative; border-radius: 10px; overflow: hidden; -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);background: rgba(38, 38, 40, 0.7); z-index: 9}
+.popup{position:relative; border-radius: 10px; overflow: hidden; -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);background: #262628d9;  z-index: 9}
 .popup input, .popup select{width: 100%}
 
 .popup.popup_kick{width: 414px;}
