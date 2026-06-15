@@ -127,6 +127,16 @@ const handleResponseError = async (error: any, axiosInstance: any) => {
         return Promise.reject(error);
     }
 
+    if (errorResponse?.status === 403 || (errorResponse?.status === 500 && originalRequest.url?.includes("/list"))) {
+        if (typeof window !== "undefined") {
+            window.alert("인증이 만료되었거나 접근 권한이 없습니다. 다시 로그인해주세요.");
+            const prefix = authType === "reporter" ? "" : `/${authType}`;
+            
+            clearAuthSession(authType, prefix); 
+        }
+        return Promise.reject(error);
+    }
+
     if (originalRequest.url?.includes("api/auth/login") || originalRequest.url?.includes("/refresh")) {
         return Promise.reject(error);
     }
