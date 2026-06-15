@@ -17,6 +17,7 @@ export default function MainHome() {
 
     const [reports, setReports] = useState([]);
     const [outlinePath, setOutlinePath] = useState([]);
+    const [isGpsLoading, setIsGpsLoading] = useState(false);
 
     const [loading, error] = useKakaoLoader({
         appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
@@ -35,6 +36,34 @@ export default function MainHome() {
         }
         return {lat: 37.429, lng: 127.255};
     });
+    const moveToCurrentPosition = useCallback(() => {
+        if (!navigator.geolocation) {
+            alert("이 브라우저에서는 GPS 기능을 지원하지 않습니다.");
+            return;
+        }
+
+        setIsGpsLoading(true);
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                setCenter({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude
+                });
+                setIsGpsLoading(false);
+                console.log(center);
+            },
+            (err) => {
+                console.warn("GPS 획득 실패:", err);
+                alert("현재 위치를 가져오지 못했습니다. 위치 권한을 확인해 주세요.");
+                setIsGpsLoading(false);
+            },
+            {
+                enableHighAccuracy: true, // 모바일 환경용 정확도 향상 (상황에 맞춰 false로 변경 가능)
+                timeout: 8000,
+                maximumAge: 0
+            }
+        );
+    }, []);
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -48,20 +77,8 @@ export default function MainHome() {
             }
             sessionStorage.removeItem("selected_kickboard_loc");
         } else {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        setCenter({
-                            lat: pos.coords.latitude,
-                            lng: pos.coords.longitude
-                        });
-                    },
-                    (err) => {
-                        console.warn("GPS 획득 실패:", err);
-                    },
-                    {enableHighAccuracy: false, timeout: 6000, maximumAge: Infinity}
-                )
-            }
+            //  진입 시 목록에서 선택된 킥보드가 없다면 내 위치 탐색 실행
+            moveToCurrentPosition();
         }
 
         const recordMenuLog = async () => {
@@ -140,6 +157,14 @@ export default function MainHome() {
         <>
             <button className="btn_result" onClick={() => router.push(`${prefix}/report`)}>
                 회수등록
+            </button>
+
+            <button
+                className="me"
+                onClick={moveToCurrentPosition}
+                disabled={isGpsLoading}
+            >
+                {isGpsLoading ? "조회중..." : "내위치"}
             </button>
 
             <div className="legend">

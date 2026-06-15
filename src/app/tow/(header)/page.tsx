@@ -3,11 +3,11 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useKakaoLoader } from "react-kakao-maps-sdk";
-import {getMyBachList, getPmDclrListApi} from "@/services/report/reportApi";
+import { getMyBachList, getPmDclrListApi } from "@/services/report/reportApi";
 import { getOutlineType } from "@/services/common/commonApi";
 import Cookies from "js-cookie";
 import KakaoMapSection from "@/components/dashboard/KakaoMapContainer";
-import {getTowDclrListApi} from "@/services/report/reportApi_tow";
+import { getTowDclrListApi } from "@/services/report/reportApi_tow";
 import { registerMenuLog } from "@/services/common/commonApi";
 
 const pmtoken = Cookies.get("pmAccessToken");
@@ -18,6 +18,7 @@ export default function MainHome() {
 
     const [reports, setReports] = useState([]);
     const [outlinePath, setOutlinePath] = useState([]);
+    const [isGpsLoading, setIsGpsLoading] = useState(false); //  GPS 로딩 상태 추가
 
     const [loading, error] = useKakaoLoader({
         appkey: process.env.NEXT_PUBLIC_KAKAO_API_KEY!,
@@ -31,11 +32,40 @@ export default function MainHome() {
             const savedLocation = sessionStorage.getItem("selected_kickboard_loc");
             if (savedLocation) {
                 const parsed = JSON.parse(savedLocation);
-                return {lat: parsed.lat, lng: parsed.lng};
+                return { lat: parsed.lat, lng: parsed.lng };
             }
         }
-        return {lat: 37.429, lng: 127.255};
+        return { lat: 37.429, lng: 127.255 };
     });
+
+    //  [내 위치] 가져오기 공통 함수 정의 (TOW 도 실외 작업이 많으므로 highAccuracy 튜닝)
+    const moveToCurrentPosition = useCallback(() => {
+        if (!navigator.geolocation) {
+            alert("이 브라우저에서는 GPS 기능을 지원하지 않습니다.");
+            return;
+        }
+
+        setIsGpsLoading(true);
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                setCenter({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude
+                });
+                setIsGpsLoading(false);
+            },
+            (err) => {
+                console.warn("GPS 획득 실패:", err);
+                alert("현재 위치를 가져오지 못했습니다. 위치 권한을 확인해 주세요.");
+                setIsGpsLoading(false);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 8000,
+                maximumAge: 0
+            }
+        );
+    }, []);
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -49,44 +79,33 @@ export default function MainHome() {
             }
             sessionStorage.removeItem("selected_kickboard_loc");
         } else {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        setCenter({
-                            lat: pos.coords.latitude,
-                            lng: pos.coords.longitude
-                        });
-                    },
-                    (err) => {
-                        console.warn("GPS 획득 실패:", err);
-                    },
-                    {enableHighAccuracy: false, timeout: 6000, maximumAge: Infinity}
-                )
-            }
+            //  초기 진입 시 목록 선택 이력이 없다면 내 위치 탐색 실행
+            moveToCurrentPosition();
         }
+
         const recordMenuLog = async () => {
             try {
-                await registerMenuLog("TOW1000"); 
+                await registerMenuLog("TOW1000");
             } catch (error) {
                 console.error("메뉴 이력 적재 실패:", error);
             }
         };
         recordMenuLog();
-    }, []);
+    }, [moveToCurrentPosition]);
 
     const [bachList, setBachList] = useState<any[]>([]);
 
     useEffect(() => {
         const initData = async () => {
             try {
-                const [reportRes, outlineRes]:any = await Promise.all([
-                    getTowDclrListApi({ searchMonth: "", searchDate: "", prcsUserId: "", dclrSttsCd: "" ,isMap :"Y"},pmtoken),
+                const [reportRes, outlineRes]: any = await Promise.all([
+                    getTowDclrListApi({ searchMonth: "", searchDate: "", prcsUserId: "", dclrSttsCd: "", isMap: "Y" }, pmtoken),
                     getOutlineType()
                 ]);
                 if (reportRes) setReports(reportRes);
 
                 if (outlineRes && Array.isArray(outlineRes)) {
-                    const formattedPath:any = outlineRes
+                    const formattedPath: any = outlineRes
                         .sort((a: any, b: any) => a.ord - b.ord)
                         .map((item: any) => ({
                             lat: Number(item.ycrdn),
@@ -102,26 +121,11 @@ export default function MainHome() {
         if (!loading) initData();
     }, [loading]);
 
-    // useEffect(() => {
-    //     const getMyCompanyBach = async () => {
-    //         try {
-    //             const res = await getMyBachList();
-    //             if (res && res.success && Array.isArray(res.data)) {
-    //                 setBachList(res.data);
-    //             }
-    //
-    //         } catch (e) {
-    //             console.error('Error : ', e);
-    //         }
-    //     };
-    //     getMyCompanyBach();
-    // }, []);
-
     const handleMarkerClick = useCallback((id: string) => {
         router.push(`${prefix}/reportDetail/${id}`);
     }, [prefix, router]);
 
-    // 레전드 카운트 최적화
+    // 레전드 카운트 최적화 (TOW 상태코드 매핑 유지)
     const counts = useMemo(() => ({
         red: reports.filter((r: any) => r.dclrStts?.cdId === "DEST07").length,
         blue: reports.filter((r: any) => r.dclrStts?.cdId === "DEST08").length,
@@ -136,6 +140,15 @@ export default function MainHome() {
                 회수등록
             </button>
 
+            {/*  내위치 버튼 마크업 주입 및 바인딩 */}
+            <button
+                className="me"
+                onClick={moveToCurrentPosition}
+                disabled={isGpsLoading}
+            >
+                {isGpsLoading ? "조회중..." : "내위치"}
+            </button>
+
             <div className="legend">
                 <div className="item red">
                     <span className="badge">{counts.red}</span><span className="label">요청</span>
@@ -146,9 +159,6 @@ export default function MainHome() {
                 <div className="item gray">
                     <span className="badge">{counts.gray}</span><span className="label">완료</span>
                 </div>
-                {/*<div className="item lezone">*/}
-                {/*    <span className="label">배치존</span>*/}
-                {/*</div>*/}
             </div>
 
             <div className="mainmap">

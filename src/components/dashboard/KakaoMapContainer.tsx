@@ -1,8 +1,8 @@
 "use client";
 
-import React, {memo, useMemo} from "react";
-import {Circle, CustomOverlayMap, Map, MapMarker} from "react-kakao-maps-sdk";
-import {CityOutline} from "@/components/dashboard/CityOutline";
+import React, { memo, useMemo, useRef, useEffect } from "react"; //  useRef, useEffect 추가
+import { Circle, CustomOverlayMap, Map } from "react-kakao-maps-sdk";
+import { CityOutline } from "@/components/dashboard/CityOutline";
 
 const MARKER_CONFIG = {
     images: {
@@ -13,7 +13,6 @@ const MARKER_CONFIG = {
         "DEST07": "/assets/style_pm/images/icon_red.png",
         "DEST08": "/assets/style_pm/images/icon_blue.png",
         "DEST09": "/assets/style_pm/images/icon_gray.png",
-
     } as Record<string, string>,
     logos: {
         "빔(BEAM)": "/assets/style_pm/images/logo_beam.png",
@@ -22,42 +21,56 @@ const MARKER_CONFIG = {
     } as Record<string, string>
 };
 
-const KakaoMapSection = memo(({reports, outlinePath, center, onMarkerClick, bachList = [], activeDclrId}: any) => {
+const KakaoMapSection = memo(({ reports, outlinePath, center, onMarkerClick, bachList = [], activeDclrId }: any) => {
+    //  1. 실제 카카오 지도 인스턴스를 핸들링할 Ref 생성
+    const mapRef = useRef<kakao.maps.Map>(null);
+
     const optimizedPath = useMemo(() => {
         if (!outlinePath || outlinePath.length === 0) return [];
         return outlinePath.filter((_: any, index: number) => index % 10 === 0);
     }, [outlinePath]);
 
+    //  2. 부모로부터 새로운 center 좌표가 내려오면 지도를 그 위치로 부드럽게 이동
+    useEffect(() => {
+        if (mapRef.current && center) {
+            // 부드러운 스크롤 이동을 원하면 panTo, 즉시 이동을 원하면 setCenter를 사용하세요.
+            mapRef.current.panTo(new kakao.maps.LatLng(center.lat, center.lng));
+        }
+    }, [center]); // 👈 center 값이 변경될 때마다 실행됩니다.
+
     return (
-        <Map center={center} style={{width: "100%", height: "100%"}} level={3}>
+        <Map
+            ref={mapRef} //  3. 여기에 ref를 바인딩해 주어야 카카오 지도 객체에 접근할 수 있습니다.
+            center={center}
+            style={{ width: "100%", height: "100%" }}
+            level={3}
+        >
             {reports.map((report: any) => (
                 report.latVl && report.lotVl && (
                     <React.Fragment key={report.dclrId}>
                         <CustomOverlayMap
                             position={{ lat: report.latVl, lng: report.lotVl }}
-                            clickable={true} // 클릭 이벤트 활성화
+                            clickable={true}
                         >
                             <div
-                                className={`my-custom-marker ${activeDclrId === report.dclrId ? "click" : ""}`}                                onClick={() => onMarkerClick(report.dclrId)}
+                                className={`my-custom-marker ${activeDclrId === report.dclrId ? "click" : ""}`}
+                                onClick={() => onMarkerClick(report.dclrId)}
                                 style={{ cursor: "pointer" }}
                             >
-                                {/* 마커 이미지 배치 */}
                                 <img
                                     src={MARKER_CONFIG.images[report.dclrStts?.cdId] || "/assets/style_pm/images/mark.png"}
                                     alt="marker"
                                     style={{ width: "25px", height: "36px" }}
                                 />
-
-                                {/* 필요하다면 마커 밑에 텍스트나 뱃지 같은 것도 CSS로 마음대로 추가 가능! */}
                             </div>
                         </CustomOverlayMap>
                     </React.Fragment>
                 )
             ))}
             {outlinePath.length > 0 && (
-                <CityOutline path={optimizedPath}/>
+                <CityOutline path={optimizedPath} />
             )}
-            {/* 3. 중심점 표시 */}
+
             {bachList.map((item: any) => {
                 const centerLatLng = {
                     lat: Number(item.lat),
