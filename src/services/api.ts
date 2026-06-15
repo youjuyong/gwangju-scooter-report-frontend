@@ -110,7 +110,6 @@ const api = axios.create({
 // 1. 요청 인터셉터
 api.interceptors.request.use(
     (config) => {
-        console.log(config);
         const authType = getAuthTypeByPath();
         const token = useAuthStore.getState()[authType].accessToken;
         const csrfToken = typeof document !== 'undefined'

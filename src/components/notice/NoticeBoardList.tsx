@@ -25,7 +25,6 @@ export default async function NoticeBoardList({
     };
     const authType = getAuthType();
     const cookieStore = await cookies();
-    // 로그인 시 쿠키에 넣어둔 토큰 값을 서버에서 바로 가로챔
     const accessToken = cookieStore.get(`${authType}AccessToken`)?.value;
 
     try {

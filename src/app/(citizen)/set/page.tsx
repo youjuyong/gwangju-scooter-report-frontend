@@ -83,7 +83,6 @@ export default function SettingsPage() {
             deleteCookie(`${authType}AccessToken`);
             delete axios.defaults.headers.common["Authorization"];
             clearStore(); //알림 리스트 삭제
-            console.log("알림 삭제");
             toast.success("로그아웃되었습니다.");
             router.replace("/");
         } catch (error) {
