@@ -33,13 +33,15 @@ export default function UserHistory(){
         {
             header : '사용자이름',
             accessorKey : 'chgUserNm',
-            meta: { id: 'chgUserNm', isKey: true } // 고유 Key(PK) 설정
+            meta: { id: 'chgUserNm', isKey: true }, // 고유 Key(PK) 설정
+            size: 200
         }
         ,
         {
             header: 'ID',
             accessorKey: 'chgUserId',
-            meta: { filterType: "check" }
+            meta: { filterType: "check" },
+            size: 200
 
         },
         {
@@ -55,17 +57,20 @@ export default function UserHistory(){
                 };
                 // 매핑되는 값이 있으면 바꾸고, 없으면 원본 값 그대로 노출
                 return statusMap[value] || value;
-            }
+            },
+            size : 100
         },
         {
             header: '계정유형',
             accessorKey: 'deptTypeNm',
-            meta: { filterType: "check" }
+            meta: { filterType: "check" },
+            size: 200
         },
         {
             header: '로그일시',
             accessorKey: 'chgDt',
-            meta: { filterType: "check" }
+            meta: { filterType: "check" },
+            size: 300
         },
         {
             header: '내용',
