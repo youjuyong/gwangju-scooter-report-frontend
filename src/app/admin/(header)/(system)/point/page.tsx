@@ -23,7 +23,7 @@ import { ExcelContext } from '@/components/admin/ExcelContext';
 import { Map, Circle, CustomOverlayMap } from "react-kakao-maps-sdk";
 import { CityOutline } from "@/components/dashboard/CityOutline";
 import { useQuery } from "@tanstack/react-query";
-import { getOutlineType } from "@/services/common/commonApi";
+import {getOutlineType, registerMenuLog} from "@/services/common/commonApi";
 import LoadingOverlay from "@/components/LoadingOverlay";
 
 // 배치 포인트 응답 인터페이스 정의
@@ -353,6 +353,17 @@ export default function PointPage() {
         if (popupMode === 'update') return '[수정]';
         return '[상세보기]';
     };
+
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR4200");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     return (
         <div className="wrap point_wrap">

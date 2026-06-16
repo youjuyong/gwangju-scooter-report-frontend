@@ -18,6 +18,7 @@ import PmPopup from "@/components/admin/popup/PmPopup";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { ExcelContext } from '@/components/admin/ExcelContext';
 import ExcelDownload from "@/components/admin/ExcelDownload";
+import {registerMenuLog} from "@/services/common/commonApi";
 
 
 // 💡 확정된 백엔드 응답 인터페이스 정의
@@ -221,6 +222,16 @@ export default function PmPage() {
             alert("처리 중 오류가 발생했습니다.");
         }
     };
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR4100");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     return (
         <div className="wrap">

@@ -15,6 +15,7 @@ import {
     updateTowingTimeApi
 } from "@/services/system/systemApi";
 import {OperationSettingItem} from "@/types/system";
+import {registerMenuLog} from "@/services/common/commonApi";
 
 
 
@@ -312,6 +313,16 @@ export default function SettingPage() {
             setIsLoading(false);
         }
     };
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR4500");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     return (
         <>
