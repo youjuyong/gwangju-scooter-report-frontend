@@ -34,7 +34,7 @@ export default function ReportDetail() {
         fetchDetail();
     }, [dclrId]);
 
-    const isCompleted = report?.dclrStts?.cdId ? ["DEST04", "DEST09"].includes(report.dclrStts?.cdId) : false;
+    const isCompleted = report?.dclrStts?.cdId ? ["DEST04", "DEST09", "DEST10"].includes(report.dclrStts?.cdId) : false;
     const statusClass = isCompleted ? "si2" : "si1";
 
     const handleBack = () => {

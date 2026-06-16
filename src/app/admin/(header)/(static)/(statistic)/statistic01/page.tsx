@@ -8,13 +8,16 @@ import api from "@/services/api";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import {CustomColumnDef, RaontecGridHandle, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
-import {PrivacyReportResponse} from "@/types/adminReport";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {ExcelContext} from "@/components/admin/ExcelContext";
 
 interface PmCompany {
     bzentyId: string; 
     bzentyNm: string; 
+}
+interface gridData {
+    category : string;
+    [hour: number]: number;
 }
 
 export default function StatisticDayPage() {
@@ -29,7 +32,7 @@ export default function StatisticDayPage() {
     const [isSearched, setIsSearched] = useState(false);
 
     //그리드
-    const [reportGridData, setComplainGridData] = useState<PrivacyReportResponse[]>([]);
+    const [reportGridData, setComplainGridData] = useState<gridData[]>([]);
     const reportGridRef = useRef<RaontecGridHandle>(null);
     //엑셀
     const {setGrid, setFileName}: any = useContext(ExcelContext);
@@ -86,6 +89,7 @@ export default function StatisticDayPage() {
             });
 
             const data = response.data;
+            console.log(data);
             const hoursCategories = Array.from({ length: 24 }, (_, i) => `${i}시`);
             
             const seriesData = [

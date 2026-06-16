@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {getReportDetail} from "@/services/report/reportApi";
 import { useDrag } from "@/hooks/userDrag";
+import {useModeStore} from "@/store/dashboardStore";
 
 interface ReportDetailModalProps {
     isOpen: boolean;
@@ -13,9 +14,10 @@ interface ReportDetailModalProps {
     isDashBoard?: boolean;
 }
 
-export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefreshList,data }: ReportDetailModalProps){
+export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefreshList, data, isDashBoard }: ReportDetailModalProps){
     const [report, setReport] = useState<any>(null);
     const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
+    const { currentMode, isSubmitting } = useModeStore();
 
     useEffect(() => {
         console.log(data);
@@ -147,30 +149,24 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
                     <div className="table2">
                         <table>
                             <tbody>
-                            {data?.prcrId && (
-                                <tr>
-                                    <th>처리자ID</th>
-                                    <td>{data.prcrId}</td>
-                                </tr>
-                            )}
-                            {data?.prcsDt && (
-                                <tr>
-                                    <th>처리일시</th>
-                                    <td className="blue">{data.prcsDt}</td>
-                                </tr>
-                            )}
-                            {data?.prcsRsn && (
-                                <tr>
-                                    <th>처리사유</th>
-                                    <td>{data.prcsRsn}</td>
-                                </tr>
-                            )}
+                            <tr>
+                                <th>처리자ID</th>
+                                <td>{data?.prcrId ? data.prcrId : "-"}</td>
+                            </tr>
+                            <tr>
+                                <th>처리일시</th>
+                                <td className="blue">{data?.prcsDt ? data.prcsDt : "-"}</td>
+                            </tr>
+                            <tr>
+                                <th>처리사유</th>
+                                <td>{data.prcsRsn ? data.prcsRsn : "-"}</td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
                     <div className="kickimg kickimg_ok">
                         <div className="imgli">
-                            <div className="imgsize">
+                        <div className="imgsize">
                                 {report?.completeImgUrls && report.completeImgUrls[0] ? (
                                     <img src={report.completeImgUrls[0]} alt="업체 처리 완료 사진1"/>
                                 ) : null}
@@ -184,6 +180,14 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
                             </div>
                         </div>
                     </div>
+                    {currentMode === "MANUAL" && (
+                        <div className="btnSet">
+                            <button>반려</button>
+                            {/*반려 시 리스트에서 삭제*/}
+                            <button className="red">승인</button>
+                            {/*승인 시 미배정으로 변경*/}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

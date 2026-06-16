@@ -1,18 +1,19 @@
 "use client";
 import Cookies from "js-cookie";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {useQuery} from "@tanstack/react-query";
-import {getDashboardList, getOutlineType} from "@/services/common/commonApi";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {getOutlineType} from "@/services/common/commonApi";
 import {useAlert} from "@/components/popup/PopupProvider";
 import {Map, MapMarker} from "react-kakao-maps-sdk";
 import {CityOutline} from "@/components/dashboard/CityOutline";
 import ReportDetailPopup from "@/components/admin/popup/ReportDetailPopup";
+import {getAutoApprove, getDashboardList, patchAutoApprove} from "@/services/dashboard/dashboardApi";
+import {useModeStore} from "@/store/dashboardStore";
 
 
 export default function DashboardContainer() {
-    
+    const queryClient = useQueryClient();
     const token = Cookies.get("adminAccessToken");
-    const [isToggleChecked, setIsToggleChecked] = useState(false);
     const [activeListId, setActiveListId] = useState<number | null>(null);
     const [isLeftOff, setIsLeftOff] = useState(false);
     const [isUpperOff, setIsUpperOff] = useState(false);
@@ -33,25 +34,72 @@ export default function DashboardContainer() {
         typeof window !== "undefined" ? window.innerWidth <= 1430 : false
     );
 
+    const {setMode, setIsSubmitting} = useModeStore();
+
     const {data: outlineRes} = useQuery({
         queryKey: ["outlineType"],
         queryFn: getOutlineType,
     });
 
-    const { data: dashboardResponse } = useQuery({
-        queryKey: ["dashboardList", token], 
+    const {data: dashboardResponse} = useQuery({
+        queryKey: ["dashboardList", token],
         queryFn: () => getDashboardList(token),
-        enabled: !!token, 
+        enabled: !!token,
     });
+
+    const {data: approveResponse} = useQuery({
+        queryKey: ["status"],
+        queryFn: getAutoApprove,
+    });
+
+    useEffect(() => {
+        if (approveResponse !== undefined) {
+            const isManualFromServer = approveResponse?.data === true || approveResponse?.data === "Y";
+            setMode(isManualFromServer ? 'MANUAL' : 'AUTO');
+        }
+    }, [approveResponse, setMode]);
+
+    const [tempToggleOverride, setTempToggleOverride] = useState<boolean | null>(null);
+
+    const isToggleChecked = tempToggleOverride !== null
+        ? tempToggleOverride
+        : (approveResponse?.data === true || approveResponse?.data === "Y");
+
+    useEffect(() => {
+        setMode(isToggleChecked ? 'MANUAL' : 'AUTO');
+    }, [isToggleChecked, setMode]);
+
+    const toggleMutation = useMutation({
+        mutationFn: (checkedStatus: boolean) => patchAutoApprove(checkedStatus),
+        onMutate: () => {
+            setIsSubmitting(true);
+        },
+        onSuccess: (data, checkedStatus) => {
+            setTempToggleOverride(checkedStatus);
+            setMode(checkedStatus ? 'MANUAL' : 'AUTO');
+            queryClient.invalidateQueries({queryKey: ["status"]});
+        },
+        onError: (error) => {
+            console.error("모드 변경 실패:", error);
+            setTempToggleOverride(null);
+            showAlert("모드 변경에 실패했습니다.");
+        },
+        onSettled: () => {
+            setIsSubmitting(false);
+        }
+    });
+
+    const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const isChecked = e.target.checked;
+
+        setMode(isChecked ? 'MANUAL' : 'AUTO');
+        toggleMutation.mutate(isChecked);
+    };
 
     const dashboardList = (dashboardResponse?.data || []).filter((item: any) => {
         const code = item.dclrStts?.cdId;
         return code !== "DEST05" && code !== "DEST10";
     });
-
-    useEffect(() => {
-        console.log(dashboardList, 'dashboardList');
-    }, []);
 
     const selectedItem = useMemo(() => {
         if (!activeListId || !Array.isArray(dashboardList)) return null;
@@ -250,7 +298,8 @@ export default function DashboardContainer() {
                                 type="checkbox"
                                 id="toggle"
                                 checked={isToggleChecked}
-                                onChange={(e) => setIsToggleChecked(e.target.checked)}
+                                disabled={toggleMutation.isPending}
+                                onChange={handleToggleChange}
                             />
                             <span className="modeslider">
                               <span className="text on">자동</span>
@@ -307,6 +356,7 @@ export default function DashboardContainer() {
                                     "DEST07": {className: "st6", text: "견인요청"},
                                     "DEST08": {className: "st7", text: "견인처리중"},
                                     "DEST09": {className: "st8", text: "견인완료"},
+                                    "DEST10": {className: "st4", text: "자동취소"}
                                 };
 
                                 const currentCdId = item.dclrStts?.cdId;
@@ -381,6 +431,7 @@ export default function DashboardContainer() {
                                 prcsDt: selectedItem.prcrHis?.prcsDt,
                                 prcsRsn: selectedItem.prcrHis?.prcsRsn
                             }}
+                            isDashBoard={isPopupOpen}
                         />
                     )}
 

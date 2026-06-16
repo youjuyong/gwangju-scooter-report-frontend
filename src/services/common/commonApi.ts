@@ -52,10 +52,3 @@ export const registerMenuLog = async (menuId: string) => {
 
     return response.data;
 };
-
-export const getDashboardList = async (token?: string) => {
-    const response = await api.get('/dclr/dashboard/list', {
-        headers: token ? {Authorization: `Bearer ${token}`} : undefined
-    });
-    return response.data;
-}
