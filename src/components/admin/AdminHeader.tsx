@@ -125,11 +125,11 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
                         }
                         else if (item.id === 'system') {
                             // (system) 그룹 하위 폴더명 매핑
-                            isActive = ['pm', 'point', 'seting'].includes(currentCategory);
+                            isActive = ['pm', 'point', 'seting','zone', 'code'].includes(currentCategory);
                         }
                         else if (item.id === 'user') {
                             // (user) 그룹 하위 폴더명 매핑
-                            isActive = ['manager', 'member'].includes(currentCategory);
+                            isActive = ['manager', 'member','history'].includes(currentCategory);
                         }
 
                         return (
