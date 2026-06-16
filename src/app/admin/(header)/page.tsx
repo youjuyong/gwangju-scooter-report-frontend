@@ -1,12 +1,14 @@
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
 import {getDashboardList, getOutlineType} from "@/services/common/commonApi";
 import DashboardContainer from "@/components/dashboard/DashBoardContainer";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
     const queryClient = new QueryClient();
-
+    const cookieStore = await cookies();
+    const token = cookieStore.get("adminAccessToken")?.value;
     try {
         await Promise.all([
             queryClient.prefetchQuery({
@@ -14,8 +16,8 @@ export default async function DashboardPage() {
                 queryFn: getOutlineType,
             }),
             queryClient.prefetchQuery({
-                queryKey: ["dashboardList"],
-                queryFn: getDashboardList,
+                queryKey: ["dashboardList", token], 
+                queryFn: () => getDashboardList(token),
             }),
         ]);
     } catch (error) {

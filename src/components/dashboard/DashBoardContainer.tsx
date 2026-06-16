@@ -1,5 +1,5 @@
 "use client";
-
+import Cookies from "js-cookie";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useQuery} from "@tanstack/react-query";
 import {getDashboardList, getOutlineType} from "@/services/common/commonApi";
@@ -8,7 +8,10 @@ import {Map, MapMarker} from "react-kakao-maps-sdk";
 import {CityOutline} from "@/components/dashboard/CityOutline";
 import ReportDetailPopup from "@/components/admin/popup/ReportDetailPopup";
 
+
 export default function DashboardContainer() {
+    
+    const token = Cookies.get("adminAccessToken");
     const [isToggleChecked, setIsToggleChecked] = useState(false);
     const [activeListId, setActiveListId] = useState<number | null>(null);
     const [isLeftOff, setIsLeftOff] = useState(false);
@@ -35,9 +38,10 @@ export default function DashboardContainer() {
         queryFn: getOutlineType,
     });
 
-    const {data: dashboardResponse} = useQuery({
-        queryKey: ["dashboardList"],
-        queryFn: getDashboardList,
+    const { data: dashboardResponse } = useQuery({
+        queryKey: ["dashboardList", token], 
+        queryFn: () => getDashboardList(token),
+        enabled: !!token, 
     });
 
     const dashboardList = (dashboardResponse?.data || []).filter((item: any) => {
