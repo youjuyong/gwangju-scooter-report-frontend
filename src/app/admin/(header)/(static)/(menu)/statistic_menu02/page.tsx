@@ -43,7 +43,7 @@ export default function StatisticMonthPage(){
     const [totalDays, setTotaldays] = useState(0);
 
     //그리드
-    const [reportGridData, setComplainGridData] = useState<gridData[]>([]);
+    const [reportGridData, setMenuGridData] = useState<gridData[]>([]);
     const reportGridRef = useRef<RaontecGridHandle>(null);
     //엑셀
     const {setGrid, setFileName}: any = useContext(ExcelContext);
@@ -79,7 +79,7 @@ export default function StatisticMonthPage(){
     const handleSearchMonthly = async () => {
         if (!targetMonth) return alert("일자를 선택해주세요.");
 
-        setComplainGridData([]);
+        setMenuGridData([]);
         setTotaldays(0);
         setSearchedMonth(targetMonth);
         setLoading(true);
@@ -109,7 +109,7 @@ export default function StatisticMonthPage(){
                 const options = createLineChartOptions(chartTitle, daysCategories, seriesData as any);
 
                 setChartOptions(options);
-                setComplainGridData(data.gridData);
+                setMenuGridData(data.gridData);
             }
         } catch (error) {
             console.error("통계 조회 실패:", error);

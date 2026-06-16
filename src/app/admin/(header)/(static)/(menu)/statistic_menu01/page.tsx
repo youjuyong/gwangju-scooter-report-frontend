@@ -34,7 +34,7 @@ export default function StatisticMenuDay(){
     const [isSearched, setIsSearched] = useState(false);
 
     //그리드
-    const [reportGridData, setComplainGridData] = useState<gridData[]>([]);
+    const [reportGridData, setMenuGridData] = useState<gridData[]>([]);
     const reportGridRef = useRef<RaontecGridHandle>(null);
     //엑셀
     const {setGrid, setFileName}: any = useContext(ExcelContext);
@@ -94,7 +94,7 @@ export default function StatisticMenuDay(){
                 const options = createLineChartOptions(chartTitle, hoursCategories, seriesData as any);
 
                 setChartOptions(options);
-                setComplainGridData(data.gridData);
+                setMenuGridData(data.gridData);
             }
         } catch (error) {
             console.error("통계 조회 실패:", error);

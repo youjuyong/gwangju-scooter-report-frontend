@@ -34,3 +34,18 @@ export interface PrivacyReportResponse {
     delNocs: number;
     delDt: string;
 }
+
+export interface UserHistoryForm {
+    startDate : string;
+    endDate : string;
+    keyword : string;
+}
+
+export interface UserHistoryResponse {
+    chgUserNm : string;
+    chgUserId : string;
+    deptTypeNm : string // 계정유형
+    chgDt : string;
+    displayContent : string;
+    aftrVl: string ; // 변경유형 (수정,삭제 등)
+}
