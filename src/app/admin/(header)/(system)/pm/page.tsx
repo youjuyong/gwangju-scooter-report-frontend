@@ -58,7 +58,7 @@ export default function PmPage() {
         { id: 'pm', name: 'PM업체관리', path: `/${userRole}/pm` },
         { id: 'point', name: '배치포인트관리', path: `/${userRole}/point` },
         { id: 'zone', name: '권역관리', path: `/${userRole}/zone` },
-        { id: 'code', name: '권역코드관리', path: `/${userRole}/code` },
+        { id: 'code', name: '공통코드관리', path: `/${userRole}/code` },
         { id: 'setting', name: '운영설정관리', path: `/${userRole}/seting` },
     ];
 
