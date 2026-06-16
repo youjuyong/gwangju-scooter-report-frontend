@@ -32,12 +32,7 @@ export default function NoticeModal({ isOpen, onClose, onSave }: NoticeModalProp
     const [file, setFile] = useState<File | null>(null);
     const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
 
-    if (!isOpen) return null;
-    // 체크박스 핸들러
-    const handleTargetChange = (key: 'user' | 'pm' | 'tow') => {
-        setTargets(prev => ({ ...prev, [key]: !prev[key] }));
 
-    };
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // 팝업이 열려있고 ESC 키(Escape)를 누른 경우
@@ -56,6 +51,12 @@ export default function NoticeModal({ isOpen, onClose, onSave }: NoticeModalProp
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [isOpen, onClose]); // 의존성 배열에 isOpen과 onClose 바인딩
+    if (!isOpen) return null;
+    // 체크박스 핸들러
+    const handleTargetChange = (key: 'user' | 'pm' | 'tow') => {
+        setTargets(prev => ({ ...prev, [key]: !prev[key] }));
+
+    };
 
     const handleConfirm = () => {
 
