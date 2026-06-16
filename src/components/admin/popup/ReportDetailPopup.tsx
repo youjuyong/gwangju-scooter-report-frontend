@@ -20,8 +20,7 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
     const { currentMode, isSubmitting } = useModeStore();
 
     useEffect(() => {
-        console.log(data);
-        if (!data || !data.dclrId) return;
+        if (!isOpen || !data.dclrId) return;
 
         let isMounted = true; // 연속 클릭 시 이전 요청 무시용 안전장치
 
@@ -29,7 +28,6 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
             try {
                 const res = await getReportDetail(data.dclrId);
                 if (res.success && isMounted) {
-                    console.log(res.data);
                     setReport(res.data);
                 }
             } catch (error) {
@@ -42,7 +40,7 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
         return () => {
             isMounted = false; // 컴포넌트가 언마운트되거나 data가 바뀌면 이전 요청 차단
         };
-    }, [data ,isOpen]);
+    }, [data?.dclrId ,isOpen]);
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // 팝업이 열려있고 ESC 키(Escape)를 누른 경우
