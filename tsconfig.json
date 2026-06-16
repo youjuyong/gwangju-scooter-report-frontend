@@ -2,9 +2,11 @@
   "compilerOptions": {
     "baseUrl": ".", // 기준 경로를 프로젝트 루트로 설정
     "paths": {
-      "@/*": ["./src/*"] 
+      "@/*": ["./src/*"]
     },
+
     "target": "ES2017",
+    "types": ["kakao.maps.d.ts"],
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
