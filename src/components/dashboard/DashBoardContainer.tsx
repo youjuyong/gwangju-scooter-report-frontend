@@ -54,7 +54,7 @@ export default function DashboardContainer() {
 
     useEffect(() => {
         if (approveResponse !== undefined) {
-            const isManualFromServer = approveResponse?.data === true || approveResponse?.data === "Y";
+            const isManualFromServer = approveResponse?.data === false || approveResponse?.data === "N";
             setMode(isManualFromServer ? 'MANUAL' : 'AUTO');
         }
     }, [approveResponse, setMode]);
@@ -63,7 +63,7 @@ export default function DashboardContainer() {
 
     const isToggleChecked = tempToggleOverride !== null
         ? tempToggleOverride
-        : (approveResponse?.data === true || approveResponse?.data === "Y");
+        : (approveResponse?.data === false || approveResponse?.data === "N");
 
     useEffect(() => {
         setMode(isToggleChecked ? 'MANUAL' : 'AUTO');

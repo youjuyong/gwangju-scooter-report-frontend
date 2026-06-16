@@ -13,7 +13,7 @@ export const getAutoApprove = async () => {
 }
 
 export const patchAutoApprove = async (isManual: boolean) => {
-    const value = isManual ? "Y" : "N";
+    const value = isManual ? "N" : "Y";
 
     const response = await api.patch('/system/auto-approve', {paramVl: value});
     return response.data;
