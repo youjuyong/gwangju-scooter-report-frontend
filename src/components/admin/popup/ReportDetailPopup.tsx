@@ -18,6 +18,7 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
     const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
 
     useEffect(() => {
+        console.log(data);
         if (!data || !data.dclrId) return;
 
         let isMounted = true; // 연속 클릭 시 이전 요청 무시용 안전장치
@@ -61,23 +62,22 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
 
     if (!isOpen || !bzentyId) return null;
 
-
-    const getStatusStyle = (prcsStpCd : any) => {
-        switch (prcsStpCd) {
-            case "DEST01": return "st1";
-            case "DEST02": return "st2";
-            case "DEST03": return "st3";
-            case "DEST04": return "st4";
-            case "DEST06": return "st5";
-            case "DEST07": return "st6";
-            case "DEST08": return "st7";
-            case "DEST09": return "st8";
-            default: return "알 수 없음"; // 예외 처리
-        }
+    //처리상태 코드
+    const STATUS_CONFIG: { [key: string]: { className: string; text: string } } = {
+        "DEST01": {className: "st1", text: "미승인"},
+        "DEST02": {className: "st2", text: "미배정"},
+        "DEST03": {className: "st3", text: "처리중"},
+        "DEST04": {className: "st4", text: "처리완료"},
+        "DEST06": {className: "st5", text: "견인미승인"},
+        "DEST07": {className: "st6", text: "견인요청"},
+        "DEST08": {className: "st7", text: "견인처리중"},
+        "DEST09": {className: "st8", text: "견인완료"},
+        "DEST10": {className: "st4", text: "자동취소"}
     };
-    const statusClass = getStatusStyle(data?.prcsStpCd) || "si1";
-
-
+    const getStatusInfo = (prcsStpCd : string) => {
+        return STATUS_CONFIG[prcsStpCd] || { className: "st4", label: "알 수 없음" };
+    };
+    const { className, text } = getStatusInfo(data?.prcsStpCd);
 
     return(
     <div className="popupWrap">
@@ -97,8 +97,8 @@ export default function ReportDetailPopup({ isOpen, bzentyId, onClose, onRefresh
                 </h3>
                 <button className="popupClose" onClick={onClose}>닫기</button>
                 <div className="popupconten">
-                    <p className={`state ${statusClass}`}>
-                        {data.prcsStpNm} {/*미승인 st1 , 미배정: st2, 처리중: st3 , 처리완료: st4 , 견인미승인:st5 , 견인요청: st6 , 견인처리중: st7 , 견인완료: st8 */}
+                    <p className={`state ${className}`}>
+                        {text}
                     </p>
                     <div className="address">{data.dclrAddrTxt}</div>
                     <table>
