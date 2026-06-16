@@ -7,7 +7,6 @@ import { usePathname } from 'next/navigation';
 import api from "@/services/api";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import {PrivacyReportResponse} from "@/types/adminReport";
 import {RaontecGridHandle,CustomColumnDef, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {ExcelContext} from "@/components/admin/ExcelContext";
@@ -15,6 +14,10 @@ import {ExcelContext} from "@/components/admin/ExcelContext";
 interface PmCompany {
     bzentyId: string; 
     bzentyNm: string; 
+}
+interface gridData {
+    category : string;
+    [year: number]: number;
 }
 
 const getTodayYear = () => {
@@ -44,7 +47,7 @@ export default function StatisticDayPage() {
     const [loading, setLoading] = useState(false);
     const [isSearched, setIsSearched] = useState(false);
     //그리드
-    const [reportGridData, setComplainGridData] = useState<PrivacyReportResponse[]>([]);
+    const [reportGridData, setComplainGridData] = useState<gridData[]>([]);
     const reportGridRef = useRef<RaontecGridHandle>(null);
     //엑셀
     const {setGrid, setFileName}: any = useContext(ExcelContext);
