@@ -1,7 +1,8 @@
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
-import {getDashboardList, getOutlineType} from "@/services/common/commonApi";
+import {getOutlineType} from "@/services/common/commonApi";
 import DashboardContainer from "@/components/dashboard/DashBoardContainer";
 import { cookies } from "next/headers";
+import {getAutoApprove, getDashboardList} from "@/services/dashboard/dashboardApi";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,10 @@ export default async function DashboardPage() {
             queryClient.prefetchQuery({
                 queryKey: ["dashboardList", token], 
                 queryFn: () => getDashboardList(token),
+            }),
+            queryClient.prefetchQuery({
+                queryKey: ["status"],
+                queryFn: getAutoApprove,
             }),
         ]);
     } catch (error) {
