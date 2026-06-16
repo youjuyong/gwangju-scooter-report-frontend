@@ -8,7 +8,12 @@ import { usePathname } from 'next/navigation';
 import { RaontecGridHandle, RaontecTanstackGrid, CustomColumnDef } from "@rxjacx/raontec-grid";
 
 // API 및 팝업 컴포넌트 임포트
-import {createPmCompanyApi, getPmCompanyListApi, updatePmCompanyApi} from "@/services/system/systemApi";
+import {
+    createPmCompanyApi,
+    deletePmCompanyApi,
+    getPmCompanyListApi,
+    updatePmCompanyApi
+} from "@/services/system/systemApi";
 import PmPopup from "@/components/admin/popup/PmPopup";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { ExcelContext } from '@/components/admin/ExcelContext';
@@ -185,7 +190,7 @@ export default function PmPage() {
         if (window.confirm(`선택된 ${targets.length}개의 업체를 정말로 삭제하시겠습니까?`)) {
             try {
                 const targetIds = targets.map(item => item.bzentyId);
-               // await Promise.all(targetIds.map(id => deletePmCompanyApi(id)));
+                await Promise.all(targetIds.map(id => deletePmCompanyApi(id)));
                 alert("성공적으로 삭제되었습니다.");
                 fetchPmCompanies();
             } catch (error) {

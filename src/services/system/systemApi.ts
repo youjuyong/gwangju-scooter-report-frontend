@@ -39,8 +39,15 @@ export const createPmCompanyApi = async (formData: FormData): Promise<any> => {
     // 백엔드 공통 응답 구조가 response.data.data 형태라면 파싱해서 리턴
     return response.data.data || response.data;
 };
+/**
+ * pm 업체 삭제 (DELETE 방식)
+ * */
+export const deletePmCompanyApi = async (bzentyId: string | number): Promise<any> => {
+    const response = await api.delete(`/pm/${bzentyId}`);
+    return response.data.data || response.data;
+};
 
-//==============================================================================================================
+//운영 설정==============================================================================================================
 
 /**
  * 운영 설정 전체 목록 조회
@@ -76,4 +83,40 @@ export const updateTowingTimeApi = async (payload: { autoTowingTransferTime: num
 export const deleteOperationSettingApi = async (payload: { operStngId: string; operCd: string; }): Promise<void> => {
     // Axios 등 공통 인스턴스 규격에 맞춰 호출 (body 데이터를 보낼 땐 { data } 스펙 활용)
     await api.delete("/system/operation-setting", {data: payload});
+};
+
+//배치-----------------------------------------------------------------------------
+/**
+ * 전체 업체 배치존 목록 조회
+ * GET /api/pm/bach/all
+ */
+export const getBatchPointListApi = async (): Promise<any[]> => {
+    // 백엔드 공통 응답 포맷(ApiResponse)이 있다면 .get<ApiResponse<any[]>> 형태로 타입을 지정해 주세요.
+    const response = await api.get(`/pm/bach/all`);
+    return response.data.data || response.data;
+};
+
+/**
+ * 배치 포인트 신규 등록
+ * POST /api/pm/bach
+ */
+export const createBatchPointApi = async (payload: any): Promise<any> => {
+    const response = await api.post(`/pm/bach`, payload);
+    return response.data.data || response.data;
+};
+
+/**
+ * 배치 포인트 수정
+ * PUT /api/pm/bach
+ */
+export const updateBatchPointApi = async (payload: any): Promise<any> => {
+    const response = await api.put(`/pm/bach`, payload);
+    return response.data.data || response.data;
+};
+
+/**
+ * 배치 포인트 삭제
+ */
+export const deleteBatchPointApi = async (btchZoneId: string | number): Promise<void> => {
+    await api.delete(`/pm/bach/${btchZoneId}`);
 };
