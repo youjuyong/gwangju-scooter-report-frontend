@@ -158,7 +158,14 @@ const handleResponseError = async (error: any, axiosInstance: any) => {
         isRefreshing = true;
 
         try {
-            const response = await authApi.post("/refresh");
+            let urlSuffix = authType;
+            if (authType === 'pm') urlSuffix = 'pm-corp';
+            else if (authType === 'tow') urlSuffix = 'tow-corp';
+            else if (authType === 'reporter') urlSuffix = 'report-user';
+
+            console.log(`[TokenRefresh] ${authType} 권한으로 토큰 재발급 요청 시작: /refresh/${urlSuffix}`);
+
+            const response = await authApi.post(`/refresh/${urlSuffix}`); 
             const newAccessToken = response.data.data.accessToken;
 
             const currentGroup = state[authType];
