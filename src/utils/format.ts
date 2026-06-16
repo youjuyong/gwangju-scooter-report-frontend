@@ -43,3 +43,30 @@ export const formatDateTime = (dateString: string) => {
     .replace('T', ' ') 
     .split('.')[0]; 
 };
+
+/**
+ * 색상 랜덤으로 추출
+ */
+export const getRandomColor = () => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
+
+/**
+ * 2024년부터 올해 까지의 년도 추출
+ */
+const START_YEAR = 2024;
+export const getYearOptions = (): number[] => {
+  const currentYear = new Date().getFullYear();
+  const years: number[] = [];
+
+  for (let y = currentYear; y >= START_YEAR; y--) {
+    years.push(y);
+  }
+
+  return years;
+};

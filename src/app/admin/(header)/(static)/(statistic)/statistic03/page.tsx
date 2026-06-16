@@ -10,6 +10,7 @@ import HighchartsReact from 'highcharts-react-official';
 import {RaontecGridHandle,CustomColumnDef, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {ExcelContext} from "@/components/admin/ExcelContext";
+import {getYearOptions} from "@/utils/format";
 
 interface PmCompany {
     bzentyId: string; 
@@ -22,18 +23,6 @@ interface gridData {
 
 const getTodayYear = () => {
     return String(new Date().getFullYear());
-};
-
-const START_YEAR = 2024; 
-const getYearOptions = (): number[] => {
-        const currentYear = new Date().getFullYear(); 
-        const years: number[] = [];
-        
-        for (let y = currentYear; y >= START_YEAR; y--) {
-            years.push(y);
-        }
-        
-        return years;
 };
 
 export default function StatisticDayPage() {
@@ -51,6 +40,7 @@ export default function StatisticDayPage() {
     const reportGridRef = useRef<RaontecGridHandle>(null);
     //엑셀
     const {setGrid, setFileName}: any = useContext(ExcelContext);
+    const yearOptions = getYearOptions();
 
     const subNavItems = [
         { id: 'report', name: '신고처리이력', path: `/${userRole}/report` },
@@ -158,11 +148,6 @@ export default function StatisticDayPage() {
             return [...baseColumns, ...monthColumns];
         }, []);
     };
-
-
-    
-
-    const yearOptions = getYearOptions();
 
     return (
         <div className="wrap statistic_wrap" style={{ width: '100%', maxWidth: '100%' }}>
