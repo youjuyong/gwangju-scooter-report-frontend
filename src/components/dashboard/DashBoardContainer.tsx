@@ -4,12 +4,12 @@ import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {getOutlineType} from "@/services/common/commonApi";
 import {useAlert} from "@/components/popup/PopupProvider";
-import {Map, MapMarker} from "react-kakao-maps-sdk";
+import {Circle, CustomOverlayMap, Map} from "react-kakao-maps-sdk";
 import {CityOutline} from "@/components/dashboard/CityOutline";
 import ReportDetailPopup from "@/components/admin/popup/ReportDetailPopup";
 import {getAutoApprove, getDashboardList, patchAutoApprove} from "@/services/dashboard/dashboardApi";
 import {useModeStore} from "@/store/dashboardStore";
-import {getPmCompanyListApi} from "@/services/system/systemApi";
+import {getBatchPointListApi, getPmCompanyListApi} from "@/services/system/systemApi";
 
 
 export default function DashboardContainer() {
@@ -57,6 +57,33 @@ export default function DashboardContainer() {
         queryKey: ["pmCompanyList"],
         queryFn: getPmCompanyListApi,
     });
+
+    const {data: bachListResponse} = useQuery({
+        queryKey: ["bachList"],
+        queryFn: getBatchPointListApi,
+    });
+
+    const allBachList = bachListResponse || [];
+
+    const filteredBachList = useMemo(() => {
+        if (!Array.isArray(allBachList)) return [];
+        return allBachList.filter((item: any) => {
+            const targetPmId = item.bzentyId;
+            return selectedPmIds.includes(String(targetPmId));
+        });
+    }, [allBachList, selectedPmIds]);
+
+    const getMapColors = (bzentyNm: string, isSelected: boolean) => {
+        const isSwing = bzentyNm === '스윙(SWING)';
+        if (isSelected) {
+            return {strokeColor: "rgba(0, 246, 255, 0.7)", fillColor: "rgba(0, 246, 255, 0.3)", centerColor: "#00f6ff"};
+        }
+        return {
+            strokeColor: isSwing ? "rgba(150, 0, 255, 0.5)" : "rgba(255, 0, 255, 0.4)",
+            fillColor: isSwing ? "rgba(150, 0, 255, 0.2)" : "rgba(255, 0, 255, 0.2)",
+            centerColor: isSwing ? "#9600ff" : "#ff00dc"
+        };
+    };
 
     const pmImageMap = useMemo(() => {
         const map: Record<string, string> = {};
@@ -125,14 +152,42 @@ export default function DashboardContainer() {
         setIsPmInitialized(true);
     }, [pmCompanyResponse, isPmInitialized]);
 
+    const [selectedStatus, setSelectedStatus] = useState<string[]>([
+        "DEST02", // 미배정
+        "DEST03", // 처리중
+        "DEST04"  // 처리완료
+    ]);
+
+    const statusCount = useMemo(() => {
+        const count: Record<string, number> = {
+            DEST01: 0, DEST02: 0, DEST03: 0, DEST04: 0,
+            DEST06: 0, DEST07: 0, DEST08: 0, DEST09: 0
+        };
+        const rawData = dashboardResponse?.data || [];
+
+        rawData.forEach((item: any) => {
+            const pmId = item.bzenty?.bzentyId ? String(item.bzenty.bzentyId) : "";
+
+            if (selectedPmIds.includes(pmId)) {
+                const code = item.dclrStts?.cdId;
+                if (code in count) {
+                    count[code]++;
+                }
+            }
+        });
+        return count;
+    }, [dashboardResponse, selectedPmIds]);
+
     const dashboardList = useMemo(() => {
         const data = (dashboardResponse?.data || []).filter((item: any) => {
             const code = item.dclrStts?.cdId;
             return code !== "DEST05" && code !== "DEST10";
         });
 
-        return data.filter((item: any) => selectedPmIds.includes(item.bzenty?.bzentyId));
-    }, [dashboardResponse, selectedPmIds]);
+        const pmIds = data.filter((item: any) => selectedPmIds.includes(item.bzenty?.bzentyId));
+
+        return pmIds.filter((item: any) => selectedStatus.includes(item.dclrStts?.cdId));
+    }, [dashboardResponse, selectedPmIds, selectedStatus]);
 
     const selectedItem = useMemo(() => {
         if (!activeListId || !Array.isArray(dashboardList)) return null;
@@ -250,6 +305,14 @@ export default function DashboardContainer() {
         if (typeof window !== "undefined" && window.innerWidth <= 1430) {
             setIsLeftOff(true);
         }
+
+        if (item.latVl && item.lotVl) {
+            const targetPos = { lat: Number(item.latVl), lng: Number(item.lotVl) };
+
+            setPosition(targetPos);
+            setMapCenter(targetPos);
+
+        }
     };
 
     const handlePmFilterClick = (bzentyId: string) => {
@@ -258,6 +321,17 @@ export default function DashboardContainer() {
                 return prevIds.filter((id) => id !== bzentyId);
             } else {
                 return [...prevIds, bzentyId];
+            }
+        });
+        setActiveListId(null);
+    };
+
+    const handleStatusFilterClick = (statusCode: string) => {
+        setSelectedStatus((prev) => {
+            if (prev.includes(statusCode)) {
+                return prev.filter((code) => code !== statusCode);
+            } else {
+                return [...prev, statusCode];
             }
         });
         setActiveListId(null);
@@ -371,18 +445,60 @@ export default function DashboardContainer() {
                 <dl>
                     <dt>상태/건수</dt>
                     <dd className="status status1">
-                        <button className="icon1 click" disabled={!isToggleChecked}>미승인 [0]</button>
                         {/*수동모드 전환 시 disabled 삭제*/}
-                        <button className="icon2 click">미배정 [0]</button>
-                        <button className="icon3 click">처리중 [0]</button>
-                        <button className="icon4 click">처리완료 [0]</button>
+                        <button
+                            className={`icon1 ${selectedStatus.includes("DEST01") ? "click" : ""}`}
+                            disabled={!isToggleChecked}
+                            onClick={() => handleStatusFilterClick("DEST01")}
+                        >
+                            미승인 [{statusCount.DEST01}]
+                        </button>
+                        <button
+                            className={`icon2 ${selectedStatus.includes("DEST02") ? "click" : ""}`}
+                            onClick={() => handleStatusFilterClick("DEST02")}
+                        >
+                            미배정 [{statusCount.DEST02}]
+                        </button>
+                        <button
+                            className={`icon3 ${selectedStatus.includes("DEST03") ? "click" : ""}`}
+                            onClick={() => handleStatusFilterClick("DEST03")}
+                        >
+                            처리중 [{statusCount.DEST03}]
+                        </button>
+                        <button
+                            className={`icon4 ${selectedStatus.includes("DEST04") ? "click" : ""}`}
+                            onClick={() => handleStatusFilterClick("DEST04")}
+                        >
+                            처리완료 [{statusCount.DEST04}]
+                        </button>
                     </dd>
                     <dd className="status status2">
-                        <button className="icon5 click" disabled={!isToggleChecked}>견인미승인 [0]</button>
                         {/*수동모드 전환 시 disabled 삭제*/}
-                        <button className="icon6">견인요청 [0]</button>
-                        <button className="icon7">견인처리중 [0]</button>
-                        <button className="icon8">견인완료 [0]</button>
+                        <button
+                            className={`icon5 ${selectedStatus.includes("DEST06") ? "click" : ""}`}
+                            disabled={!isToggleChecked}
+                            onClick={() => handleStatusFilterClick("DEST06")}
+                        >
+                            견인미승인 [{statusCount.DEST06}]
+                        </button>
+                        <button
+                            className={`icon6 ${selectedStatus.includes("DEST07") ? "click" : ""}`}
+                            onClick={() => handleStatusFilterClick("DEST07")}
+                        >
+                            견인요청 [{statusCount.DEST07}]
+                        </button>
+                        <button
+                            className={`icon7 ${selectedStatus.includes("DEST08") ? "click" : ""}`}
+                            onClick={() => handleStatusFilterClick("DEST08")}
+                        >
+                            견인처리중 [{statusCount.DEST08}]
+                        </button>
+                        <button
+                            className={`icon8 ${selectedStatus.includes("DEST09") ? "click" : ""}`}
+                            onClick={() => handleStatusFilterClick("DEST09")}
+                        >
+                            견인완료 [{statusCount.DEST09}]
+                        </button>
                     </dd>
                 </dl>
             </div>
@@ -429,7 +545,10 @@ export default function DashboardContainer() {
                                             <p className={`state ${currentStatus.className}`}>{currentStatus.text}</p>
                                             <div className="pmname">
                                                 {pmImg ? (
-                                                    <img src={pmImg} alt={item.pmName || ""}/>
+                                                    <>
+                                                        <img src={pmImg} alt={item.pmName || ""}/>
+                                                        {item.bzenty?.bzentyNm?.split("(")[0]?.trim()}
+                                                    </>
                                                 ) : null}
                                             </div>
                                         </div>
@@ -462,6 +581,20 @@ export default function DashboardContainer() {
                                                 </table>
                                             </div>
                                         </div>
+                                        {isToggleChecked && ["DEST01", "DEST06"].includes(item?.dclrStts?.cdId) && (
+                                            <div className="btnSet">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                    }}
+                                                >
+                                                    반려
+                                                </button>
+                                                {/*반려 시 아예 삭제*/}
+                                                <button className="red">승인</button>
+                                                {/*승인 시 미배정으로 변경*/}
+                                            </div>
+                                        )}
                                     </li>
                                 );
                             })}
@@ -501,7 +634,88 @@ export default function DashboardContainer() {
                             <Map center={mapCenter || position}
                                  style={{width: "100%", height: "100%", minHeight: "300px"}} level={3}
                                  onCreate={(map) => setMapInstance(map)}>
-                                <MapMarker position={position}/>
+                                {/*<MapMarker position={position}/>*/}
+
+                                {/* 마커 */}
+                                {Array.isArray(dashboardList) && dashboardList.map((item: any) => {
+                                    if (!item.latVl || !item.lotVl) return null;
+
+                                    const markerLatLng = { lat: Number(item.latVl), lng: Number(item.lotVl) };
+
+                                    /*marker1(미승인) ~ marker8(견인완료) 순서대로 번호 / 클릭 시 click 넣기*/
+                                    const statusMarkerNumberMap: Record<string, string> = {
+                                        "DEST01": "1", // 미승인
+                                        "DEST02": "2", // 미배정
+                                        "DEST03": "3", // 처리중
+                                        "DEST04": "4", // 처리완료
+                                        "DEST06": "5", // 견인미승인
+                                        "DEST07": "6", // 견인요청
+                                        "DEST08": "7", // 견인처리중
+                                        "DEST09": "8", // 견인완료
+                                    };
+                                    const markerNum = statusMarkerNumberMap[item.dclrStts?.cdId] || "1";
+
+                                    const selectedItem = activeListId === item.dclrId;
+
+                                    const pmImg = pmImageMap[item.bzenty?.bzentyId];
+
+                                    return (
+                                        <CustomOverlayMap
+                                            key={`marker-${item.dclrId}`}
+                                            position={markerLatLng}
+                                            clickable={true}
+                                        >
+                                            <div
+                                                className={`marker marker${markerNum} ${selectedItem ? "click" : ""}`}
+                                                onClick={() => handleListClick(item)}
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                <div className="img">
+                                                    <p className="tow"></p>
+                                                    {pmImg ? (
+                                                        <img src={pmImg} alt={item.bzenty?.bzentyNm || "logo"} />
+                                                    ) : (
+                                                        <img src="/assets/style_pm/images/mark.png" alt="defaultLogo" />
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </CustomOverlayMap>
+                                    );
+                                })}
+
+                                {/* 배치존 */}
+                                {Array.isArray(filteredBachList) && filteredBachList.map((item: any) => {
+                                    if (!item.ycrdn || !item.xcrdn) return null;
+
+                                    const centerLatLng = {lat: Number(item.ycrdn), lng: Number(item.xcrdn)};
+                                    const isSelected = activeListId === item.btchZoneId;
+                                    const colors = getMapColors(item.bzentyNm, isSelected);
+
+                                    return (
+                                        <React.Fragment key={item.btchZoneId || `${item.ycrdn}-${item.xcrdn}`}>
+                                            <Circle
+                                                center={centerLatLng}
+                                                radius={25}
+                                                strokeWeight={1}
+                                                strokeColor={colors.strokeColor}
+                                                strokeOpacity={0.8}
+                                                strokeStyle={"solid"}
+                                                fillColor={colors.fillColor}
+                                                fillOpacity={0.5}
+                                            />
+                                            <Circle
+                                                center={centerLatLng}
+                                                radius={2}
+                                                strokeWeight={1}
+                                                strokeColor={colors.centerColor}
+                                                strokeOpacity={1}
+                                                fillColor={colors.centerColor}
+                                                fillOpacity={1}
+                                            />
+                                        </React.Fragment>
+                                    );
+                                })}
+
                                 {optimizedPath.length > 0 && <CityOutline path={optimizedPath}/>}
                             </Map>
                         )}
