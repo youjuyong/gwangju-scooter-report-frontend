@@ -9,6 +9,7 @@ import {CityOutline} from "@/components/dashboard/CityOutline";
 import ReportDetailPopup from "@/components/admin/popup/ReportDetailPopup";
 import {getAutoApprove, getDashboardList, patchAutoApprove} from "@/services/dashboard/dashboardApi";
 import {useModeStore} from "@/store/dashboardStore";
+import {getPmCompanyListApi} from "@/services/system/systemApi";
 
 
 export default function DashboardContainer() {
@@ -18,14 +19,13 @@ export default function DashboardContainer() {
     const [isLeftOff, setIsLeftOff] = useState(false);
     const [isUpperOff, setIsUpperOff] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [status, setStatus] = useState("");
-
     const showAlert = useAlert();
     const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
     const [address, setAddress] = useState<string>("위치를 선택해 주세요");
     const [zoneId, setZoneId] = useState<string>("");
     const [bachList, setBachList] = useState<any[]>([]);
     const [jibunAddress, setJibunAddress] = useState<string>("");
+    const [selectedPmIds, setSelectedPmIds] = useState<string[]>([]);
 
     const [mapInstance, setMapInstance] = useState<any>(null);
     const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
@@ -35,6 +35,7 @@ export default function DashboardContainer() {
     );
 
     const {setMode, setIsSubmitting} = useModeStore();
+    const [isPmInitialized, setIsPmInitialized] = useState(false);
 
     const {data: outlineRes} = useQuery({
         queryKey: ["outlineType"],
@@ -51,6 +52,23 @@ export default function DashboardContainer() {
         queryKey: ["status"],
         queryFn: getAutoApprove,
     });
+
+    const {data: pmCompanyResponse} = useQuery({
+        queryKey: ["pmCompanyList"],
+        queryFn: getPmCompanyListApi,
+    });
+
+    const pmImageMap = useMemo(() => {
+        const map: Record<string, string> = {};
+        if (Array.isArray(pmCompanyResponse)) {
+            pmCompanyResponse.forEach((company: any) => {
+                if (company.bzentyId) {
+                    map[company.bzentyId] = company.markImgBase64 || "";
+                }
+            });
+        }
+        return map;
+    }, [pmCompanyResponse]);
 
     useEffect(() => {
         if (approveResponse !== undefined) {
@@ -96,10 +114,25 @@ export default function DashboardContainer() {
         toggleMutation.mutate(isChecked);
     };
 
-    const dashboardList = (dashboardResponse?.data || []).filter((item: any) => {
-        const code = item.dclrStts?.cdId;
-        return code !== "DEST05" && code !== "DEST10";
-    });
+    useEffect(() => {
+        if (isPmInitialized || !Array.isArray(pmCompanyResponse) || pmCompanyResponse.length === 0) {
+            return;
+        }
+
+        const allIds = pmCompanyResponse.map((company: any) => String(company.bzentyId));
+
+        setSelectedPmIds(allIds);
+        setIsPmInitialized(true);
+    }, [pmCompanyResponse, isPmInitialized]);
+
+    const dashboardList = useMemo(() => {
+        const data = (dashboardResponse?.data || []).filter((item: any) => {
+            const code = item.dclrStts?.cdId;
+            return code !== "DEST05" && code !== "DEST10";
+        });
+
+        return data.filter((item: any) => selectedPmIds.includes(item.bzenty?.bzentyId));
+    }, [dashboardResponse, selectedPmIds]);
 
     const selectedItem = useMemo(() => {
         if (!activeListId || !Array.isArray(dashboardList)) return null;
@@ -219,6 +252,17 @@ export default function DashboardContainer() {
         }
     };
 
+    const handlePmFilterClick = (bzentyId: string) => {
+        setSelectedPmIds((prevIds) => {
+            if (prevIds.includes(bzentyId)) {
+                return prevIds.filter((id) => id !== bzentyId);
+            } else {
+                return [...prevIds, bzentyId];
+            }
+        });
+        setActiveListId(null);
+    };
+
     const fetchAddressInfo = useCallback((lat: number, lng: number) => {
         const {kakao} = window;
         if (!kakao || !kakao.maps.services) return;
@@ -298,7 +342,7 @@ export default function DashboardContainer() {
                                 type="checkbox"
                                 id="toggle"
                                 checked={isToggleChecked}
-                                disabled={toggleMutation.isPending}
+                                disabled={toggleMutation.isPending || isPopupOpen}
                                 onChange={handleToggleChange}
                             />
                             <span className="modeslider">
@@ -309,9 +353,19 @@ export default function DashboardContainer() {
                     </dd>
                     <dt>PM</dt>
                     <dd className="pm">
-                        <button className="click"><img src="./../assets/style_admin/images/gcoo.png" alt="지쿠"/>지쿠
-                        </button>
-                        <button><img src="./../assets/style_admin/images/swing.png" alt="스윙"/>스윙</button>
+                        {Array.isArray(pmCompanyResponse) && pmCompanyResponse.map((company: any) => (
+                            <button
+                                key={company.bzentyId}
+                                className={selectedPmIds.includes(company.bzentyId) ? "click" : ""}
+                                style={isPopupOpen ? {pointerEvents: "none"} : {}}
+                                onClick={() => handlePmFilterClick(company.bzentyId)}
+                            >
+                                {company.markImgBase64 && (
+                                    <img src={company.markImgBase64} alt={company.bzentyNm || ""}/>
+                                )}
+                                {company.bzentyNm ? company.bzentyNm.split("(")[0]?.trim() : ""}
+                            </button>
+                        ))}
                     </dd>
                 </dl>
                 <dl>
@@ -365,12 +419,19 @@ export default function DashboardContainer() {
                                     text: item.dclrStts?.cdNm || "미승인"
                                 };
 
+                                const pmId = item.bzenty?.bzentyId;
+                                const pmImg = pmImageMap[pmId];
+
                                 return (
                                     <li key={item.dclrId} className={activeListId === item.dclrId ? "click" : ""}
                                         onClick={() => handleListClick(item)}>
                                         <div className="listtop">
                                             <p className={`state ${currentStatus.className}`}>{currentStatus.text}</p>
-                                            <div className="pmname">{item.pmName}</div>
+                                            <div className="pmname">
+                                                {pmImg ? (
+                                                    <img src={pmImg} alt={item.pmName || ""}/>
+                                                ) : null}
+                                            </div>
                                         </div>
                                         <div className="address">{item.address}</div>
                                         <div className="details">
