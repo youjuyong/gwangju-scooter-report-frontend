@@ -84,6 +84,8 @@ export default function ReportList({
                 return "si1"; // 처리중
             case "DEST04":
                 return "si2"; // 처리완료
+            case "DEST10":
+                return "si2";
             default:
                 return "si3";
         }
@@ -97,6 +99,8 @@ export default function ReportList({
                 return "처리중";
             case "DEST04":
                 return "처리완료";
+            case "DEST10":
+                return "자동취소";
             default:
                 return "알 수 없음";
         }
@@ -174,85 +178,107 @@ export default function ReportList({
                 ) : reports.length === 0 ? (
                     <p className="none renone">신고 내역이 없습니다.</p>
                 ) : (
-                    reports.map((item) => (
-                        <li key={item.dclrId}>
-                            <div className="list_item_card" onClick={() => goDetail(item)} style={{cursor: 'pointer'}}>
-                                <p className={`situation ${getStatusStyle(item.dclrStts.cdId)}`}>
-                                    {getStatusText(item.dclrStts.cdId)}
-                                </p>
-                                <button
-                                    className="mapgo"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
+                    reports.map((item) => {
+                        const statusMap: Record<string, { className: string; text: string }> = {
+                            "DEST01": {className: "st1", text: "미승인"},
+                            "DEST02": {className: "st2", text: "미배정"},
+                            "DEST03": {className: "st3", text: "처리중"},
+                            "DEST04": {className: "st4", text: "처리완료"},
+                            "DEST06": {className: "st5", text: "견인미승인"},
+                            "DEST07": {className: "st6", text: "견인요청"},
+                            "DEST08": {className: "st7", text: "견인처리중"},
+                            "DEST09": {className: "st8", text: "견인완료"},
+                            "DEST10": {className: "st4", text: "자동취소"}
+                        };
 
-                                        const locationData = {
-                                            lat: item.latVl,
-                                            lng: item.lotVl,
-                                            dclrId: item.dclrId
-                                        };
-                                        sessionStorage.setItem("selected_kickboard_loc", JSON.stringify(locationData));
+                        const currentCdId = item.dclrStts?.cdId;
+                        const currentStatus = statusMap[currentCdId] || {
+                            className: "st1",
+                            text: item.dclrStts?.cdNm || "미승인"
+                        };
 
-                                        router.push(prefix || "/");
-                                    }}
-                                >
-                                    지도보기
-                                </button>
-                                <p className="add">{item.dclrAddrTxt}</p>
-                                <div className="listconten">
-                                    <div className="leftbox">
-                                        <dl>
-                                            <dt>신고일시</dt>
-                                            <dd>{item.regDt.substring(0, 16)}</dd>
-                                        </dl>
-                                        <dl>
-                                            <dt>킥보드ID</dt>
-                                            <dd>{item.qrcdVl}</dd>
-                                        </dl>
-                                        <dl>
-                                            <dt>위반유형</dt>
-                                            <dd>{item.vltnType.cdNm}</dd>
-                                        </dl>
-                                        <dl>
-                                            <dt>상세설명</dt>
-                                            <dd>{item.dclrCn}</dd>
-                                        </dl>
-                                        <dl>
-                                            <dt>처리자</dt>
-                                            <dd>{item.prcrHis?.prcr?.userNm || "-"}</dd>
-                                        </dl>
-                                        <dl>
-                                            <dt>처리일시</dt>
-                                            <dd className="blue">{item.prcrHis?.prcsDt || "-"}</dd>
-                                        </dl>
+                        return (
+                            <li key={item.dclrId}>
+                                <div className="list_item_card" onClick={() => goDetail(item)}
+                                     style={{cursor: 'pointer'}}>
+                                    <p className={`situation ${currentStatus}`}>
+                                        {currentStatus.text}
+                                    </p>
+                                    <button
+                                        className="mapgo"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+
+                                            const locationData = {
+                                                lat: item.latVl,
+                                                lng: item.lotVl,
+                                                dclrId: item.dclrId
+                                            };
+                                            sessionStorage.setItem("selected_kickboard_loc", JSON.stringify(locationData));
+
+                                            router.push(prefix || "/");
+                                        }}
+                                    >
+                                        지도보기
+                                    </button>
+                                    <p className="add">{item.dclrAddrTxt}</p>
+                                    <div className="listconten">
+                                        <div className="leftbox">
+                                            <dl>
+                                                <dt>신고일시</dt>
+                                                <dd>{item.regDt.substring(0, 16)}</dd>
+                                            </dl>
+                                            <dl>
+                                                <dt>킥보드ID</dt>
+                                                <dd>{item.qrcdVl}</dd>
+                                            </dl>
+                                            <dl>
+                                                <dt>위반유형</dt>
+                                                <dd>{item.vltnType.cdNm}</dd>
+                                            </dl>
+                                            <dl>
+                                                <dt>상세설명</dt>
+                                                <dd>{item.dclrCn}</dd>
+                                            </dl>
+                                            <dl>
+                                                <dt>처리자</dt>
+                                                <dd>{item.prcrHis?.prcr?.userNm || "-"}</dd>
+                                            </dl>
+                                            <dl>
+                                                <dt>처리일시</dt>
+                                                <dd className="blue">{item.prcrHis?.prcsDt || "-"}</dd>
+                                            </dl>
+                                        </div>
+                                        <img
+                                            src={item.imgUrls?.[0] || "/images/main_all_img.png"}
+                                            className="list_img"
+                                            alt="신고이미지"
+                                        />
                                     </div>
-                                    <img
-                                        src={item.imgUrls?.[0] || "/images/main_all_img.png"}
-                                        className="list_img"
-                                        alt="신고이미지"
-                                    />
-                                </div>
 
-                                <div className="listbtnset" onClick={(e) => e.stopPropagation()}>
-                                    {item.dclrStts?.cdId === "DEST03" && currentUserName && currentUserName === item.prcrHis?.prcr?.userId && (
-                                        <button className="btn_complete" onClick={() => handleComplete(item.dclrId)}>
-                                            완료처리
-                                        </button>
-                                    )}
-                                    {item.dclrStts.cdId === "DEST02" && (
-                                        <>
+                                    <div className="listbtnset" onClick={(e) => e.stopPropagation()}>
+                                        {item.dclrStts?.cdId === "DEST03" && currentUserName && currentUserName === item.prcrHis?.prcr?.userId && (
                                             <button className="btn_complete"
                                                     onClick={() => handleComplete(item.dclrId)}>
                                                 완료처리
                                             </button>
-                                            <button className="btn_acc" onClick={() => handleCollect(item.dclrId)}>
-                                                회수진행
-                                            </button>
-                                        </>
-                                    )}
+                                        )}
+                                        {item.dclrStts.cdId === "DEST02" && (
+                                            <>
+                                                <button className="btn_complete"
+                                                        onClick={() => handleComplete(item.dclrId)}>
+                                                    완료처리
+                                                </button>
+                                                <button className="btn_acc" onClick={() => handleCollect(item.dclrId)}>
+                                                    회수진행
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                    ))
+                            </li>
+                        )
+                    })
                 )}
             </ul>
         </article>

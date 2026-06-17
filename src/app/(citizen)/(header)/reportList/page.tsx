@@ -29,12 +29,12 @@ export default function ReportListPage() {
             }
         };
         const recordMenuLog = async () => {
-                try {
-                    await registerGuestMenuLog("CIT3000"); 
-                } catch (error) {
-                    console.error("메뉴 이력 적재 실패:", error);
-                }
-            };
+            try {
+                await registerGuestMenuLog("CIT3000");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
         recordMenuLog();
         fetchList();
     }, []);
@@ -55,18 +55,26 @@ export default function ReportListPage() {
                     <p className="none renone">신고 내역이 없습니다.</p>
                 ) : (
                     reportList.map((item) => {
-                        const isCompleted = ['DEST04', 'DEST09'].includes(item.dclrStts?.cdId);
+                        const statusCode = item.dclrStts?.cdId;
+                        const isCompleted = ['DEST04', 'DEST09', 'DEST10'].includes(statusCode);
                         const statusClass = isCompleted ? 'si2' : 'si1';
                         const firstImage = (item.imgUrls && item.imgUrls.length > 0 && item.imgUrls[0].startsWith("data:image"))
                             ? item.imgUrls[0]
                             : "/images/camera.png";
+
+                        let statusText = "처리중";
+                        if (statusCode === 'DEST10') {
+                            statusText = "자동취소";
+                        } else if (isCompleted) {
+                            statusText = "처리완료";
+                        }
 
                         return (
                             <li key={item.dclrId} onClick={() => getDetail(item.dclrId)}>
                                 <a>
 
                                     <p className={`situation ${statusClass}`}>
-                                        {isCompleted ? "처리완료" : "처리중"}
+                                        {statusText}
                                     </p>
                                     <p className="add">{item.dclrAddrTxt}</p>
 
