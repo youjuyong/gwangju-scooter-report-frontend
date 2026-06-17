@@ -49,3 +49,15 @@ export interface UserHistoryResponse {
     displayContent : string;
     aftrVl: string ; // 변경유형 (수정,삭제 등)
 }
+
+export interface UserConnHistroyForm {
+    startDate : string;
+    endDate : string;
+}
+
+export interface UserConntHistoryResponse{
+    cntnLogId: string;
+    userId: string;
+    cntnIpAddr: string;
+    cntnDt: string;
+}

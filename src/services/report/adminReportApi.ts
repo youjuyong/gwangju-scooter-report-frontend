@@ -1,4 +1,12 @@
-import {AdminReportForm,AdminReportResponse,PrivacyReportForm,PrivacyReportResponse,UserHistoryForm,UserHistoryResponse} from "@/types/adminReport";
+import {
+    AdminReportForm,
+    AdminReportResponse,
+    PrivacyReportForm,
+    PrivacyReportResponse,
+    UserConnHistroyForm, UserConntHistoryResponse,
+    UserHistoryForm,
+    UserHistoryResponse
+} from "@/types/adminReport";
 import api from "@/services/api";
 
 const BASE_CODE_URL = '/statistics';
@@ -23,3 +31,11 @@ export const getUserHistoryListApi = async (request:UserHistoryForm):Promise<Use
     });
     return response.data.data;
 }
+
+export const UserConntHistoryListApi  = async (request:UserConnHistroyForm):Promise<UserConntHistoryResponse[]> => {
+    const response = await api.get(BASE_CODE_URL+'/system/connection',{
+        params: request
+    });
+    return response.data.data;
+}
+
