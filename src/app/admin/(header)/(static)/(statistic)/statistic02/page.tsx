@@ -61,43 +61,6 @@ export default function StatisticDayPage() {
         { id: 'year', name: '년별', path: `/${userRole}/statistic03` },
     ];
 
-   
-    useEffect(() => {
-        const fetchPmCompanies = async () => {
-            try {
-                const response = await api.get('/pm/pm-companies');
-                const data = response.data;
-                
-                setPmCompanyList(data);
-
-                if (data && data.length > 0) {
-                    setPmCompany(data[0].bzentyId);
-                }
-            } catch (error) {
-                console.error("PM사 목록 로드 실패:", error);
-            }
-        };
-
-        const recordMenuLog = async () => {
-            try {
-                await registerMenuLog("OPR2300");
-            } catch (error) {
-                console.error("메뉴 이력 적재 실패:", error);
-            }
-        };
-
-        recordMenuLog();
-        fetchPmCompanies();
-    }, []);
-
-    //엑셀 다운로드
-    useEffect(() => {
-        if (reportGridRef.current) {
-            setGrid(reportGridRef.current);
-            setFileName(`${targetMonth}_월별민원처리통계`);
-        }
-    }, [reportGridData, setGrid, setFileName]);
-
     const handleSearchMonthly = async () => {
         if (!targetMonth) return alert("조회 월을 선택해주세요.");
         if (!pmCompany) return alert("PM사를 선택해주세요.");
@@ -107,21 +70,21 @@ export default function StatisticDayPage() {
         setSearchedMonth(targetMonth);
         setLoading(true);
         setIsSearched(true);
-        
+
         try {
             const formattedMonth = targetMonth.replace(/-/g, ''); // '2026-06' -> '202606'
-            
+
             const response = await api.get('/statistics/pm-monthly', {
                 params: { targetMonth: formattedMonth, bzentyId: pmCompany }
             });
 
-            const data = response.data; 
-            
+            const data = response.data;
+
             const [year, month] = targetMonth.split('-').map(Number);
             const totalDays = new Date(year, month, 0).getDate(); // 6월이면 30, 7월이면 31 동적 반환
-            
+
             const daysCategories = Array.from({ length: totalDays }, (_, i) => `${i + 1}일`);
-            
+
             const receivedSeries = Array.from({ length: totalDays }, (_, i) => data.hourlyData.received[i] || 0);
             const processedSeries = Array.from({ length: totalDays }, (_, i) => data.hourlyData.pmProcessed[i] || 0);
             const towedSeries = Array.from({ length: totalDays }, (_, i) => data.hourlyData.towed[i] || 0);
@@ -133,7 +96,7 @@ export default function StatisticDayPage() {
             ];
 
             const chartTitle = data.companyName ? `[${data.companyName}] 월간 민원 처리 추이` : '월간 민원 처리 추이';
-            
+
             const options = createLineChartOptions(chartTitle, daysCategories, seriesData as any);
 
             setChartOptions(options);
@@ -183,6 +146,42 @@ export default function StatisticDayPage() {
 
         return [...baseColumns, ...dayColumns];
     };
+
+    useEffect(() => {
+        const fetchPmCompanies = async () => {
+            try {
+                const response = await api.get('/pm/pm-companies');
+                const data = response.data;
+                
+                setPmCompanyList(data);
+
+                if (data && data.length > 0) {
+                    setPmCompany(data[0].bzentyId);
+                }
+            } catch (error) {
+                console.error("PM사 목록 로드 실패:", error);
+            }
+        };
+
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR2300");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+
+        recordMenuLog();
+        fetchPmCompanies();
+    }, []);
+
+    //엑셀 다운로드
+    useEffect(() => {
+        if (reportGridRef.current) {
+            setGrid(reportGridRef.current);
+            setFileName(`${targetMonth}_월별민원처리통계`);
+        }
+    }, [reportGridData, setGrid, setFileName]);
 
     return (
         <div className="wrap statistic_wrap" style={{ width: '100%', maxWidth: '100%' }}>

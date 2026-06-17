@@ -56,59 +56,22 @@ export default function StatisticDayPage() {
         { id: 'year', name: '년별', path: `/${userRole}/statistic03` },
     ];
 
-   
-    useEffect(() => {
-        const fetchPmCompanies = async () => {
-            try {
-                const response = await api.get('/pm/pm-companies');
-                const data = response.data;
-                
-                setPmCompanyList(data);
-
-                if (data && data.length > 0) {
-                    setPmCompany(data[0].bzentyId);
-                }
-            } catch (error) {
-                console.error("PM사 목록 로드 실패:", error);
-            }
-        };
-
-        const recordMenuLog = async () => {
-            try {
-                await registerMenuLog("OPR2300");
-            } catch (error) {
-                console.error("메뉴 이력 적재 실패:", error);
-            }
-        };
-
-        recordMenuLog();
-        fetchPmCompanies();
-    }, []);
-
-    //엑셀 다운로드
-    useEffect(() => {
-        if (reportGridRef.current) {
-            setGrid(reportGridRef.current);
-            setFileName(`${targetYear}년_연별민원처리통계`);
-        }
-    }, [reportGridData, setGrid, setFileName]);
-
     const handleSearchYearly = async () => {
         if (!targetYear) return alert("조회 연도를 선택해주세요.");
         if (!pmCompany) return alert("PM사를 선택해주세요.");
-        
+
         setLoading(true);
         setIsSearched(true);
-        
+
         try {
             const response = await api.get('/statistics/pm-yearly', {
                 params: { targetYear: targetYear, bzentyId: pmCompany }
             });
 
             const data = response.data;
-            
+
             const monthsCategories = Array.from({ length: 12 }, (_, i) => `${i + 1}월`);
-            
+
             const receivedSeries = Array.from({ length: 12 }, (_, i) => data.hourlyData.received[i] || 0);
             const processedSeries = Array.from({ length: 12 }, (_, i) => data.hourlyData.pmProcessed[i] || 0);
             const towedSeries = Array.from({ length: 12 }, (_, i) => data.hourlyData.towed[i] || 0);
@@ -120,7 +83,7 @@ export default function StatisticDayPage() {
             ];
 
             const chartTitle = data.companyName ? `[${data.companyName}] 연간 민원 처리 추이` : '연간 민원 처리 추이';
-            
+
             // 공통 테마 유틸 함수 재사용
             const options = createLineChartOptions(chartTitle, monthsCategories, seriesData as any);
             setChartOptions(options);
@@ -158,6 +121,42 @@ export default function StatisticDayPage() {
             return [...baseColumns, ...monthColumns];
         }, []);
     };
+   
+    useEffect(() => {
+        const fetchPmCompanies = async () => {
+            try {
+                const response = await api.get('/pm/pm-companies');
+                const data = response.data;
+                
+                setPmCompanyList(data);
+
+                if (data && data.length > 0) {
+                    setPmCompany(data[0].bzentyId);
+                }
+            } catch (error) {
+                console.error("PM사 목록 로드 실패:", error);
+            }
+        };
+
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR2300");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+
+        recordMenuLog();
+        fetchPmCompanies();
+    }, []);
+
+    //엑셀 다운로드
+    useEffect(() => {
+        if (reportGridRef.current) {
+            setGrid(reportGridRef.current);
+            setFileName(`${targetYear}년_연별민원처리통계`);
+        }
+    }, [reportGridData, setGrid, setFileName]);
 
     return (
         <div className="wrap statistic_wrap" style={{ width: '100%', maxWidth: '100%' }}>

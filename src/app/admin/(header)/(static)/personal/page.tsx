@@ -61,6 +61,24 @@ export default function PersonalPage() {
 
     ], []);
 
+    // 검색 버튼 이벤트 핸들러
+    const handleSearch = () => {
+        const requestData: PrivacyReportForm = {
+            targetYear : selectedYear
+        }
+        fetchData(requestData)
+    };
+
+    const fetchData = useCallback(async(searchParams:PrivacyReportForm)=>{
+        try{
+            const result = await getPrivacyReportListApi(searchParams);
+            setPrivacyGridData(result);
+
+        }catch (error){
+            console.error(error);
+        }
+    },[])
+
     useEffect(() => {
         handleSearch(); // 화면이 열리자마자 검색
 
@@ -82,24 +100,6 @@ export default function PersonalPage() {
             setFileName("개인정보파기이력");
         }
     }, [reportGridData, setGrid, setFileName]);
-
-    // 검색 버튼 이벤트 핸들러
-    const handleSearch = () => {
-        const requestData: PrivacyReportForm = {
-            targetYear : selectedYear
-        }
-        fetchData(requestData)
-    };
-
-    const fetchData = useCallback(async(searchParams:PrivacyReportForm)=>{
-       try{
-           const result = await getPrivacyReportListApi(searchParams);
-           setPrivacyGridData(result);
-
-       }catch (error){
-           console.error(error);
-       }
-    },[])
 
     return (
         <div className="wrap">

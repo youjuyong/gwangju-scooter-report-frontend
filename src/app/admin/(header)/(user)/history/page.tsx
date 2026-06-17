@@ -29,6 +29,7 @@ export default function UserHistory(){
         { id: 'member', name: '일반회원관리', path: `/${userRole}/member` },
         { id: 'manager', name: '관리자관리', path: `/${userRole}/manager` },
         { id: 'history', name: '시스템사용이력', path: `/${userRole}/history` },
+        { id: 'connection', name: '시스템접속이력', path: `/${userRole}/connection` },
     ];
     const historyGridColumns = useMemo<CustomColumnDef<UserHistoryResponse>[]>(() => [
         {
@@ -79,6 +80,34 @@ export default function UserHistory(){
         },
     ], []);
 
+
+    const handleSearch = () => {
+        const requestData: UserHistoryForm = {
+            startDate: startDate,
+            endDate: endDate,
+            keyword: keyword,
+        };
+
+        fetchData(requestData);
+    };
+
+    // 이력 데이터 조회
+    const fetchData = useCallback(async (searchParams: UserHistoryForm) => {
+        try {
+            const result = await getUserHistoryListApi(searchParams);
+            console.log(result);
+            setHistoryGridData(result);
+        } catch (error) {
+            console.error(error);
+        }
+    }, []);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
     useEffect(() => {
         handleSearch();
 
@@ -97,35 +126,9 @@ export default function UserHistory(){
     useEffect(() => {
         if (reportGridRef.current) {
             setGrid(reportGridRef.current);
-            setFileName("신고처리이력");
+            setFileName("시스템사용이력");
         }
     }, [reportGridData, setGrid, setFileName]);
-    // 이력 데이터 조회
-    const fetchData = useCallback(async (searchParams: UserHistoryForm) => {
-        try {
-            const result = await getUserHistoryListApi(searchParams);
-            console.log(result);
-            setHistoryGridData(result);
-        } catch (error) {
-            console.error(error);
-        }
-    }, []);
-
-    const handleSearch = () => {
-        const requestData: UserHistoryForm = {
-            startDate: startDate,
-            endDate: endDate,
-            keyword: keyword,
-        };
-
-        fetchData(requestData);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
-    };
 
     return(
         <div className="wrap history_wrap">

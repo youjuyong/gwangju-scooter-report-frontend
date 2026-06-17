@@ -47,66 +47,6 @@ export default function ReportPage() {
         { id: 'statistic', name: '민원처리통계', path: `/${userRole}/statistic01` },
         { id: 'menuStat', name: '메뉴기능활용통계', path: `/${userRole}/statistic_menu01` },
     ];
-
-    useEffect(() => {
-        handleSearch(); // 화면이 열리자마자 검색
-        //pm사 조회
-        const fetchPmCompanies = async () => {
-            try {
-                const response = await api.get('/pm/pm-companies');
-                const data = response.data;
-                setPmCompanyList(data);
-
-            } catch (error) {
-                console.error("PM사 목록 로드 실패:", error);
-            }
-        };
-        //처리상태 옵션 조회
-        const fetchDestList = async ()=>{
-            try{
-                const response = await api.get('/code/DEST');
-                const data = response.data.data;
-                setStatusOptions(data);
-            }catch (error){
-                console.error("처리상태 리스트 로드 실패:", error);
-            }
-        };
-
-        const recordMenuLog = async () => {
-            try {
-                await registerMenuLog("OPR2100");
-            } catch (error) {
-                console.error("메뉴 이력 적재 실패:", error);
-            }
-        };
-        fetchDestList();
-        fetchPmCompanies();
-        recordMenuLog();
-
-    }, []);
-
-
-    //엑셀 다운로드
-    useEffect(() => {
-        if (reportGridRef.current) {
-            setGrid(reportGridRef.current);
-            setFileName("신고처리이력");
-        }
-    }, [reportGridData, setGrid, setFileName]);
-    // 이력 데이터 조회
-    const fetchData = useCallback(async (searchParams: AdminReportForm) => {
-        try {
-            const result = await getReportListApi(searchParams);
-            setNoticeGridData(result);
-
-            setSelectedReport(null);
-            reportGridRef.current?.clearSelectedRow();
-            reportGridRef.current?.clearRowSelection();
-        } catch (error) {
-            console.error(error);
-        }
-    }, []);
-
     const reportGridColumns = useMemo<CustomColumnDef<AdminReportResponse>[]>(() => [
         {
             header : '이력ID',
@@ -162,7 +102,6 @@ export default function ReportPage() {
             meta: { filterType: "check" }
         },
     ], []);
-
     const handleSearch = () => {
         const requestData: AdminReportForm = {
             startDate: startDate,
@@ -175,14 +114,28 @@ export default function ReportPage() {
         fetchData(requestData);
     };
 
+    // 이력 데이터 조회
+    const fetchData = useCallback(async (searchParams: AdminReportForm) => {
+        try {
+            const result = await getReportListApi(searchParams);
+            setNoticeGridData(result);
+
+            setSelectedReport(null);
+            reportGridRef.current?.clearSelectedRow();
+            reportGridRef.current?.clearRowSelection();
+        } catch (error) {
+            console.error(error);
+        }
+    }, []);
+
     const onClickReportRow = (rowData: any) => {
         if (rowData.rowKey && selectedReport?.bzentyId === rowData.bzentyId) {
             setSelectedReport(null);
             return;
         }
-            setSelectedReportId(rowData.bzentyId);
-            setSelectedReport(rowData);
-            setIsDetailOpen(true);
+        setSelectedReportId(rowData.bzentyId);
+        setSelectedReport(rowData);
+        setIsDetailOpen(true);
         console.log("선택된 행 데이터 피드백:", rowData);
     };
 
@@ -191,6 +144,53 @@ export default function ReportPage() {
             handleSearch();
         }
     };
+
+    useEffect(() => {
+        handleSearch(); // 화면이 열리자마자 검색
+        //pm사 조회
+        const fetchPmCompanies = async () => {
+            try {
+                const response = await api.get('/pm/pm-companies');
+                const data = response.data;
+                setPmCompanyList(data);
+
+            } catch (error) {
+                console.error("PM사 목록 로드 실패:", error);
+            }
+        };
+        //처리상태 옵션 조회
+        const fetchDestList = async ()=>{
+            try{
+                const response = await api.get('/code/DEST');
+                const data = response.data.data;
+                setStatusOptions(data);
+            }catch (error){
+                console.error("처리상태 리스트 로드 실패:", error);
+            }
+        };
+
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR2100");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        fetchDestList();
+        fetchPmCompanies();
+        recordMenuLog();
+
+    }, []);
+
+
+    //엑셀 다운로드
+    useEffect(() => {
+        if (reportGridRef.current) {
+            setGrid(reportGridRef.current);
+            setFileName("신고처리이력");
+        }
+    }, [reportGridData, setGrid, setFileName]);
+
 
     return (
         <div className="wrap report_wrap">

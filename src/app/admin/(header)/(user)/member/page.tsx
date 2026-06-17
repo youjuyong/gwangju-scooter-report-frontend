@@ -16,6 +16,7 @@ export default function MemberPage() {
         { id: 'member', name: '일반회원관리', path: `/${userRole}/member` },
         { id: 'manager', name: '관리자관리', path: `/${userRole}/manager` },
         { id: 'history', name: '시스템사용이력', path: `/${userRole}/history` },
+        { id: 'connection', name: '시스템접속이력', path: `/${userRole}/connection` },
     ];
 
     // 3. 버튼 이벤트 핸들러 정의

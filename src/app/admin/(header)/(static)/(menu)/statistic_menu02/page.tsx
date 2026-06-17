@@ -68,24 +68,6 @@ export default function StatisticMonthPage(){
         { id: 'year', name: '년별', path: `/${userRole}/statistic_menu03` },
     ];
 
-    useEffect(() => {
-        const recordMenuLog = async () => {
-            try {
-                await registerMenuLog("OPR2400");
-            } catch (error) {
-                console.error("메뉴 이력 적재 실패:", error);
-            }
-        };
-        recordMenuLog();
-    }, []);
-
-    //엑셀 다운로드
-    useEffect(() => {
-        if (reportGridRef.current) {
-            setGrid(reportGridRef.current);
-            setFileName(`${targetMonth}_월별메뉴기능활용통계`);
-        }
-    }, [reportGridData, setGrid, setFileName]);
 
     const handleSearchMonthly = async () => {
         if (!targetMonth) return alert("일자를 선택해주세요.");
@@ -177,6 +159,26 @@ export default function StatisticMonthPage(){
         setMenuType(currentId);
         setMenuTypeNm(currentName); // cdNm 값 세팅!
     };
+
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR2400");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
+
+    //엑셀 다운로드
+    useEffect(() => {
+        if (reportGridRef.current) {
+            setGrid(reportGridRef.current);
+            setFileName(`${targetMonth}_월별메뉴기능활용통계`);
+        }
+    }, [reportGridData, setGrid, setFileName]);
+
     return(
         <div className="wrap statistic_wrap">
 
