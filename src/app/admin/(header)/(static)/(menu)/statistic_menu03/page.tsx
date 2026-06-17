@@ -12,6 +12,7 @@ import ExcelDownload from "@/components/admin/ExcelDownload";
 import {ExcelContext} from "@/components/admin/ExcelContext";
 import {getRandomColor ,getYearOptions} from "@/utils/format";
 import { useMenuTypes } from '@/hooks/useMenuType';
+import {registerMenuLog} from "@/services/common/commonApi";
 
 interface gridData {
     menuNm : string;
@@ -57,6 +58,17 @@ export default function StatisticMenuYearsPage(){
         { id: 'month', name: '월별', path: `/${userRole}/statistic_menu02` },
         { id: 'year', name: '년별', path: `/${userRole}/statistic_menu03` },
     ];
+
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR2400");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     //엑셀 다운로드
     useEffect(() => {

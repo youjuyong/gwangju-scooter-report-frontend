@@ -10,6 +10,7 @@ import {getReportListApi} from "@/services/report/adminReportApi";
 import ReportDetailPopup from "@/components/admin/popup/ReportDetailPopup";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {ExcelContext} from "@/components/admin/ExcelContext";
+import {registerMenuLog} from "@/services/common/commonApi";
 
 interface PmCompany {
     bzentyId: string;
@@ -71,8 +72,17 @@ export default function ReportPage() {
             }
         };
 
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR2100");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
         fetchDestList();
         fetchPmCompanies();
+        recordMenuLog();
+
     }, []);
 
 

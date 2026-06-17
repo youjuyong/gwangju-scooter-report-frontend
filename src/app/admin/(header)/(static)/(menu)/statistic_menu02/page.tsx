@@ -7,7 +7,7 @@ import Link from 'next/link';
 import api from "@/services/api";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import {getCodeType} from "@/services/common/commonApi";
+import {getCodeType, registerMenuLog} from "@/services/common/commonApi";
 import {getRandomColor} from "@/utils/format";
 import {RaontecGridHandle, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
 import {ExcelContext} from "@/components/admin/ExcelContext";
@@ -67,6 +67,17 @@ export default function StatisticMonthPage(){
         { id: 'month', name: '월별', path: `/${userRole}/statistic_menu02` },
         { id: 'year', name: '년별', path: `/${userRole}/statistic_menu03` },
     ];
+
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR2400");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     //엑셀 다운로드
     useEffect(() => {

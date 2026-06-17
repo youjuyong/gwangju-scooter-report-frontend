@@ -5,7 +5,7 @@ import { createLineChartOptions } from "@/utils/highchart";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import api from "@/services/api";
-import {getCodeType} from "@/services/common/commonApi";
+import {getCodeType, registerMenuLog} from "@/services/common/commonApi";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official'
 import {CustomColumnDef, RaontecGridHandle, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
@@ -58,6 +58,17 @@ export default function StatisticMenuDay(){
         setMenuType,
         isLoading
     } = useMenuTypes();
+
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR2400");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     //엑셀 다운로드
     useEffect(() => {

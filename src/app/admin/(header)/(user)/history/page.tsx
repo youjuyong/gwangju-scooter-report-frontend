@@ -7,6 +7,7 @@ import {getReportListApi, getUserHistoryListApi} from "@/services/report/adminRe
 import {CustomColumnDef, RaontecGridHandle, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
 import {ExcelContext} from "@/components/admin/ExcelContext";
 import ExcelDownload from "@/components/admin/ExcelDownload";
+import {registerMenuLog} from "@/services/common/commonApi";
 
 export default function UserHistory(){
     const pathname = usePathname();
@@ -80,6 +81,16 @@ export default function UserHistory(){
 
     useEffect(() => {
         handleSearch();
+
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR5300");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+
+        recordMenuLog();
     }, []);
 
     //엑셀 다운로드

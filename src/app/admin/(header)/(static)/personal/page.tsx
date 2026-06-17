@@ -8,6 +8,7 @@ import {PrivacyReportForm, PrivacyReportResponse} from "@/types/adminReport";
 import {getPrivacyReportListApi} from "@/services/report/adminReportApi";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {ExcelContext} from "@/components/admin/ExcelContext";
+import {registerMenuLog} from "@/services/common/commonApi";
 
 export default function PersonalPage() {
     const pathname = usePathname();
@@ -62,6 +63,16 @@ export default function PersonalPage() {
 
     useEffect(() => {
         handleSearch(); // 화면이 열리자마자 검색
+
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR2200");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+
+        recordMenuLog();
     }, []);
 
     //엑셀 다운로드

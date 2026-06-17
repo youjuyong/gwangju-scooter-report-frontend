@@ -10,6 +10,7 @@ import HighchartsReact from 'highcharts-react-official';
 import {CustomColumnDef, RaontecGridHandle, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {ExcelContext} from "@/components/admin/ExcelContext";
+import {registerMenuLog} from "@/services/common/commonApi";
 
 interface PmCompany {
     bzentyId: string; 
@@ -66,6 +67,15 @@ export default function StatisticDayPage() {
             }
         };
 
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR2300");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+
+        recordMenuLog();
         fetchPmCompanies();
     }, []);
 
