@@ -380,6 +380,29 @@ input[type="file"]::-webkit-file-upload-button{ padding:0 10px;}
 
 .popup.popup_manager input, .popup.popup_manager select{width: 150px;}
 
+.memberContent .gridbox{bottom: 100px; border-bottom: 1px solid #121214}
+.pagebox{width: 100%; position: absolute; bottom: 0; height: 100px; width:100%; text-align: center; border-top: 1px solid #2b2d32; padding-top: 20px;}
+.pagebox div{display: inline-block; vertical-align: middle; font-size: 0}
+.page_first{}
+.pagebox button{width: 38px; height: 38px; border-radius: 5px; background: #2d2f34; font-size: 12px; margin: 2px; padding: 0}
+.pagebox button.click,.pagebox button.click:hover{background: #d22517}
+.pagebox button:hover{background: #393c42}
+.pagebox button:active{background: #25272b}
+.page_nav button{box-shadow: none;}
+.pagebox button.page_first{background: url(../images/board_first.png)center #212226 no-repeat;}
+.pagebox button.page_back{background: url(../images/board_back.png)center #212226 no-repeat;}
+.pagebox button.page_next{background: url(../images/board_next.png)center #212226 no-repeat;}
+.pagebox button.page_last{background: url(../images/board_last.png)center #212226 no-repeat;}
+
+.pagebox button.page_first:hover{background: url(../images/board_first.png)center #2d2f34 no-repeat;}
+.pagebox button.page_back:hover{background: url(../images/board_back.png)center #2d2f34 no-repeat;}
+.pagebox button.page_next:hover{background: url(../images/board_next.png)center #2d2f34 no-repeat;}
+.pagebox button.page_last:hover{background: url(../images/board_last.png)center #2d2f34 no-repeat;}
+
+.pagebox button.page_first:active{background: url(../images/board_first.png)center #1b1c20 no-repeat;}
+.pagebox button.page_back:active{background: url(../images/board_back.png)center #1b1c20 no-repeat;}
+.pagebox button.page_next:active{background: url(../images/board_next.png)center #1b1c20 no-repeat;}
+.pagebox button.page_last:active{background: url(../images/board_last.png)center #1b1c20 no-repeat;}
 
 
 
