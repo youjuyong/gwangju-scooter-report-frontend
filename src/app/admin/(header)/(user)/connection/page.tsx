@@ -30,7 +30,7 @@ export default function UserHistory(){
         { id: 'history', name: '시스템사용이력', path: `/${userRole}/history` },
         { id: 'connection', name: '시스템접속이력', path: `/${userRole}/connection` },
     ];
-    const historyGridColumns = useMemo<CustomColumnDef<UserConntHistoryResponse>[]>(() => [
+    const gridColumns = useMemo<CustomColumnDef<UserConntHistoryResponse>[]>(() => [
         {
             header : '접속 로그 ID',
             accessorKey : 'cntnLogId',
@@ -147,7 +147,7 @@ export default function UserHistory(){
                         <RaontecTanstackGrid
                             ref={reportGridRef}
                             data={reportGridData}
-                            columns={historyGridColumns}
+                            columns={gridColumns}
                         />
                     </div>
                 </div>
