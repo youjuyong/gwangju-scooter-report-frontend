@@ -318,7 +318,10 @@
 }
 
 
-@media (max-width:344px){.search_right.search_right_Excel{display: none}}
+@media (max-width:344px){
+    .search_right.search_right_Excel{display: none}
+    .pagebox button{width: 17px; height: 17px;}
+}
 
 
 
