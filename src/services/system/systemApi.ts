@@ -120,3 +120,13 @@ export const updateBatchPointApi = async (payload: any): Promise<any> => {
 export const deleteBatchPointApi = async (btchZoneId: string | number): Promise<void> => {
     await api.delete(`/pm/bach/${btchZoneId}`);
 };
+
+//========================================================================================
+/**
+ * 권역 계층 구조 조회 (Hierarchy)
+ * @description 대시보드 및 필터 링에서 사용하는 시도/구군/동 단위 계층 구조 데이터 가져오기
+ * */
+export const getSystemHierarchyApi = async (): Promise<any> => {
+    const response = await api.get(`/system/hierarchy`);
+    return response.data.data || response.data;
+};
