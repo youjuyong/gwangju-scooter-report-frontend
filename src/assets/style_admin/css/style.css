@@ -347,6 +347,8 @@ input[type="file"]::-webkit-file-upload-button{ padding:0 10px;}
 .popup_zone th{width:105px}
 
 /*권역코드관리*/
+.treegrid .grid-row{border-bottom: 1px solid #2b2b2b ;}
+.treegrid .grid-cell{border-bottom: 0px solid #2b2b2b ;}
 .popup_code{width: 300px}
 .popup_code th{width:70px}
 

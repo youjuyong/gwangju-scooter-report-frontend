@@ -130,3 +130,42 @@ export const getSystemHierarchyApi = async (): Promise<any> => {
     const response = await api.get(`/system/hierarchy`);
     return response.data.data || response.data;
 };
+
+/**
+ * 권역 신규 등록
+ */
+export const createSareaApi = async (payload: {
+    upSareaId: number;
+    sareaId: number;
+    sareaNm : string;
+}): Promise<any> => {
+    const response = await api.post(`/system/sarea`, payload);
+    return response.data.data || response.data;
+};
+
+/**
+ * 권역 정보 수정
+ */
+export const updateSareaApi = async (payload: {
+    sareaId: number;
+    upSareaId: number;
+    sareaTypeCd: string;
+    sareaNm : string;
+}): Promise<any> => {
+    const response = await api.put(`/system/sarea`, payload);
+    return response.data.data || response.data;
+};
+
+/**
+ * 권역 정보 삭제 (Query Parameter 방식)
+ */
+export const deleteSareaApi = async (payload: {
+    upSareaId: string | number;
+    sareaId: string | number;
+}): Promise<any> => {
+    // 💡 쿼리 파라미터 규격에 맞게 params 객체로 전달합니다.
+    const response = await api.delete(`/system/sarea`, {
+        params: payload
+    });
+    return response.data.data || response.data;
+};

@@ -6,7 +6,7 @@ export const ExpandableCell = ({ row, getValue }: { row: any, getValue: () => an
                 <button
                     onClick={row.getToggleExpandedHandler()} // 여기서 실행!
                     style={{
-                        color: row.getIsExpanded()? '#00a8fd' : '#555555'
+                        color: row.getIsExpanded()? '#fe493b' : '#555555'
 
                     }}>
                     {row.getIsExpanded() ? '▼' : '▶'}
