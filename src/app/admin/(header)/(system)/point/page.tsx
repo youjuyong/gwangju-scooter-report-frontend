@@ -430,7 +430,7 @@ export default function PointPage() {
                                             style={{position: 'relative', margin: 0, transform: 'translateX(0%)'}}
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            <h3>배치포인트 <span>{getPopupTitle()} [범위:50M]</span></h3>
+                                            <h3>배치포인트 <span> [범위:50M]</span></h3>
                                             <button className="popupClose" onClick={handlePopupCancel}>닫기</button>
                                             <div className="popupconten">
                                                 <table>

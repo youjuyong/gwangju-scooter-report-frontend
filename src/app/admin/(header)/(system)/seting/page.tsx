@@ -78,7 +78,7 @@ export default function SettingPage() {
 
 
 
-    // 💡 시간 데이터 포맷팅 헬퍼 유틸 함수들
+    // 시간 데이터 포맷팅 헬퍼 유틸 함수들
     const parseToDisplayTime = (hm: string) => {
         if (!hm || hm.length !== 4) return "00:00";
         return `${hm.slice(0, 2)}:${hm.slice(2, 4)}`; // "0900" -> "09:00"
@@ -88,12 +88,12 @@ export default function SettingPage() {
         return timeStr.replace(":", ""); // "09:00" -> "0900"
     };
 
-    // 💡 데이터 로드 및 상태 매핑 실서버 연동 함수
+    //데이터 로드 및 상태 매핑 실서버 연동 함수
     const fetchSettingData = useCallback(async () => {
         try {
             setIsLoading(true);
 
-            // 💡 백엔드 통신 변경 (기존 api.get 제네릭도 새 응답 껍데기에 맞추어 적용되어야 함)
+            // 백엔드 통신 변경 (기존 api.get 제네릭도 새 응답 껍데기에 맞추어 적용되어야 함)
             // 임시로 받아온 객체를 형변환하거나 api 구조에 맞춰 명시
             const responseData = await getOperationSettingListApi() as unknown as OperationSettingResponse;
 
@@ -205,12 +205,12 @@ export default function SettingPage() {
         try {
             setIsLoading(true);
 
-            // 💡 [분기 1] 견인 자동 이관 시간 처리 -> 전용 API 호출
+            //[분기 1] 견인 자동 이관 시간 처리 -> 전용 API 호출
             if (savedData.type === 'tow') {
                 const towingPayload = {
                     autoTowingTransferTime: Number(savedData.startTime) // 팝업에서 입력한 숫자
                 };
-                await updateTowingTimeApi(towingPayload); // 👈 새롭게 정의한 API 호출
+                await updateTowingTimeApi(towingPayload); // 새롭게 정의한 API 호출
             }
 
             else {
@@ -250,6 +250,9 @@ export default function SettingPage() {
             }
 
             alert("설정이 성공적으로 반영되었습니다.");
+            if (settingGridRef.current) {
+                settingGridRef.current.clearRowSelection();
+            }
             setIsPopupOpen(false);
             await fetchSettingData(); // 목록 새로고침
         } catch (error) {
@@ -268,6 +271,9 @@ export default function SettingPage() {
             endTime: "00:00",
             isUsed: "사용"
         });
+        if (settingGridRef.current) {
+            settingGridRef.current.clearRowSelection();
+        }
 
         setCheckedRows([]);
         setIsPopupOpen(true);
@@ -302,6 +308,7 @@ export default function SettingPage() {
             );
 
             alert("선택한 항목들이 성공적으로 삭제되었습니다.");
+
 
             // 4. 삭제 완료 후 상태 최신화 및 그리드 선택 해제
             await fetchSettingData();

@@ -383,7 +383,7 @@ export default function ZonePage() {
                             <h3   // 팝업 드래그
                                 onMouseDown={handleMouseDown}
                                 style={{cursor: 'move', userSelect: 'none'}}
-                            >권역 <span>{popupMode === 'create' ? '[등록]' : '[수정]'}</span></h3>
+                            >권역 </h3>
                         <button className="popupClose" onClick={() => setIsPopupOpen(false)}>닫기</button>
                         <div className="popupconten">
                             <table>

@@ -135,7 +135,7 @@ export default function PmPopup({ isOpen, onClose, initialData, onSave }: PmComp
                 onMouseDown={handleMouseDown}
                 style={{cursor: 'move', userSelect: 'none'}}
                 >
-                    PM업체 {initialData ? "수정하기" : "등록하기"}
+                    PM업체
             {/* initialData 유무에 따라 타이틀 텍스트 동적 분기 */}
            </h3>
             <button className="popupClose" onClick={onClose} disabled={isLoading}>닫기</button>
