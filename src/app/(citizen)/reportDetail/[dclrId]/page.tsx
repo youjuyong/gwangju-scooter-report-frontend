@@ -34,8 +34,18 @@ export default function ReportDetail() {
         fetchDetail();
     }, [dclrId]);
 
-    const isCompleted = report?.dclrStts?.cdId ? ["DEST04", "DEST09", "DEST10"].includes(report.dclrStts?.cdId) : false;
-    const statusClass = isCompleted ? "si2" : "si1";
+    const statusCode = report?.dclrStts?.cdId;
+
+    const isCompleted = ["DEST04", "DEST09", "DEST10"].includes(statusCode);
+
+    const statusClass = statusCode === "DEST10" || isCompleted ? "si2" : "si1";
+
+    let statusText = "처리중";
+    if (statusCode === "DEST10") {
+        statusText = "자동취소";
+    } else if (isCompleted) {
+        statusText = "처리완료";
+    }
 
     const handleBack = () => {
         router.back();
@@ -60,7 +70,7 @@ export default function ReportDetail() {
                 <main className="sub_article">
                     <div className="detailBox">
                         <p className={`situation ${statusClass}`}> {/*.si1:처리중 , si2: 처리완료*/}
-                            {report.dclrStts?.cdNm || "처리중"} {/*도로명 주소만 나옴*/}
+                            {statusText || "처리중"}
                         </p>
                         <p className="add">{report.dclrAddrTxt}</p>
                         <dl>
