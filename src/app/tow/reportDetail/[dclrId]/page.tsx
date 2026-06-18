@@ -152,8 +152,8 @@ export default function ReportDetail() {
     };
     const getStatusText = (cdId: string) => {
         switch (cdId) {
-            case "DEST07": return "견인요청";
-            case "DEST08": return "견인접수";
+            case "DEST07": return "미배정";
+            case "DEST08": return "처리중";
             case "DEST09": return "처리완료";
             default: return "알 수 없음"; // 예외 처리
         }
