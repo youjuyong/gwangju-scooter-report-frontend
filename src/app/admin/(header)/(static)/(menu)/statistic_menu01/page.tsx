@@ -27,7 +27,12 @@ export default function StatisticMenuDay(){
     const pathname = usePathname();
     const userRole = "admin";
 
-    const [targetDate, setTargetDate] = useState(new Date().toISOString().split('T')[0]);
+    const [targetDate, setTargetDate] = useState(() => {
+        const now = new Date();
+        const kstOffset = now.getTimezoneOffset() * 60000;
+        const kstDate = new Date(now.getTime() - kstOffset);
+        return kstDate.toISOString().split('T')[0];
+    });
     const [menuTypeNm, setMenuTypeNm] = useState('');
     const [chartOptions, setChartOptions] = useState<Highcharts.Options | null>(null);
     const [loading, setLoading] = useState(false);
