@@ -129,7 +129,7 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
                         }
                         else if (item.id === 'user') {
                             // (user) 그룹 하위 폴더명 매핑
-                            isActive = ['manager', 'member','history'].includes(currentCategory);
+                            isActive = ['manager', 'member','history','connection'].includes(currentCategory);
                         }
 
                         return (
