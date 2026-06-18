@@ -180,15 +180,15 @@ export default function ReportList({
                 ) : (
                     reports.map((item) => {
                         const statusMap: Record<string, { className: string; text: string }> = {
-                            "DEST01": {className: "st1", text: "미승인"},
-                            "DEST02": {className: "st2", text: "미배정"},
-                            "DEST03": {className: "st3", text: "처리중"},
-                            "DEST04": {className: "st4", text: "처리완료"},
-                            "DEST06": {className: "st5", text: "견인미승인"},
-                            "DEST07": {className: "st6", text: "견인요청"},
-                            "DEST08": {className: "st7", text: "견인처리중"},
-                            "DEST09": {className: "st8", text: "견인완료"},
-                            "DEST10": {className: "st4", text: "자동취소"}
+                            "DEST01": {className: "si1", text: "미승인"},
+                            "DEST02": {className: "si3", text: "미배정"},
+                            "DEST03": {className: "si1", text: "처리중"},
+                            "DEST04": {className: "si2", text: "처리완료"},
+                            "DEST06": {className: "si5", text: "견인미승인"},
+                            "DEST07": {className: "si6", text: "견인요청"},
+                            "DEST08": {className: "si7", text: "견인처리중"},
+                            "DEST09": {className: "si8", text: "견인완료"},
+                            "DEST10": {className: "si4", text: "자동취소"}
                         };
 
                         const currentCdId = item.dclrStts?.cdId;
@@ -201,7 +201,7 @@ export default function ReportList({
                             <li key={item.dclrId}>
                                 <div className="list_item_card" onClick={() => goDetail(item)}
                                      style={{cursor: 'pointer'}}>
-                                    <p className={`situation ${currentStatus}`}>
+                                    <p className={`situation ${currentStatus.className}`}>
                                         {currentStatus.text}
                                     </p>
                                     <button
