@@ -53,7 +53,7 @@ export default function SettingPopup({
     // 2. 팝업이 열리거나 initialData가 변경될 때 데이터 동기화
     useEffect(() => {
         if (initialData) {
-            // 💡 tow 일 때는 부모가 넘겨준 단일 숫자(ex: "3")가 startTime에 주입됩니다.
+            // tow 일 때는 부모가 넘겨준 단일 숫자(ex: "3")가 startTime에 주입됩니다.
             setStartTime(initialData.startTime || (initialData.type === 'tow' ? "0" : "07:00"));
             setEndTime(initialData.endTime || "17:00");
             setIsUsed(initialData.isUsed || "사용");
@@ -67,7 +67,7 @@ export default function SettingPopup({
     // 팝업이 닫혀있으면 렌더링하지 않음
     if (!isOpen) return null;
 
-    // 💡 견인 제한(tow) 타입인지 여부 확인 변수
+    // 견인 제한(tow) 타입인지 여부 확인 변수
     const isTowType = initialData?.type === 'tow';
 
     // 3. 저장 핸들러
@@ -102,7 +102,7 @@ export default function SettingPopup({
                         <table>
                             <tbody>
                             <tr>
-                                {/* 💡 타입에 따라 라벨 명칭 변경 */}
+                                {/* 타입에 따라 라벨 명칭 변경 */}
                                 <th>{isTowType ? "이관 시간" : "시작시간"}</th>
                                 <td>
                                     {isTowType ? (
@@ -126,7 +126,7 @@ export default function SettingPopup({
                                 </td>
                             </tr>
 
-                            {/* 💡 일반 운영 설정('report', 'auto')일 때만 종료시간 및 사용여부 행 노출 */}
+                            {/* 일반 운영 설정('report', 'auto')일 때만 종료시간 및 사용여부 행 노출 */}
                             {!isTowType && (
                                 <>
                                     <tr>

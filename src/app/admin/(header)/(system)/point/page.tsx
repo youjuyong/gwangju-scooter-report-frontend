@@ -270,7 +270,7 @@ export default function PointPage() {
 
     // 팝업 저장 핸들러
     const handlePopupSave = async () => {
-        // 👑 저장 시작 시 즉시 락을 걸어 이후 발생하는 모든 지도 클릭 이벤트를 무력화합니다.
+        //  저장 시작 시 즉시 락을 걸어 이후 발생하는 모든 지도 클릭 이벤트를 무력화합니다.
         setIsSaving(true);
         const payload = {
             btchZoneId: popupMode === 'update' ? currentZoneId : undefined,
@@ -298,7 +298,7 @@ export default function PointPage() {
             alert("저장 처리 중 오류가 발생했습니다.");
         } finally {
             setIsLoading(false);
-            setIsSaving(false); // 👑 정상 종료든 에러든 처리가 끝나면 락 해제
+            setIsSaving(false); //  정상 종료든 에러든 처리가 끝나면 락 해제
         }
     };
 
@@ -309,7 +309,7 @@ export default function PointPage() {
 
     // 지도 클릭 시 팝업 폼의 좌표 및 팝업 핀 위치를 실시간으로 업데이트
     const handleMapClick = (_target: any, mouseEvent: kakao.maps.event.MouseEvent) => {
-        // 👑 팝업창이 안 열렸거나, 상세보기 모드이거나, [저장 프로세스 진행 중(락)] 상태이면 절대 좌표를 바꾸지 못하게 막음
+        //  팝업창이 안 열렸거나, 상세보기 모드이거나, [저장 프로세스 진행 중(락)] 상태이면 절대 좌표를 바꾸지 못하게 막음
         if (!isPopupOpen || popupMode === 'detail' || isSaving) {
             return;
         }

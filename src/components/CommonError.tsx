@@ -41,7 +41,7 @@ export default function CommonError({
         return "킥보드 주정차 신고 시스템 로그인으로 이동";
     };
 
-    // 💡 미디어 쿼리(max-width: 380px)를 실시간으로 감지하기 위한 리액트 훅 상태
+    // 미디어 쿼리(max-width: 380px)를 실시간으로 감지하기 위한 리액트 훅 상태
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -66,7 +66,6 @@ export default function CommonError({
                 padding: 0
             }}
         >
-            {/* 💡 기존 <style jsx>를 걷어내고 태그에 style 속성을 직주입하여 화면 깜빡임 현상을 완벽히 차단했습니다. */}
             <div
                 className="errBox"
                 style={{

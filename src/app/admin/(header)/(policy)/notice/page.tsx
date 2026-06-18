@@ -32,7 +32,7 @@ export default function NoticePage() {
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [selectedNtcId, setSelectedNtcId] = useState<string >('');
 
-    // 3. 💡 실제 API 규격 명칭에 맞게 컬럼 매핑(accessorKey) 수정
+    // 3.  실제 API 규격 명칭에 맞게 컬럼 매핑(accessorKey) 수정
     const noticeGridColumns = useMemo<CustomColumnDef<NoticeResponse>[]>(() => [
         {
             header: '글번호',
@@ -176,7 +176,7 @@ export default function NoticePage() {
         }
     };
     const onDoubleClickNoticeRow = (rowData: any) => {
-        // 💡 rowData가 존재하는지 확인 후 안전하게 ntcId를 보관합니다.
+        //  rowData가 존재하는지 확인 후 안전하게 ntcId를 보관합니다.
         if (!rowData) return;
 
         setSelectedNtcId(rowData.ntcId);
@@ -267,7 +267,7 @@ export default function NoticePage() {
             />
             <NoticeDetailPopup
                 isOpen={isDetailOpen}
-                ntcId={selectedNtcId} // 💡 ID값만 심플하게 전달
+                ntcId={selectedNtcId} // ID값만 심플하게 전달
                 onClose={() => {
                     setIsDetailOpen(false);
                     setSelectedNtcId('');

@@ -47,8 +47,8 @@ export default function ZonePage() {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [popupMode, setPopupMode] = useState<'create' | 'update'>('create');
     const [selectedParentCode, setSelectedParentCode] = useState('');
-    const [inputChildZoneId, setInputChildZoneId] = useState('');     // 💡 하위권역 ID 상태 분리
-    const [inputChildZoneName, setInputChildZoneName] = useState(''); // 💡 하위권역 명칭 상태 분리
+    const [inputChildZoneId, setInputChildZoneId] = useState('');     //  하위권역 ID 상태 분리
+    const [inputChildZoneName, setInputChildZoneName] = useState(''); //  하위권역 명칭 상태 분리
 
     const zoneGridRef = useRef<RaontecGridHandle>(null);
     const { setGrid, setFileName }: any = useContext(ExcelContext);
@@ -179,8 +179,8 @@ export default function ZonePage() {
 
         setPopupMode('update');
         setSelectedParentCode(target.parentCode || '');
-        setInputChildZoneId(String(target.zoneNo));       // 💡 기존 ID 세팅
-        setInputChildZoneName(target.childZoneNm || '');  // 💡 기존 명칭 세팅
+        setInputChildZoneId(String(target.zoneNo));       //  기존 ID 세팅
+        setInputChildZoneName(target.childZoneNm || '');  // 기존 명칭 세팅
         setIsPopupOpen(true);
     };
 
@@ -416,7 +416,7 @@ export default function ZonePage() {
                                         />
                                     </td>
                                 </tr>
-                                {/* 💡 하위권역 명칭(sareaNm)을 입력받을 수 있는 행 추가 */}
+                                {/* 하위권역 명칭(sareaNm)을 입력받을 수 있는 행 추가 */}
                                 <tr>
                                     <th>하위권역(동·리) 명칭</th>
                                     <td>

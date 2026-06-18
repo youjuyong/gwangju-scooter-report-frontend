@@ -92,7 +92,7 @@ export default function PmPopup({ isOpen, onClose, initialData, onSave }: PmComp
         try {
             setIsLoading(true);
 
-            // 💡 백엔드가 요구하는 정확한 Key 스펙으로 FormData 빌드
+            //백엔드가 요구하는 정확한 Key 스펙으로 FormData 빌드
             const formData = new FormData();
 
             // initialData에 bzentyId가 있으면 '수정 모드'이므로 포함시킴

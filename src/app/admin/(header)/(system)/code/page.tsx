@@ -183,7 +183,7 @@ export default function ZoneCodePage() {
     };
 
     return (
-        /* 👑 요청하신 wrap 및 로딩, subnav 레이아웃 연동 처리부 */
+        /*  요청하신 wrap 및 로딩, subnav 레이아웃 연동 처리부 */
         <div className="wrap">
             {isLoading && <LoadingOverlay message={"데이터 로딩 중..."} />}
 

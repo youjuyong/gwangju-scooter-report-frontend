@@ -57,11 +57,11 @@ export default async function RootLayout({
                                    }: {
     children: React.ReactNode;
 }) {
-    // // 💡 서버에서 현재 요청된 URL 경로(pathname)를 추출합니다.
+    // 서버에서 현재 요청된 URL 경로(pathname)를 추출합니다.
      const headersList = await headers();
     const pathname = headersList.get("x-current-path") || "";
 
-    // 💡 주소창에 /admin 이 포함되어 있는지 검사하여 클래스명을 결정합니다.
+    // 주소창에 /admin 이 포함되어 있는지 검사하여 클래스명을 결정합니다.
     const isAdmin = pathname.includes("/admin");
     const bodyClass = isAdmin ? "systembody" : "";
 
@@ -81,7 +81,7 @@ export default async function RootLayout({
                 strategy="beforeInteractive"
             />
         </head>
-        {/* 💡 조건에 맞춰 기존 폰트 클래스 뒤에 systembody가 깔끔하게 붙도록 결합했습니다. */}
+        {/*  조건에 맞춰 기존 폰트 클래스 뒤에 systembody가 깔끔하게 붙도록 결합했습니다. */}
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased ${bodyClass}`.trim()}>
         <BFCacheHandler/>
         <Toaster/>

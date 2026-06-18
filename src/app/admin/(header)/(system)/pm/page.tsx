@@ -21,7 +21,7 @@ import ExcelDownload from "@/components/admin/ExcelDownload";
 import {registerMenuLog} from "@/services/common/commonApi";
 
 
-// 💡 확정된 백엔드 응답 인터페이스 정의
+//  확정된 백엔드 응답 인터페이스 정의
 export interface pmResponse {
     bzentyId: string;
     bzentyNm : string;
@@ -63,7 +63,7 @@ export default function PmPage() {
         { id: 'setting', name: '운영설정관리', path: `/${userRole}/seting` },
     ];
 
-    // 2. 💡 백엔드 응답 Spec에 맞춘 라온텍 그리드 컬럼 정의
+    // 2.  백엔드 응답 Spec에 맞춘 라온텍 그리드 컬럼 정의
     const pmGridColumns = useMemo<CustomColumnDef<pmResponse>[]>(() => [
 
         {
@@ -85,7 +85,7 @@ export default function PmPage() {
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                         {base64Data ? (
                             <img
-                                // 💡 정제된 순수 데이터 앞에 표준 접두사를 단 한 번만 명확하게 조립
+                                //  정제된 순수 데이터 앞에 표준 접두사를 단 한 번만 명확하게 조립
                                 src={`data:image/jpeg;base64,${base64Data}`}
                                 alt="업체 로고"
                                 style={{
@@ -173,7 +173,7 @@ export default function PmPage() {
         setPopupInitialData({
             bzentyId: target.bzentyId,
             bzentyNm: target.bzentyNm,
-            markImgBase64: target.markImgBase64, // 💡 Base64 데이터 통째로 팝업에 바인딩
+            markImgBase64: target.markImgBase64, // Base64 데이터 통째로 팝업에 바인딩
             qrcdUrlForm: target.qrcdUrlForm || '',
             qrcdIdExtrRule: target.qrcdIdExtrRule || ''
         });

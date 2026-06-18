@@ -15,7 +15,7 @@ export const getPmCompanyListApi = async ():Promise<pmResponse[]> => {
  * pm 업체 수정
  * */
 export const updatePmCompanyApi = async (formData: FormData): Promise<any> => {
-    // 💡 POST 메서드로 /pm/pm-companies (또는 지정된 URL) 호출
+    // POST 메서드로 /pm/pm-companies (또는 지정된 URL) 호출
     const response = await api.post(`/pm/update`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data', // 파일 전송을 위한 필수 헤더
@@ -29,7 +29,7 @@ export const updatePmCompanyApi = async (formData: FormData): Promise<any> => {
  * pm 업체 생성
  * */
 export const createPmCompanyApi = async (formData: FormData): Promise<any> => {
-    // 💡 POST 메서드로 /pm/pm-companies (또는 지정된 URL) 호출
+    // POST 메서드로 /pm/pm-companies (또는 지정된 URL) 호출
     const response = await api.post(`/pm/register`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data', // 파일 전송을 위한 필수 헤더
@@ -53,7 +53,7 @@ export const deletePmCompanyApi = async (bzentyId: string | number): Promise<any
  * 운영 설정 전체 목록 조회
  */
 export const getOperationSettingListApi = async (): Promise<OperationSettingItem[]> => {
-    // 💡 제네릭에 ApiResponse 규격을 명시해 줍니다.
+    // 제네릭에 ApiResponse 규격을 명시해 줍니다.
     const response = await api.get<settingResponse<OperationSettingItem[]>>(`/system/operation-setting`);
     return response.data.data;
 };
@@ -163,7 +163,7 @@ export const deleteSareaApi = async (payload: {
     upSareaId: string | number;
     sareaId: string | number;
 }): Promise<any> => {
-    // 💡 쿼리 파라미터 규격에 맞게 params 객체로 전달합니다.
+    // 쿼리 파라미터 규격에 맞게 params 객체로 전달합니다.
     const response = await api.delete(`/system/sarea`, {
         params: payload
     });

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-// 💡 약관 조회 및 수정 API 임포트
+//  약관 조회 및 수정 API 임포트
 import {getPolicyApi, updatePolicyApi,} from "@/services/notice/noticeApi";
 import {registerMenuLog} from "@/services/common/commonApi";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -155,7 +155,7 @@ export default function PolicyPage() {
                         className="policytext"
                         placeholder={isLoading ? "데이터를 가져오는 중입니다..." : "내용을 입력하세요"}
                         value={policyContent}
-                        disabled={isReadOnly} // 💡 읽기전용 상태 스위칭 연동
+                        disabled={isReadOnly} //  읽기전용 상태 스위칭 연동
                         onChange={(e) => setPolicyContent(e.target.value)}
 
                     ></textarea>

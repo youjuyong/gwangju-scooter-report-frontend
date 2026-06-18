@@ -107,7 +107,7 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
                     {menuItems.map((item) => {
                         let isActive = false;
 
-                        // 💡 3. 실제 폴더 구조 트리와 주소 세그먼트 그룹 매핑 매칭
+                        //3. 실제 폴더 구조 트리와 주소 세그먼트 그룹 매핑 매칭
                         if (item.id === 'dashboard') {
                             isActive = currentCategory === 'dashboard' || pathname === `/${userRole}`;
                         }
