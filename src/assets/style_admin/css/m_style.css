@@ -129,6 +129,8 @@
     .point_wrap .gridbox{right: 0; bottom: auto; height: 200px; border-bottom: 1px solid #000; border-right: none;width: auto;}
     .point_map{left: 0; top: 200px; border-left: none; border-top: 1px solid #303034; min-height:300px}
 
+    /*페이지*/
+    .pagebox button{width: 30px; height: 30px;font-size: 11px;}
     
 }
 
@@ -200,6 +202,9 @@
     .tablebox table td{font-size: 13px;}
     .tablebox {height: 100px;}
     
+    /*에러페이지*/
+    .errBox{width: 90%; height: 420px;}
+    
 
 }
 
@@ -220,6 +225,25 @@
     
     /*버튼*/
     .searchBox .btnSet button{width: 42px;}
+    
+    /*페이지*/
+    .pagebox button{width: 20px; height: 20px;font-size: 10px;}
+    .page_nav button{margin: 2px 0}
+    .pagebox button.page_first{background: url(../images/board_first.png)center #212226 no-repeat;background-size: 20px} 
+    .pagebox button.page_back{background: url(../images/board_back.png)center #212226 no-repeat;background-size: 20px} 
+    .pagebox button.page_next{background: url(../images/board_next.png)center #212226 no-repeat;background-size: 20px}  
+    .pagebox button.page_last{background: url(../images/board_last.png)center #212226 no-repeat;background-size: 20px}
+    
+    .pagebox button.page_first:hover{background: url(../images/board_first.png)center #2d2f34 no-repeat;background-size: 20px} 
+    .pagebox button.page_back:hover{background: url(../images/board_back.png)center #2d2f34 no-repeat;background-size: 20px} 
+    .pagebox button.page_next:hover{background: url(../images/board_next.png)center #2d2f34 no-repeat;background-size: 20px}  
+    .pagebox button.page_last:hover{background: url(../images/board_last.png)center #2d2f34 no-repeat;background-size: 20px}
+
+    .pagebox button.page_first:active{background: url(../images/board_first.png)center #1b1c20 no-repeat;background-size: 20px} 
+    .pagebox button.page_back:active{background: url(../images/board_back.png)center #1b1c20 no-repeat;background-size: 20px} 
+    .pagebox button.page_next:active{background: url(../images/board_next.png)center #1b1c20 no-repeat;background-size: 20px}  
+    .pagebox button.page_last:active{background: url(../images/board_last.png)center #1b1c20 no-repeat;background-size: 20px}
+
     
 }
 
@@ -271,7 +295,12 @@
     .popup_notice .popupconten table td{font-size: 11px}
 }
 
-@media (max-width:380px){.wrap .searchBox .searchinput{width: 80px;}}
+@media (max-width:380px){
+    .wrap .searchBox .searchinput{width: 80px;}
+    /*에러페이지*/
+    .big{font-size: 15px;}
+    .errtxt{font-size: 12px;}
+}
 
 @media (max-width:370px){
     /*서브메뉴*/
