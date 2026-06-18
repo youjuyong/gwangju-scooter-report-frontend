@@ -4,10 +4,11 @@ import React, {useCallback, useEffect, useMemo, useRef, useState,useContext} fro
 import Link from 'next/link';
 import api from "@/services/api";
 import { usePathname } from 'next/navigation';
-import {UserListForm,UserListResponse} from "@/types/managment";
+import {UserListResponse} from "@/types/managment";
 import {CustomColumnDef, RaontecGridHandle, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {ExcelContext} from "@/components/admin/ExcelContext";
+import {registerMenuLog} from "@/services/common/commonApi";
 
 export default function MemberPage() {
     const pathname = usePathname();
@@ -27,6 +28,7 @@ export default function MemberPage() {
 
     const [keyword, setKeyword] = useState('');
     const [dclUserId, setDclUserId] = useState('');
+
 
     const keywordRef = useRef(keyword);
     useEffect(() => {
@@ -223,6 +225,17 @@ export default function MemberPage() {
     useEffect(() => {
         fetchUserAllList();
     }, [fetchUserAllList]);
+
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR5100");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     return (
         <>

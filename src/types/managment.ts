@@ -14,3 +14,16 @@ export interface UserListResponse {
     lgnDt: string;
 }
 
+export interface ManagerListResponse {
+    userId: string;
+    userNm: string;
+    emlAddr:string;
+    telno: string;
+    deptNm:string;
+    deptTypeNm: string;
+    sttsNm: string;
+    regDt: string;
+    lgnDt: string;
+    regDate: string;
+    lgnDate: string;
+}

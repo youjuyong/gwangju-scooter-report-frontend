@@ -1,16 +1,43 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import {ExcelContext} from "@/components/admin/ExcelContext";
+import ExcelDownload from "@/components/admin/ExcelDownload";
+import {registerMenuLog} from "@/services/common/commonApi";
+import ManagerPopup from "@/components/admin/popup/ManagerPopup";
+import {CustomColumnDef, RaontecGridHandle, RaontecTanstackGrid} from "@rxjacx/raontec-grid";
+import {AdminReportResponse, UserConnHistroyForm, UserConntHistoryResponse} from "@/types/adminReport";
+import {ManagerListResponse, UserListResponse} from "@/types/managment";
+import {UserConntHistoryListApi} from "@/services/report/adminReportApi";
+import api from "@/services/api";
+import {useAlert} from "@/components/popup/PopupProvider";
+
 
 export default function ManagerPage() {
     const pathname = usePathname();
     const userRole = "admin";
+    //그리드
+    const [gridData, setGridData] = useState<ManagerListResponse[]>([]);
+    const gridRef = useRef<RaontecGridHandle>(null);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [selectedGridtId, setSelectedGridId] = useState<string >('');
+    const [selectedGrid, setSelectedGrid] = useState<ManagerListResponse | null>(null); // 단일 행 클릭 데이터 State
+    //팝업 모드 관리
+    const [popupMode, setPopupMode] = useState<'CREATE' | 'UPDATE'>('CREATE');
+    //엑셀
+    const {setGrid, setFileName}: any = useContext(ExcelContext);
+    const [excelGridData,setExcelGridData] = useState<ManagerListResponse[]>([]);
+    const excelGridRef = useRef<RaontecGridHandle>(null);
 
-    // 1. 검색어 상태 관리
     const [keyword, setKeyword] = useState('');
+    const [userId, setUserId] = useState('');
 
+    const keywordRef = useRef(keyword);
+    useEffect(() => {
+        keywordRef.current = keyword;
+    }, [keyword]);
     // 2. 왼쪽 서브 내비게이션 메뉴 데이터 정의
     const subNavItems = [
         { id: 'member', name: '일반회원관리', path: `/${userRole}/member` },
@@ -19,30 +46,134 @@ export default function ManagerPage() {
         { id: 'connection', name: '시스템접속이력', path: `/${userRole}/connection` },
     ];
 
+    const gridColumns = useMemo<CustomColumnDef<ManagerListResponse>[]>(() => [
+        {
+            header : '관리자 아이디',
+            accessorKey : 'userId',
+            meta: { id: 'userId', isKey: true }, // 고유 Key(PK) 설정
+        }
+        ,
+        {
+            header: '관리자 이름',
+            accessorKey: 'userNm',
+            meta: { filterType: "check" },
+
+        },
+        {
+            header: '이메일 주소',
+            accessorKey: 'emlAddr',
+            meta: { filterType: "check" },
+        },
+        {
+            header: '연락처',
+            accessorKey: 'telno',
+            meta: { filterType: "check" },
+        },
+        {
+            header: '소속',
+            accessorKey: 'deptNm',
+            meta: { filterType: "check" },
+        },
+        {
+            header: '부서',
+            accessorKey: 'deptTypeNm',
+            meta: { filterType: "check" },
+        },
+        {
+            header: '상태',
+            accessorKey: 'sttsNm',
+            meta: { filterType: "check" },
+        },
+        {
+            header: '등록 날짜',
+            accessorKey: 'regDate',
+            meta: { filterType: "check" },
+        },
+        {
+            header: '로그인 날짜',
+            accessorKey: 'lgnDate',
+            meta: { filterType: "check" },
+        },
+
+    ], []);
+
+    const fetchData = useCallback(async  (searchKeyword?: string) => {
+        const currentKeyword = searchKeyword !== undefined ? searchKeyword : keywordRef.current;
+        try {
+            const response = await api.get(`/admin/user`, {
+                params: {
+                    keyword: currentKeyword
+                }
+            });
+            // 데이터 상태 세팅 (안전)
+            setTimeout(() => {
+                setGridData(response.data || []);
+            }, 0);
+        } catch (error) {
+
+            console.error(error);
+        }
+    }, []);
+
     // 3. 버튼 이벤트 핸들러 정의
     const handleCreate = () => {
-        console.log('관리자 등록 버튼 클릭');
-        // 관리자 추가용 모달/팝업 호출 또는 관련 로직 연동
+        setPopupMode('CREATE');
+        setSelectedGrid(null); // 등록일 때는 데이터 비우기
+        setIsDetailOpen(true);
+        gridRef.current?.clearSelectedRow();
     };
 
-    const handleUpdate = () => {
-        console.log('관리자 정보 수정 버튼 클릭');
-        // 그리드에서 선택된 계정 수정 로직 연동
+    const handleUpdate = (rowData: any)  => {
+        console.log(selectedGrid);
+        if(selectedGrid == null ) {
+            console.log("sdfsdfsdsdfs");
+            alert("수정할 관리자를 선택해 주세요.");
+            return;
+        }
+        setPopupMode('UPDATE');
+        setIsDetailOpen(true);
     };
 
     const handleDelete = () => {
         console.log('관리자 삭제 버튼 클릭');
-        // 그리드에서 선택된 계정 삭제 처리 로직 연동
     };
 
     const handleSearch = () => {
-        console.log('관리자 계정 검색 요청 키워드:', keyword);
-        // 백엔드 API 검색 연동 시 사용
+        keywordRef.current = keyword; // 즉시 업데이트 보장
+        fetchData();
     };
 
     const handleExcelDownload = () => {
         console.log('관리자목록 엑셀 다운로드 실행');
     };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
+    const onClickReportRow=(rowData:any)=>{
+        //그리드 선택 초기화
+        setSelectedGridId('');
+        setSelectedGrid(null);
+        if (selectedGrid && selectedGrid.userId === rowData.userId) {
+            return;
+        }
+        setSelectedGridId(rowData.userId);
+        setSelectedGrid(rowData);
+    }
+    useEffect(() => {
+        fetchData();
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR5200");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     return (
         <div className="wrap">
@@ -88,6 +219,7 @@ export default function ManagerPage() {
                                     placeholder="검색어 입력"
                                     value={keyword}
                                     onChange={(e) => setKeyword(e.target.value)}
+                                    onKeyDown={handleKeyDown}
                                 />
                             </dd>
                         </dl>
@@ -100,10 +232,27 @@ export default function ManagerPage() {
                 {/* 데이터 그리드 영역 */}
                 <div className="infoContent">
                     <div className="gridbox">
-                        <div>그리드(그리드내부스크롤, 창 사이즈에 따라 실시간으로 사이즈 변하게)</div>
+                        <RaontecTanstackGrid
+                            ref={gridRef}
+                            data={gridData}
+                            columns={gridColumns}
+                            globalCellClickEvent={onClickReportRow}
+                        />
                     </div>
                 </div>
             </div>
+            {isDetailOpen  && (
+                <ManagerPopup
+                    data={selectedGrid}
+                    onClose={() => {
+                        setIsDetailOpen(false);
+                  //      setSelectedGridId('');
+                  //      setSelectedGrid(null);
+                    }}
+                    isOpen={isDetailOpen}
+                    mode={popupMode}
+                />
+            )}
         </div>
     );
 }
