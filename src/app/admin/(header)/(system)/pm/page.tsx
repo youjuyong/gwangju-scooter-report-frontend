@@ -29,6 +29,8 @@ export interface pmResponse {
     qrcdIdExtrRule: string;
     markImgId: string;
     markImgBase64: string; // Base64 이미지 데이터
+    mdfcnDt: string;
+    regDt: string;
 }
 
 export default function PmPage() {
@@ -49,6 +51,8 @@ export default function PmPage() {
         markImgBase64?: string; //  Base64 데이터 추가
         qrcdUrlForm?: string;
         qrcdIdExtrRule?: string;
+        mdfcnDt?: string;
+        regDt?: string;
     } | null>(null);
 
     // 그리드 핸들러 Ref
@@ -124,6 +128,16 @@ export default function PmPage() {
             header: 'QR ID 추출 규칙',
             accessorKey: 'qrcdIdExtrRule',
             enableColumnFilter: false,
+        },
+        {
+            header: '수정일시',
+            accessorKey: 'mdfcnDt',
+            enableColumnFilter: false,
+        },
+        {
+            header: '등록일시',
+            accessorKey: 'regDt',
+            enableColumnFilter: false,
         }
     ], [selectedRow]);
 
@@ -132,6 +146,7 @@ export default function PmPage() {
         try {
             setIsLoading(true);
             const data = await getPmCompanyListApi();
+            console.log(data);
             setGridData(data);
 
 

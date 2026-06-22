@@ -4,7 +4,9 @@ export interface pmResponse {
     qrcdUrlForm : string,
     qrcdIdExtrRule: string,
     markImgId: string,
-    markImgBase64: string
+    markImgBase64: string,
+    mdfcnDt: string,
+    regDt: string
 }
 
 export interface settingResponse<T> {

@@ -176,7 +176,7 @@ export default function PmPopup({ isOpen, onClose, initialData, onSave }: PmComp
                         </td>
                     </tr>
                     <tr>
-                        <th>QR코드 URL 포맷</th>
+                        <th>QR포맷</th>
                         <td>
                             <input type="text" placeholder="예: https://example.com/qr?id={id}"
                                    value={qrcdUrlForm} onChange={(e) => setQrcdUrlForm(e.target.value)}
@@ -184,7 +184,7 @@ export default function PmPopup({ isOpen, onClose, initialData, onSave }: PmComp
                         </td>
                     </tr>
                     <tr>
-                        <th>QR ID 추출 규칙</th>
+                        <th>QR규칙</th>
                         <td>
                             <input type="text" placeholder="추출 규칙 기술" value={qrcdIdExtrRule}
                                    onChange={(e) => setQrcdIdExtrRule(e.target.value)}
