@@ -36,13 +36,15 @@ export default function ReportDetail() {
 
     const statusCode = report?.dclrStts?.cdId;
 
-    const isCompleted = ["DEST04", "DEST09", "DEST10"].includes(statusCode);
+    const isCompleted = ["DEST04", "DEST05", "DEST09", "DEST10"].includes(statusCode);
 
     const statusClass = statusCode === "DEST10" || isCompleted ? "si2" : "si1";
 
     let statusText = "처리중";
     if (statusCode === "DEST10") {
         statusText = "자동취소";
+    } else if (statusCode === "DEST05") {
+        statusText = "취소";
     } else if (isCompleted) {
         statusText = "처리완료";
     }
