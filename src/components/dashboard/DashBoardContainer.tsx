@@ -7,9 +7,17 @@ import {useAlert} from "@/components/popup/PopupProvider";
 import {Circle, CustomOverlayMap, Map} from "react-kakao-maps-sdk";
 import {CityOutline} from "@/components/dashboard/CityOutline";
 import ReportDetailPopup from "@/components/admin/popup/ReportDetailPopup";
-import {getAutoApprove, getDashboardList, patchAutoApprove} from "@/services/dashboard/dashboardApi";
+import {
+    approveDclr,
+    approveTowDclr,
+    getAutoApprove,
+    getDashboardList,
+    patchAutoApprove,
+    rejectDclr
+} from "@/services/dashboard/dashboardApi";
 import {useModeStore} from "@/store/dashboardStore";
 import {getBatchPointListApi, getPmCompanyListApi} from "@/services/system/systemApi";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 
 export default function DashboardContainer() {
@@ -36,6 +44,8 @@ export default function DashboardContainer() {
 
     const {setMode, setIsSubmitting} = useModeStore();
     const [isPmInitialized, setIsPmInitialized] = useState(false);
+    const {processingDclrId, setProcessingDclrId} = useModeStore();
+    const isLoading = !!processingDclrId;
 
     const {data: outlineRes} = useQuery({
         queryKey: ["outlineType"],
@@ -127,11 +137,75 @@ export default function DashboardContainer() {
         onError: (error) => {
             console.error("모드 변경 실패:", error);
             setTempToggleOverride(null);
-            showAlert("모드 변경에 실패했습니다.");
         },
         onSettled: () => {
             setIsSubmitting(false);
         }
+    });
+
+    const approveMutation = useMutation({
+        mutationFn: (dclrId: string) => approveDclr(dclrId),
+        onMutate: (dclrId) => {
+            setProcessingDclrId(dclrId);
+        },
+        onSuccess: async () => {
+            try {
+                await queryClient.refetchQueries({
+                    queryKey: ["dashboardList", token]
+                });
+
+                showAlert("승인 처리 완료");
+            } finally {
+                setProcessingDclrId(null);
+            }
+        },
+        onError:
+            (error) => {
+                console.error("승인 실패:", error);
+            },
+    });
+
+    const approveTowMutation = useMutation({
+        mutationFn: (dclrId: string) => approveTowDclr(dclrId),
+        onMutate: (dclrId) => {
+            setProcessingDclrId(dclrId);
+        },
+        onSuccess: async () => {
+            try {
+                await queryClient.refetchQueries({
+                    queryKey: ["dashboardList", token]
+                });
+
+                showAlert("승인 처리 완료");
+            } finally {
+                setProcessingDclrId(null);
+            }
+        },
+        onError:
+            (error) => {
+                console.error("승인 실패:", error);
+            },
+    });
+
+    const rejectMutation = useMutation({
+        mutationFn: (dclrId: string) => rejectDclr(dclrId),
+        onMutate: (dclrId) => {
+            setProcessingDclrId(dclrId);
+        },
+        onSuccess: async () => {
+            try {
+                await queryClient.refetchQueries({
+                    queryKey: ["dashboardList", token]
+                });
+
+                showAlert("반려 처리가 완료되었습니다.");
+            } finally {
+                setProcessingDclrId(null);
+            }
+        },
+        onError: (error) => {
+            console.error("반려 실패:", error);
+        },
     });
 
     const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -307,7 +381,7 @@ export default function DashboardContainer() {
         }
 
         if (item.latVl && item.lotVl) {
-            const targetPos = { lat: Number(item.latVl), lng: Number(item.lotVl) };
+            const targetPos = {lat: Number(item.latVl), lng: Number(item.lotVl)};
 
             setPosition(targetPos);
             setMapCenter(targetPos);
@@ -335,6 +409,26 @@ export default function DashboardContainer() {
             }
         });
         setActiveListId(null);
+    };
+
+    const handleApprove = (e: React.MouseEvent, item: any) => {
+        e.stopPropagation();
+
+        if (confirm("승인하시겠습니까?")) {
+            if (item?.dclrStts?.cdId === "DEST06") {
+                approveTowMutation.mutate(String(item.dclrId));
+            } else {
+                approveMutation.mutate(String(item.dclrId));
+            }
+        }
+    }
+
+    const handleReject = (e: React.MouseEvent, dclrId: string) => {
+        e.stopPropagation();
+
+        if (confirm("반려하시겠습니까?")) {
+            rejectMutation.mutate(dclrId);
+        }
     };
 
     const fetchAddressInfo = useCallback((lat: number, lng: number) => {
@@ -512,6 +606,10 @@ export default function DashboardContainer() {
                         {isToggleChecked ? <div className="hand">수동모드</div> : <div className="auto">자동 승인 처리중..</div>}
                     </div>
 
+                    {(isLoading || toggleMutation.isPending) && (
+                        <LoadingOverlay message="처리 중입니다..."/>
+                    )}
+
                     <div className="listconten">
                         <h2>목록</h2>
                         <ul className="">
@@ -537,6 +635,8 @@ export default function DashboardContainer() {
 
                                 const pmId = item.bzenty?.bzentyId;
                                 const pmImg = pmImageMap[pmId];
+
+                                const currentLoading = processingDclrId === String(item.dclrId);
 
                                 return (
                                     <li key={item.dclrId} className={activeListId === item.dclrId ? "click" : ""}
@@ -581,17 +681,22 @@ export default function DashboardContainer() {
                                                 </table>
                                             </div>
                                         </div>
-                                        {isToggleChecked && ["DEST01", "DEST06"].includes(item?.dclrStts?.cdId) && (
+                                        {isToggleChecked && ["DEST01", "DEST06"].includes(item?.dclrStts?.cdId) && !currentLoading && (
                                             <div className="btnSet">
                                                 <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                    }}
+                                                    onClick={(e) => handleReject(e, String(item.dclrId))}
+                                                    disabled={currentLoading}
                                                 >
-                                                    반려
+                                                    {currentLoading ? "처리중..." : "반려"}
                                                 </button>
                                                 {/*반려 시 아예 삭제*/}
-                                                <button className="red">승인</button>
+                                                <button
+                                                    className="red"
+                                                    onClick={(e) => handleApprove(e, item)}
+                                                    disabled={currentLoading}
+                                                >
+                                                    {currentLoading ? "처리중..." : "승인"}
+                                                </button>
                                                 {/*승인 시 미배정으로 변경*/}
                                             </div>
                                         )}
@@ -640,7 +745,7 @@ export default function DashboardContainer() {
                                 {Array.isArray(dashboardList) && dashboardList.map((item: any) => {
                                     if (!item.latVl || !item.lotVl) return null;
 
-                                    const markerLatLng = { lat: Number(item.latVl), lng: Number(item.lotVl) };
+                                    const markerLatLng = {lat: Number(item.latVl), lng: Number(item.lotVl)};
 
                                     /*marker1(미승인) ~ marker8(견인완료) 순서대로 번호 / 클릭 시 click 넣기*/
                                     const statusMarkerNumberMap: Record<string, string> = {
@@ -668,14 +773,14 @@ export default function DashboardContainer() {
                                             <div
                                                 className={`marker marker${markerNum} ${selectedItem ? "click" : ""}`}
                                                 onClick={() => handleListClick(item)}
-                                                style={{ cursor: "pointer" }}
+                                                style={{cursor: "pointer"}}
                                             >
                                                 <div className="img">
                                                     <p className="tow"></p>
                                                     {pmImg ? (
-                                                        <img src={pmImg} alt={item.bzenty?.bzentyNm || "logo"} />
+                                                        <img src={pmImg} alt={item.bzenty?.bzentyNm || "logo"}/>
                                                     ) : (
-                                                        <img src="/assets/style_pm/images/mark.png" alt="defaultLogo" />
+                                                        <img src="/assets/style_pm/images/mark.png" alt="defaultLogo"/>
                                                     )}
                                                 </div>
                                             </div>

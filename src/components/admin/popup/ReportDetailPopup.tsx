@@ -1,9 +1,14 @@
 "use client";
 
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {getReportDetail} from "@/services/report/reportApi";
 import {useDrag} from "@/hooks/userDrag";
 import {useModeStore} from "@/store/dashboardStore";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {approveDclr, approveTowDclr, rejectDclr} from "@/services/dashboard/dashboardApi";
+import {useAlert} from "@/components/popup/PopupProvider";
+import Cookies from "js-cookie";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 interface ReportDetailModalProps {
     isOpen: boolean;
@@ -25,29 +30,121 @@ export default function ReportDetailPopup({
     const [report, setReport] = useState<any>(null);
     const {position, handleMouseDown, isDragging} = useDrag(isOpen); // 팝업 드래그
     const {currentMode, isSubmitting} = useModeStore();
+    const showAlert = useAlert();
+    const queryClient = useQueryClient();
+    const token = Cookies.get("adminAccessToken");
+    const {processingDclrId, setProcessingDclrId} = useModeStore();
+
+    const fetchDetail = useCallback(async () => {
+        if (!data?.dclrId) return;
+        const currentDclrId = data.dclrId;
+
+        try {
+            const res = await getReportDetail(currentDclrId);
+            if (res.success && currentDclrId === data.dclrId) {
+                setReport(res.data);
+            }
+        } catch (error) {
+            console.error("상세 내역 로드 실패:", error);
+        }
+    }, [data?.dclrId]);
+
+    const approveMutation = useMutation({
+        mutationFn: (dclrId: string) => approveDclr(dclrId),
+        onMutate: (dclrId) => {
+            setProcessingDclrId(dclrId);
+        },
+        onSuccess: async () => {
+            try {
+                await queryClient.refetchQueries({
+                    queryKey: ["dashboardList", token]
+                });
+
+                await fetchDetail();
+
+                showAlert("승인 처리가 완료되었습니다");
+            } finally {
+                setProcessingDclrId(null);
+            }
+        },
+        onError: (error) => {
+            console.error("승인 실패:", error);
+            setProcessingDclrId(null);
+        },
+    });
+
+    const approveTowMutation = useMutation({
+        mutationFn: (dclrId: string) => approveTowDclr(dclrId),
+        onMutate: (dclrId) => {
+            setProcessingDclrId(dclrId);
+        },
+        onSuccess: async () => {
+            try {
+                await queryClient.refetchQueries({
+                    queryKey: ["dashboardList", token]
+                });
+
+                await fetchDetail();
+
+                showAlert("승인 처리가 완료되었습니다");
+            } finally {
+                setProcessingDclrId(null);
+            }
+        },
+        onError: (error) => {
+            console.error("승인 실패:", error);
+            setProcessingDclrId(null);
+        },
+    });
+
+    const rejectMutation = useMutation({
+        mutationFn: (dclrId: string) => rejectDclr(dclrId),
+        onMutate: (dclrId) => {
+            setProcessingDclrId(dclrId);
+        },
+        onSuccess: async () => {
+            try {
+
+                await queryClient.refetchQueries({
+                    queryKey: ["dashboardList", token]
+                });
+
+                onClose();
+
+                showAlert("반려 처리가 완료되었습니다.");
+
+            } finally {
+                setProcessingDclrId(null);
+            }
+        },
+        onError: (error) => {
+            console.error("반려 실패:", error);
+            setProcessingDclrId(null);
+        },
+    });
+
+    const handleReject = () => {
+        if (confirm("반려하시겠습니까?")) {
+            rejectMutation.mutate(String(data.dclrId));
+        }
+    };
+
+    const handleApprove = () => {
+        if (confirm("승인하시겠습니까?")) {
+            if (currentStatusCd === "DEST06") {
+                approveTowMutation.mutate(String(data.dclrId));
+            } else {
+                approveMutation.mutate(String(data.dclrId));
+            }
+        }
+    };
 
     useEffect(() => {
-        if (!isOpen || !data.dclrId) return;
-
-        let isMounted = true; // 연속 클릭 시 이전 요청 무시용 안전장치
-
-        const fetchDetail = async () => {
-            try {
-                const res = await getReportDetail(data.dclrId);
-                if (res.success && isMounted) {
-                    setReport(res.data);
-                }
-            } catch (error) {
-                console.error("상세 내역 로드 실패:", error);
-            }
-        };
+        if (!isOpen || !data?.dclrId) return;
 
         fetchDetail();
+    }, [data?.dclrId, isOpen, fetchDetail]);
 
-        return () => {
-            isMounted = false; // 컴포넌트가 언마운트되거나 data가 바뀌면 이전 요청 차단
-        };
-    }, [data?.dclrId, isOpen]);
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // 팝업이 열려있고 ESC 키(Escape)를 누른 경우
@@ -75,6 +172,7 @@ export default function ReportDetailPopup({
         "DEST02": {className: "st2", text: "미배정"},
         "DEST03": {className: "st3", text: "처리중"},
         "DEST04": {className: "st4", text: "처리완료"},
+        "DEST05": {className: "st4", text: "회수반려"},
         "DEST06": {className: "st5", text: "견인미승인"},
         "DEST07": {className: "st6", text: "견인요청"},
         "DEST08": {className: "st7", text: "견인처리중"},
@@ -84,10 +182,16 @@ export default function ReportDetailPopup({
     const getStatusInfo = (prcsStpCd: string) => {
         return STATUS_CONFIG[prcsStpCd] || {className: "st4", label: "알 수 없음"};
     };
-    const {className, text} = getStatusInfo(data?.prcsStpCd);
+    const currentStatusCd = data?.prcsStpCd;
+    const {className, text} = getStatusInfo(currentStatusCd);
+
+    const isLoading = processingDclrId === String(data?.dclrId);
 
     return (
         <div className="popupWrap">
+            {isLoading && (
+                <LoadingOverlay message="처리 중입니다..."/>
+            )}
             <div className="popupInner">
                 <div
                     className="popup popup_kick"
@@ -156,16 +260,16 @@ export default function ReportDetailPopup({
                                 <tbody>
                                 <tr>
                                     <th>처리자ID</th>
-                                    <td>{data?.prcrId ? data.prcrId : "-"}</td>
+                                    <td>{report?.prcrId || data?.prcrId || "-"}</td>
                                 </tr>
                                 <tr>
                                     <th>처리일시</th>
-                                    <td className="blue">{data?.prcsDt ? data.prcsDt : "-"}</td>
+                                    <td className="blue">{report?.prcsDt || data?.prcsDt || "-"}</td>
                                 </tr>
-                                {data.prcsRsn && (
+                                {(report?.prcsRsn || data?.prcsRsn) && (
                                     <tr>
                                         <th>처리사유</th>
-                                        <td>{data.prcsRsn ? data.prcsRsn : "-"}</td>
+                                        <td>{report?.prcsRsn || data?.prcsRsn || "-"}</td>
                                     </tr>
                                 )}
                                 </tbody>
@@ -189,12 +293,22 @@ export default function ReportDetailPopup({
                                 </div>
                             </div>
                         )}
-                        {currentMode === "MANUAL" && ["DEST01", "DEST06"].includes(report?.dclrStts?.cdId) && (
+                        {currentMode === "MANUAL" && ["DEST01", "DEST06"].includes(currentStatusCd) && (
                             <div className="btnSet">
-                                <button>반려</button>
-                                {/*반려 시 리스트에서 삭제*/}
-                                <button className="red">승인</button>
-                                {/*승인 시 미배정으로 변경*/}
+                                <button
+                                    onClick={handleReject}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "처리중..." : "반려"}
+                                </button>
+                                {/*반려 시 아예 삭제*/}
+                                <button
+                                    className="red"
+                                    onClick={handleApprove}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "처리중..." : "승인"}
+                                </button>
                             </div>
                         )}
                     </div>
