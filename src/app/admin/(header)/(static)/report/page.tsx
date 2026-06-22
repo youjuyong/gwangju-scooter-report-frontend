@@ -47,6 +47,23 @@ export default function ReportPage() {
         { id: 'statistic', name: '민원처리통계', path: `/${userRole}/statistic01` },
         { id: 'menuStat', name: '메뉴기능활용통계', path: `/${userRole}/statistic_menu01` },
     ];
+
+    const getStatusName = (status: string) => {
+        switch (status) {
+            case 'DEST01': return '미승인';
+            case 'DEST02': return '미배정';
+            case 'DEST03': return '처리중';
+            case 'DEST04': return '처리완료';
+            case 'DEST05': return '반려(취소)';
+            case 'DEST06': return '견인미승인';
+            case 'DEST07': return '견인요청';
+            case 'DEST08': return '견인처리중';
+            case 'DEST09': return '견인완료';
+            case 'DEST10': return '자동취소';
+            default: return status || '-'; // 매칭되는 게 없으면 원래 값이나 대시(-) 표시
+        }
+    };
+
     const reportGridColumns = useMemo<CustomColumnDef<AdminReportResponse>[]>(() => [
         {
             header : '이력ID',
@@ -98,8 +115,12 @@ export default function ReportPage() {
         },
         {
             header: '처리상태',
-            accessorKey: 'prcsStpNm' , // 타입 에러 방지용 키 지정 (아무 키나 상관없음)
-            meta: { filterType: "check" }
+            accessorKey: 'prcsStpCd' , // 타입 에러 방지용 키 지정 (아무 키나 상관없음)
+            meta: { filterType: "check" },
+            cell: ({ getValue }) => {
+                const rawValue = getValue() as string; // 기존 코드값 (예: '01', 'COMPLETE' 등)
+                return getStatusName(rawValue);      // 아래에서 만들 매칭 함수 실행
+            }
         },
     ], []);
     const handleSearch = () => {

@@ -56,7 +56,7 @@ export default function ReportListPage() {
                 ) : (
                     reportList.map((item) => {
                         const statusCode = item.dclrStts?.cdId;
-                        const isCompleted = ['DEST04', 'DEST09', 'DEST10'].includes(statusCode);
+                        const isCompleted = ['DEST04', 'DEST05', 'DEST09', 'DEST10'].includes(statusCode);
                         const statusClass = isCompleted ? 'si2' : 'si1';
                         const firstImage = (item.imgUrls && item.imgUrls.length > 0 && item.imgUrls[0].startsWith("data:image"))
                             ? item.imgUrls[0]
@@ -65,6 +65,8 @@ export default function ReportListPage() {
                         let statusText = "처리중";
                         if (statusCode === 'DEST10') {
                             statusText = "자동취소";
+                        } else if (statusCode === 'DEST05') {
+                            statusText = "취소";
                         } else if (isCompleted) {
                             statusText = "처리완료";
                         }

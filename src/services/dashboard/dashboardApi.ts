@@ -27,3 +27,27 @@ export const patchAutoApprove = async (isManual: boolean) => {
     const response = await api.patch('/system/auto-approve', {paramVl: value});
     return response.data;
 }
+
+/**
+ * 관리자-신고 대기승인 처리
+ */
+export const approveDclr = async (dclrId: string) => {
+    const response = await api.patch(`/dclr/${dclrId}/collect-request`);
+    return response.data;
+}
+
+/**
+ * 관리자-신고 반려 처리
+ */
+export const rejectDclr = async (dclrId: string) => {
+    const response = await api.patch(`/dclr/${dclrId}/reject`);
+    return response.data;
+}
+
+/**
+ * 관리자-견인 신고 대기승인 처리
+ */
+export const approveTowDclr = async (dclrId: string) => {
+    const response = await api.patch(`/dclr/${dclrId}/tow/collect-request`);
+    return response.data;
+}
