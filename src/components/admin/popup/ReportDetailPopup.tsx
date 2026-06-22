@@ -172,7 +172,7 @@ export default function ReportDetailPopup({
         "DEST02": {className: "st2", text: "미배정"},
         "DEST03": {className: "st3", text: "처리중"},
         "DEST04": {className: "st4", text: "처리완료"},
-        "DEST05": {className: "st4", text: "회수반려"},
+        "DEST05": {className: "st4", text: "반려(취소)"},
         "DEST06": {className: "st5", text: "견인미승인"},
         "DEST07": {className: "st6", text: "견인요청"},
         "DEST08": {className: "st7", text: "견인처리중"},
