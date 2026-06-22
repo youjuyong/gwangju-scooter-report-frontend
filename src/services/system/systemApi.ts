@@ -1,6 +1,13 @@
 import api from "@/services/api";
 import {ApiResponse} from "@/types/auth";
-import {OperationSettingItem, pmResponse, settingResponse, UpdateOperationSettingRequest} from "@/types/system";
+import {
+    codeCreateRequest,
+    codeResponse, codeUpdateRequest,
+    OperationSettingItem,
+    pmResponse,
+    settingResponse,
+    UpdateOperationSettingRequest
+} from "@/types/system";
 
 /**
  * pm 업체 조회
@@ -168,4 +175,45 @@ export const deleteSareaApi = async (payload: {
         params: payload
     });
     return response.data.data || response.data;
+};
+
+//================================================================================
+/**
+ * 1. 공통 상세 코드 등록 (POST)
+ * @param clsfCd 분류 코드
+ * @param data 등록할 코드 정보
+ */
+export const createCodeDetailApi = async (clsfCd: string, data: codeCreateRequest): Promise<codeResponse> => {
+    const response = await api.post(`/code/${clsfCd}/details`, data);
+    return response.data;
+};
+
+/**
+ * 2. 공통 상세 코드 수정 (PUT)
+ * @param clsfCd 분류 코드
+ * @param cdId 코드 ID
+ * @param data 수정할 코드 정보
+ */
+export const updateCodeDetailApi = async (clsfCd: string, cdId: string, data: codeUpdateRequest): Promise<codeResponse> => {
+    const response = await api.put(`/code/${clsfCd}/details/${cdId}`, data);
+    return response.data;
+};
+
+/**
+ * 3. 공통 상세 코드 삭제 (DELETE)
+ * @param clsfCd 분류 코드
+ * @param cdId 코드 ID
+ */
+export const deleteCodeDetailApi = async (clsfCd: string, cdId: string): Promise<{ message: string } | void> => {
+    const response = await api.delete(`/code/${clsfCd}/details/${cdId}`);
+    return response.data;
+};
+
+/**
+ * 5. 사용 가능한 공통코드 전체 목록 조회 (GET)
+ * (이전 턴에서 작성한 함수입니다.)
+ */
+export const getActiveCodeListApi = async (): Promise<codeResponse[]> => {
+    const response = await api.get(`/code/active`);
+    return response.data;
 };

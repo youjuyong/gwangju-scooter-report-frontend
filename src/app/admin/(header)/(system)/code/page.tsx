@@ -1,93 +1,123 @@
 "use client";
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-
-// 라온텍 그리드 라이브러리 임포트
 import { RaontecGridHandle, RaontecTanstackGrid, CustomColumnDef } from "@rxjacx/raontec-grid";
+import {
+    createCodeDetailApi,
+    deleteCodeDetailApi,
+    getActiveCodeListApi,
+    updateCodeDetailApi
+} from "@/services/system/systemApi";
+import {registerMenuLog} from "@/services/common/commonApi";
+import {useDrag} from "@/hooks/userDrag";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
-// 데이터 인터페이스 정의
-export interface ZoneCodeData {
-    codeId: string;
-    commonCode: string;
-    hangulNm: string;
-    englishNm: string;
-    codeAbbr: string;
-    attribute1: string;
-    attribute2: string;
-    note: string;
-    useYn: string;
+// 1. 데이터 인터페이스 정의
+export interface codeResponse {
+    clsfCd: string;     // 분류 코드 (예: ALTY, AVST, BZTY)
+    clsfCdNm: string;   // 분류 코드명 (예: 알람 유형, 승인 상태)
+    cdId: string;       // 코드 ID (예: ALTY01, AVST01)
+    cdNm: string;       // 코드명 (예: 승인제, 승인, PM 운영사)
+    sortSeq: number;    // 정렬 순서
+    regDt : string;
+    cdUseYn : string;   // 사용 여부
 }
 
-// 로딩 오버레이 더미 컴포넌트 (필요 시 실제 컴포넌트로 대체 가능)
-function LoadingOverlay({ message }: { message: string }) {
-    return (
-        <div className="loadingOverlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999, color: '#fff' }}>
-            <div>{message}</div>
-        </div>
-    );
-}
+
 
 export default function ZoneCodePage() {
     const pathname = usePathname();
-    const [isLoading, setIsLoading] = useState(false); // 로딩 상태 제어용
+    const [isLoading, setIsLoading] = useState(false);
 
-    // 서브 내비게이션 아이템 정의 (사용자 역할 'admin' 기준 예시 주소)
+    // 서브 내비게이션 아이템 정의
     const subNavItems = [
         { id: 'pm', name: 'PM업체관리', path: '/admin/pm' },
         { id: 'point', name: '배치포인트관리', path: '/admin/point' },
         { id: 'zone', name: '권역관리', path: '/admin/zone' },
-        { id: 'code', name: '권역코드관리', path: '/admin/code' }, // 현재 페이지 예시 경로
+        { id: 'code', name: '권역코드관리', path: '/admin/code' },
         { id: 'setting', name: '운영설정관리', path: '/admin/seting' },
     ];
 
-    // 가상 데이터 상태
-    const [gridData, setGridData] = useState<ZoneCodeData[]>([
-        { codeId: "123456", commonCode: "Z001", hangulNm: "광주동구", englishNm: "Gwangju-Donggu", codeAbbr: "GJ_DG", attribute1: "VAL1", attribute2: "REG01", note: "특수권역", useYn: "사용" },
-        { codeId: "123457", commonCode: "Z002", hangulNm: "광주서구", englishNm: "Gwangju-Seogu", codeAbbr: "GJ_SG", attribute1: "VAL2", attribute2: "REG02", note: "일반권역", useYn: "사용" },
-        { codeId: "123458", commonCode: "Z003", hangulNm: "광주남구", englishNm: "Gwangju-Namgu", codeAbbr: "GJ_NG", attribute1: "VAL1", attribute2: "REG03", note: "제한구역", useYn: "사용안함" },
-    ]);
-
-    const [checkedRows, setCheckedRows] = useState<ZoneCodeData[]>([]);
+    // API에서 가져올 실제 공통 코드 상태 관리
+    const [gridData, setGridData] = useState<codeResponse[]>([]);
+    const [checkedRows, setCheckedRows] = useState<codeResponse[]>([]);
     const [searchKeyword, setSearchKeyword] = useState('');
     const [appliedKeyword, setAppliedKeyword] = useState('');
 
-    // 팝업 상태 및 입력 필드
+    // 팝업 상태 및 입력 필드 제어
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [popupMode, setPopupMode] = useState<'create' | 'update'>('create');
 
-    const [inputCodeId, setInputCodeId] = useState('');
-    const [inputCommonCode, setInputCommonCode] = useState('');
-    const [inputHangulNm, setInputHangulNm] = useState('');
-    const [inputEnglishNm, setInputEnglishNm] = useState('');
-    const [inputCodeAbbr, setInputCodeAbbr] = useState('');
-    const [inputAttribute1, setInputAttribute1] = useState('');
-    const [inputAttribute2, setInputAttribute2] = useState('');
-    const [inputNote, setInputNote] = useState('');
-    const [selectUseYn, setSelectUseYn] = useState('사용');
-
+    const [inputClsfCd, setInputClsfCd] = useState('');
+    const [inputCdId, setInputCdId] = useState('');
+    const [inputCdNm, setInputCdNm] = useState('');
+    const [originCdId, setOriginCdId] = useState('');
     const zoneGridRef = useRef<RaontecGridHandle>(null);
 
+    const { position, handleMouseDown, isDragging } = useDrag(isPopupOpen); // 팝업 드래그
+
+    // [추가] 고유한 분류코드(clsfCd) 목록 추출 (Select 박스용)
+    const uniqueClsfCodes = useMemo(() => {
+        const uniqueMap = new Map<string, string>();
+        gridData.forEach(item => {
+            if (!uniqueMap.has(item.clsfCd)) {
+                uniqueMap.set(item.clsfCd, item.clsfCdNm);
+            }
+        });
+        return Array.from(uniqueMap.entries()).map(([clsfCd, clsfCdNm]) => ({
+            clsfCd,
+            clsfCdNm
+        }));
+    }, [gridData]);
+
+    // [추가] 선택된 분류코드(inputClsfCd) 내에서 가장 큰 sortSeq 값 + 1 자동 계산
+    const nextSortSeq = useMemo(() => {
+        if (!inputClsfCd) return 1;
+        const sameClassCodes = gridData.filter(item => item.clsfCd === inputClsfCd);
+        if (sameClassCodes.length === 0) return 1;
+
+        const maxSortSeq = Math.max(...sameClassCodes.map(item => item.sortSeq || 0));
+        return maxSortSeq + 1;
+    }, [gridData, inputClsfCd]);
+
+    // 전체 활성 공통코드 조회 API 호출 (초기 로드)
+    const fetchCodeList = async () => {
+        setIsLoading(true);
+        try {
+            const data = await getActiveCodeListApi();
+            setGridData(data || []);
+        } catch (error) {
+            console.error("코드 목록 조회 실패:", error);
+            alert("데이터를 불러오는데 실패했습니다.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCodeList();
+    }, []);
+
     // 그리드 컬럼 설정
-    const zoneGridColumns = useMemo<CustomColumnDef<ZoneCodeData>[]>(() => [
-        { header: '코드ID', accessorKey: 'codeId', meta: { id: 'codeId', isKey: true } },
-        { header: '공통코드', accessorKey: 'commonCode' },
-        { header: '한글명', accessorKey: 'hangulNm' },
-        { header: '영문명', accessorKey: 'englishNm' },
-        { header: '코드약어', accessorKey: 'codeAbbr' },
-        { header: '속성1', accessorKey: 'attribute1' },
-        { header: '속성2', accessorKey: 'attribute2'},
-        { header: '비고', accessorKey: 'note' },
-        { header: '사용여부', accessorKey: 'useYn' },
+    const zoneGridColumns = useMemo<CustomColumnDef<codeResponse>[]>(() => [
+        { header: '분류코드', accessorKey: 'clsfCd', meta: { id: 'clsfCd' } },
+        { header: '분류코드명', accessorKey: 'clsfCdNm' },
+        { header: '코드ID', accessorKey: 'cdId', meta: { id: 'cdId', isKey: true } },
+        { header: '코드명', accessorKey: 'cdNm' },
+        { header: '정렬순서', accessorKey: 'sortSeq',enableColumnFilter: false, },
+        { header: '등록일자', accessorKey: 'regDt',enableColumnFilter: false, },
+        { header: '사용여부', accessorKey: 'cdUseYn' },
     ], []);
 
+    // 검색어 필터링
     const filteredGridData = useMemo(() => {
         if (!appliedKeyword) return gridData;
         return gridData.filter(item =>
-            item.hangulNm.includes(appliedKeyword) ||
-            item.commonCode.includes(appliedKeyword) ||
-            String(item.codeId).includes(appliedKeyword)
+            item.clsfCd.toLowerCase().includes(appliedKeyword.toLowerCase()) ||
+            item.clsfCdNm.includes(appliedKeyword) ||
+            item.cdNm.includes(appliedKeyword)
         );
     }, [gridData, appliedKeyword]);
 
@@ -95,23 +125,20 @@ export default function ZoneCodePage() {
         setAppliedKeyword(searchKeyword);
     };
 
+    // 등록 팝업 오픈
     const handleCreateOpen = () => {
         setPopupMode('create');
-        setInputCodeId(String(Math.floor(100000 + Math.random() * 900000)));
-        setInputCommonCode('');
-        setInputHangulNm('');
-        setInputEnglishNm('');
-        setInputCodeAbbr('');
-        setInputAttribute1('');
-        setInputAttribute2('');
-        setInputNote('');
-        setSelectUseYn('사용');
+        // 첫 번째 분류코드를 기본 선택값으로 지정 (목록이 존재할 때)
+        setInputClsfCd(uniqueClsfCodes[0]?.clsfCd || '');
+        setInputCdId('');
+        setInputCdNm('');
         setIsPopupOpen(true);
     };
 
+    // 수정 팝업 오픈
     const handleUpdateOpen = () => {
         if (checkedRows.length === 0) {
-            alert("수정할 권역코드를 체크박스에서 선택해 주세요.");
+            alert("수정할 코드를 체크박스에서 선택해 주세요.");
             return;
         }
         if (checkedRows.length > 1) {
@@ -121,84 +148,122 @@ export default function ZoneCodePage() {
 
         const target = checkedRows[0];
         setPopupMode('update');
-        setInputCodeId(String(target.codeId));
-        setInputCommonCode(target.commonCode);
-        setInputHangulNm(target.hangulNm);
-        setInputEnglishNm(target.englishNm);
-        setInputCodeAbbr(target.codeAbbr);
-        setInputAttribute1(target.attribute1);
-        setInputAttribute2(target.attribute2);
-        setInputNote(target.note);
-        setSelectUseYn(target.useYn);
+        setInputClsfCd(target.clsfCd);
+        setOriginCdId(target.cdId);
+        setInputCdId(target.cdId);
+        setInputCdNm(target.cdNm);
         setIsPopupOpen(true);
     };
 
-    const handleDelete = () => {
+    // API 기반 삭제 처리
+    const handleDelete = async () => {
         if (checkedRows.length === 0) {
             alert("삭제할 대상을 체크박스에서 선택해 주세요.");
             return;
         }
 
-        if (window.confirm(`선택한 ${checkedRows.length}개의 권역코드를 삭제하시겠습니까?`)) {
-            const checkedIds = checkedRows.map(r => r.codeId);
-            setGridData(prev => prev.filter(item => !checkedIds.includes(item.codeId)));
-
-            setCheckedRows([]);
-            zoneGridRef.current?.clearSelectedRow();
-            zoneGridRef.current?.clearRowSelection();
-            alert("삭제되었습니다.");
+        if (window.confirm(`선택한 ${checkedRows.length}개의 코드를 삭제하시겠습니까?`)) {
+            setIsLoading(true);
+            try {
+                for (const row of checkedRows) {
+                    await deleteCodeDetailApi(row.clsfCd, row.cdId);
+                }
+                alert("삭제되었습니다.");
+                await fetchCodeList();
+                clearSelection();
+            } catch (error) {
+                console.error("삭제 실패:", error);
+                alert("삭제 처리 중 오류가 발생했습니다.");
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
-    const handlePopupSave = () => {
-        if (!inputCommonCode.trim() || !inputHangulNm.trim()) {
-            alert("공통코드와 한글명은 필수 입력 항목입니다.");
+    // API 기반 등록/수정 저장 처리
+    const handlePopupSave = async () => {
+        if (!inputClsfCd.trim() || !inputCdId.trim() || !inputCdNm.trim()) {
+            alert("분류코드, 코드ID, 코드명은 필수 입력 항목입니다.");
             return;
         }
 
-        const newRow: ZoneCodeData = {
-            codeId: inputCodeId,
-            commonCode: inputCommonCode.trim(),
-            hangulNm: inputHangulNm.trim(),
-            englishNm: inputEnglishNm.trim(),
-            codeAbbr: inputCodeAbbr.trim(),
-            attribute1: inputAttribute1.trim(),
-            attribute2: inputAttribute2.trim(),
-            note: inputNote.trim(),
-            useYn: selectUseYn
-        };
+        setIsLoading(true);
+        try {
+            if (popupMode === 'create') {
+                // 등록 POST API 호출
+                await createCodeDetailApi(inputClsfCd.trim(), {
+                    cdId: inputCdId.trim(),
+                    cdNm: inputCdNm.trim(),
+                    sortSeq: nextSortSeq
+                });
+                alert("등록되었습니다.");
+            } else {
+                // 수정 PUT API 호출
+                await updateCodeDetailApi(inputClsfCd.trim(), originCdId.trim(), {
+                    newCdId: inputCdId.trim(),
+                    cdNm: inputCdNm.trim(),
+                });
+                alert("수정되었습니다.");
+            }
 
-        if (popupMode === 'create') {
-            setGridData(prev => [...prev, newRow]);
-            alert("등록되었습니다.");
-        } else {
-            setGridData(prev => prev.map(item => item.codeId === inputCodeId ? newRow : item));
-            alert("수정되었습니다.");
+            setIsPopupOpen(false);
+            await fetchCodeList();
+            clearSelection();
+        } catch (error : any) {
+            console.error("저장 실패:", error);
+            if (error.response && error.response.data && error.response.data.resultMsg) {
+                alert(error.response.data.resultMsg);
+            } else {
+                alert("저장 처리 중 오류가 발생했습니다.");
+            }
+        } finally {
+            setIsLoading(false);
         }
+    };
 
-        setIsPopupOpen(false);
+    const clearSelection = () => {
         setCheckedRows([]);
         zoneGridRef.current?.clearSelectedRow();
         zoneGridRef.current?.clearRowSelection();
     };
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR4400");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (isPopupOpen && e.key === 'Escape') {
+                setIsPopupOpen(false); // 컴포넌트 자체 팝업 오프 플래그 연동
+            }
+        };
+        if (isPopupOpen) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isPopupOpen]);
 
     return (
-        /*  요청하신 wrap 및 로딩, subnav 레이아웃 연동 처리부 */
         <div className="wrap">
-            {isLoading && <LoadingOverlay message={"데이터 로딩 중..."} />}
+            {isLoading && <LoadingOverlay message={"데이터를 처리 중입니다..."} />}
 
-            {/* 서브 내비게이션 바 영역 */}
+            {/* 서브 내비게이션 바 */}
             <div className="subnav">
                 <nav>
                     <ul>
                         {subNavItems.map((item) => {
-                            // 현재 URL 주소 세그먼트와 설정된 고유 메뉴 패스가 매치되면 'click' 클래스 활성화
-                            const isSubActive = pathname === item.path || (item.id === 'code'); // 예시 코드로 code 강제 활성화 처리 포함
+                            const isSubActive = pathname === item.path || (item.id === 'code');
                             return (
                                 <li key={item.id} className={isSubActive ? 'click' : ''}>
-                                    <Link href={item.path}>
-                                        {item.name}
-                                    </Link>
+                                    <Link href={item.path}>{item.name}</Link>
                                 </li>
                             );
                         })}
@@ -206,10 +271,8 @@ export default function ZoneCodePage() {
                 </nav>
             </div>
 
-            {/* 메인 콘텐츠 영역 (퍼블리싱 원본 사양) */}
+            {/* 메인 콘텐츠 영역 */}
             <div className="subarticle">
-
-                {/* 검색 조건 제어 상단 바 */}
                 <div className="searchBox">
                     <div className="btnSet">
                         <button onClick={handleCreateOpen}>+ 등록</button>
@@ -224,7 +287,7 @@ export default function ZoneCodePage() {
                                 <input
                                     type="text"
                                     className="searchinput"
-                                    placeholder="검색어 입력"
+                                    placeholder="분류코드 / 코드명 입력"
                                     value={searchKeyword}
                                     onChange={(e) => setSearchKeyword(e.target.value)}
                                     onKeyDown={(e) => { if(e.key === 'Enter') handleSearch(); }}
@@ -237,88 +300,79 @@ export default function ZoneCodePage() {
                     <button className="btnExcel" onClick={() => alert("엑셀 저장을 수행합니다.")}>엑셀저장</button>
                 </div>
 
-                {/* 그리드박스 바인딩 구역 */}
+                {/* 그리드박스 구역 */}
                 <div className="infoContent">
-                    <div className="gridbox" style={{ width: '100%', height: 'calc(100vh - 260px)', overflow: 'hidden' }}>
+                    <div className="gridbox" >
                         <RaontecTanstackGrid
                             ref={zoneGridRef}
                             data={filteredGridData}
                             columns={zoneGridColumns}
                             rowHeight={45}
                             enableRowSelection={true}
-                            onSelectionChange={(rows: ZoneCodeData[]) => setCheckedRows(rows)}
+                            onSelectionChange={(rows: codeResponse[]) => setCheckedRows(rows)}
                         />
                     </div>
                 </div>
-
             </div>
 
-            {/* 등록 및 수정 팝업 구조 */}
+            {/* 등록 및 수정 팝업 모달 */}
             {isPopupOpen && (
                 <div className="popupWrap">
                     <div className="popupInner">
-                        <div className="popup popup_code">
-                            <h3>권역코드</h3>
+                        <div className="popup popup_code"
+                             style={{  // 팝업 드래그
+                                 transform: `translate(${position.x}px, ${position.y}px)`,
+                                 transition: isDragging ? 'none' : 'transform 0.1s ease'
+                             }}>
+                            <h3   // 팝업 드래그
+                                onMouseDown={handleMouseDown}
+                                style={{cursor: 'move', userSelect: 'none'}}
+                            >공통코드 {popupMode === 'create' ? '등록' : '수정'}</h3>
                             <button className="popupClose" onClick={() => setIsPopupOpen(false)}>닫기</button>
                             <div className="popupconten">
-
                                 <table>
                                     <tbody>
                                     <tr>
+                                        <th>분류코드</th>
+                                        <td>
+                                            {popupMode === 'create' ? (
+                                                /* 등록 모드일 때 select 박스로 표출 */
+                                                <select
+                                                    value={inputClsfCd}
+                                                    onChange={(e) => setInputClsfCd(e.target.value)}
+                                                    // style={{ width: '100%', padding: '4px 8px' }}
+                                                >
+                                                    {uniqueClsfCodes.map(code => (
+                                                        <option key={code.clsfCd} value={code.clsfCd}>
+                                                            {code.clsfCd} ({code.clsfCdNm})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                /* 수정 모드일 때 기존처럼 인풋창 비활성화 */
+                                                <input
+                                                    type="text"
+                                                    value={inputClsfCd}
+                                                    disabled
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <th>코드ID</th>
                                         <td>
-                                            <input type="text" value={inputCodeId} disabled  />
+                                            <input
+                                                type="text"
+                                                value={inputCdId}
+                                                onChange={(e) => setInputCdId(e.target.value)}
+                                               // disabled={popupMode === 'update'}
+                                            />
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th>콩통코드</th>
+                                        <th>코드명</th>
                                         <td>
-                                            <input type="text" value={inputCommonCode} onChange={(e) => setInputCommonCode(e.target.value)} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>한글명</th>
-                                        <td>
-                                            <input type="text" value={inputHangulNm} onChange={(e) => setInputHangulNm(e.target.value)} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>영문명</th>
-                                        <td>
-                                            <input type="text" value={inputEnglishNm} onChange={(e) => setInputEnglishNm(e.target.value)} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>약어</th>
-                                        <td>
-                                            <input type="text" value={inputCodeAbbr} onChange={(e) => setInputCodeAbbr(e.target.value)} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>속성1</th>
-                                        <td>
-                                            <input type="text" value={inputAttribute1} onChange={(e) => setInputAttribute1(e.target.value)} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>속성2</th>
-                                        <td>
-                                            <input type="text" value={inputAttribute2} onChange={(e) => setInputAttribute2(e.target.value)} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>비고</th>
-                                        <td>
-                                            <input type="text" value={inputNote} onChange={(e) => setInputNote(e.target.value)} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>사용여부</th>
-                                        <td>
-                                            <select value={selectUseYn} onChange={(e) => setSelectUseYn(e.target.value)}>
-                                                <option value="사용">사용</option>
-                                                <option value="사용안함">사용안함</option>
-                                            </select>
+                                            <input type="text" value={inputCdNm} onChange={(e) => setInputCdNm(e.target.value)} />
                                         </td>
                                     </tr>
                                     </tbody>
@@ -333,7 +387,6 @@ export default function ZoneCodePage() {
                     </div>
                 </div>
             )}
-
         </div>
     );
 }

@@ -35,3 +35,27 @@ export interface UpdateOperationSettingRequest{
     endHm: string;      // 종료 시간 (포맷 예: "1800")
     useYn: string;      // 사용 여부 ("Y" | "N")
 }
+
+export interface codeResponse {
+    clsfCd: string;     // 분류 코드 (예: ALTY, AVST, BZTY)
+    clsfCdNm: string;   // 분류 코드명 (예: 알람 유형, 승인 상태)
+    cdId: string;       // 코드 ID (예: ALTY01, AVST01)
+    cdNm: string;       // 코드명 (예: 승인제, 승인, PM 운영사)
+    sortSeq: number;    // 정렬 순서
+    regDt : string;
+    cdUseYn : string;
+}
+export interface codeCreateRequest {
+    cdId: string;       // 코드 ID
+    cdNm: string;       // 코드명
+    sortSeq : number;    // 정렬 순서
+   // useYn?: string;     // 사용 여부 (Y/N)
+}
+
+
+
+export interface codeUpdateRequest {
+    newCdId: string;       // 코드 ID
+    cdNm: string;       // 코드명
+    // useYn?: string;     // 사용 여부 (Y/N)
+}

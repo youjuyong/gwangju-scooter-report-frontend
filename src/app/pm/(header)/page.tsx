@@ -50,7 +50,6 @@ export default function MainHome() {
                     lng: pos.coords.longitude
                 });
                 setIsGpsLoading(false);
-                console.log(center);
             },
             (err) => {
                 console.warn("GPS 획득 실패:", err);
