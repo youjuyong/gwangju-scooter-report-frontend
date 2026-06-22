@@ -146,7 +146,6 @@ export default function PmPage() {
         try {
             setIsLoading(true);
             const data = await getPmCompanyListApi();
-            console.log(data);
             setGridData(data);
 
 
