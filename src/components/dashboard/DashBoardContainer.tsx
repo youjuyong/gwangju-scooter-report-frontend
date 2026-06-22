@@ -111,6 +111,15 @@ export default function DashboardContainer() {
         if (approveResponse !== undefined) {
             const isManualFromServer = approveResponse?.data === false || approveResponse?.data === "N";
             setMode(isManualFromServer ? 'MANUAL' : 'AUTO');
+
+            if (isManualFromServer) {
+                setSelectedStatus((prev) => {
+                    const nextStatus = [...prev];
+                    if (!nextStatus.includes("DEST01")) nextStatus.push("DEST01");
+                    if (!nextStatus.includes("DEST06")) nextStatus.push("DEST06");
+                    return nextStatus;
+                });
+            }
         }
     }, [approveResponse, setMode]);
 
@@ -213,6 +222,17 @@ export default function DashboardContainer() {
 
         setMode(isChecked ? 'MANUAL' : 'AUTO');
         toggleMutation.mutate(isChecked);
+
+        if (isChecked) {
+            setSelectedStatus((prev) => {
+                const nextStatus = [...prev];
+                if (!nextStatus.includes("DEST01")) nextStatus.push("DEST01");
+                if (!nextStatus.includes("DEST06")) nextStatus.push("DEST06");
+                return nextStatus;
+            });
+        } else {
+            setSelectedStatus((prev) => prev.filter(code => code !== "DEST01" && code !== "DEST06"));
+        }
     };
 
     useEffect(() => {
