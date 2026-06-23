@@ -47,6 +47,19 @@ export const useSseStore = create<SseState>((set, get) => ({
         console.error("알림 데이터 파싱 에러:", err);
       }
     });
+    // 신고자가 신고를 했을 때 PM에게 보내는 이벤트 감지
+    sse.addEventListener("DCLR_REGISTERED", (e: any) => {
+      window.location.reload(); // 화면 즉시 새로고침
+    });
+
+    // 자동 이관 발생 시 pm에게 보내는 이벤트 감지
+    sse.addEventListener("TOW_ASSIGNED_TO_PM", (e: any) => {
+      window.location.reload(); // 화면 즉시 새로고침
+    });
+    //자동 이관시 tow에게 보내는 이벤트 감지
+    sse.addEventListener("TOW_ASSIGNED_TO_TOW", (e: any) => {
+      window.location.reload(); // 화면 즉시 새로고침
+    });
 
     sse.onerror = (err) => {
       console.error("[SSE] 연결 오류 발생:", err);

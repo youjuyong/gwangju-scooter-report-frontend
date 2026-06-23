@@ -15,14 +15,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (pathname.includes("/notice")) activeTab = "공지사항";
     else if (pathname.includes("/reportList")) activeTab = "신고확인";
 
-    useEffect(() => {
+    /*useEffect(() => {
         if ('serviceWorker' in navigator) {
             const handleMessage = (event: MessageEvent) => {
                 if (event.data && event.data.type === 'NAVIGATE') {
                     const targetUrl = event.data.url;
-                    
+                        console.log(targetUrl);
                     if (targetUrl.startsWith('/reportList') || targetUrl.startsWith('/citizen')) {
-                        window.location.href = targetUrl; 
+                        window.location.href = targetUrl;
                     }
                 }
             };
@@ -32,7 +32,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 navigator.serviceWorker.removeEventListener('message', handleMessage);
             };
         }
-    }, [router]);
+    }, [router]);*/
 
     const isClient = useSyncExternalStore(
         emptySubscribe,

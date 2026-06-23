@@ -6,14 +6,17 @@ import React, {useState, useEffect, useSyncExternalStore} from "react";
 import {useAlarmStore} from "@/store/alamStore";
 import {useAuthStore} from "@/store/authStore";
 import {getAlarmListApi} from "@/services/alarm/alarmApi";
+import {useSseStore} from "@/store/sseStore";
 // 가짜 구독 함수 (클라이언트 로딩 체크용)
 const emptySubscribe = () => () => {};
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const alarmList = useAlarmStore((state) => state.alarmList);
-    const setInitialList = useAlarmStore((state) => state.setInitialList);
-    const token = useAuthStore((state) => state.tow?.accessToken);
+    const accessToken = useAuthStore((state) => state.tow?.accessToken);
+    const test = useAuthStore((state) => state);
+    const alarmList = useSseStore((state) => state.alarmList);
+    const setInitialList = useSseStore((state) => state.setInitialList);
+    const connectSSE = useSseStore((state) => state.connectSSE);
     const alarmLength = alarmList.length;
 
     let activeTab = "홈";
@@ -23,8 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     // 로그인시 알람 리스트 삽입
     useEffect(() => {
-        // 토큰이 없거나, 이미 알림이 있다면 아무것도 하지 않고 즉시 종료
-        if (!token || alarmLength !== 0) return;
+        if (!accessToken || alarmLength !== 0) return;
 
         const fetchAlarms = async () => {
             try {
@@ -35,7 +37,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             }
         };
         fetchAlarms();
-    }, [setInitialList, alarmLength, token]);
+    }, [setInitialList, alarmLength, accessToken]);
+
+    useEffect(() => {
+        if (accessToken) {
+            connectSSE(accessToken);
+
+            const handleBeforeUnload = () => {
+                useSseStore.getState().disconnectSSE();
+            };
+
+            window.addEventListener('beforeunload', handleBeforeUnload);
+
+            return () => {
+                window.removeEventListener('beforeunload', handleBeforeUnload);
+                useSseStore.getState().disconnectSSE();
+            };
+        }
+    }, [accessToken, connectSSE]);
 
     // 컴포넌트가 브라우저에 완전히 마운트된 후에만 화면을 보여줌
     const isClient = useSyncExternalStore(
