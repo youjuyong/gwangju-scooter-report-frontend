@@ -43,8 +43,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (accessToken) {
             connectSSE(accessToken);
+
+            const handleBeforeUnload = () => {
+                useSseStore.getState().disconnectSSE();
+            };
+
+            window.addEventListener('beforeunload', handleBeforeUnload);
+            
+            return () => {
+                window.removeEventListener('beforeunload', handleBeforeUnload);
+                useSseStore.getState().disconnectSSE();
+            };
         }
     }, [accessToken, connectSSE]);
+
 
 
     const isClient = useSyncExternalStore(
