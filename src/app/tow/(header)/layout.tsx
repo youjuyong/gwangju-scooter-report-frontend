@@ -18,8 +18,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     let activeTab = "홈";
     if (pathname.includes("/notice")) activeTab = "공지사항";
+    else if (pathname.includes("/reportList")) activeTab = "회수관리";
     else if (pathname.includes("/report")) activeTab = "신고하기";
-    else if (pathname.includes("/reportList")) activeTab = "신고확인";
 
     // 로그인시 알람 리스트 삽입
     useEffect(() => {
