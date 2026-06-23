@@ -376,11 +376,11 @@ input[type="file"]::-webkit-file-upload-button{ padding:0 10px;}
 .popup_seting th{width:70px}
 
 /*관리자*/
-.popup_manager{width:400px;}
+.popup_manager{width:445px;}
 .popup_manager th{width:80px}
-.popup_manager label{width:90px; display:inline-block; margin: 5px 0}
+.popup_manager label{width:109px; display:inline-block; margin: 5px 0}
 
-.popup.popup_manager input, .popup.popup_manager select{width: 150px;}
+.popup.popup_manager input, .popup.popup_manager select{width: 305px;}
 
 .memberContent .gridbox{bottom: 100px; border-bottom: 1px solid #121214}
 .pagebox{width: 100%; position: absolute; bottom: 0; height: 100px; width:100%; text-align: center; border-top: 1px solid #2b2d32; padding-top: 20px;}

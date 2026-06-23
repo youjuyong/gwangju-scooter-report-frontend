@@ -70,12 +70,12 @@ export default function ManagerPage() {
             meta: { filterType: "check" },
         },
         {
-            header: '소속',
+            header: '부서',
             accessorKey: 'deptNm',
             meta: { filterType: "check" },
         },
         {
-            header: '부서',
+            header: '종류',
             accessorKey: 'deptTypeNm',
             meta: { filterType: "check" },
         },
