@@ -36,8 +36,7 @@ const KakaoMapSection = memo(({ reports, outlinePath, center, onMarkerClick, bac
             // 부드러운 스크롤 이동을 원하면 panTo, 즉시 이동을 원하면 setCenter를 사용하세요.
             mapRef.current.panTo(new kakao.maps.LatLng(center.lat, center.lng));
         }
-    }, [center]); // 👈 center 값이 변경될 때마다 실행됩니다.
-
+    }, [center]);
     return (
         <Map
             ref={mapRef} //  3. 여기에 ref를 바인딩해 주어야 카카오 지도 객체에 접근할 수 있습니다.

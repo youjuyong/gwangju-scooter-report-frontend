@@ -220,9 +220,15 @@ export default function ReportDetail() {
 
             toast.success("회수완료 처리가 완료되었습니다.");
             fetchDetail(); // 성공 후 상세 화면 갱신
-        } catch (error) {
+        } catch (error : any) {
             console.error("회수완료 실패:", error);
             toast.error("처리 중 오류가 발생했습니다.");
+            if (error.response && error.response.data && error.response.data.resultMsg) {
+                await showAlert(error.response.data.resultMsg);
+                window.location.reload();
+            } else {
+                toast.error("처리 중 오류가 발생했습니다.");
+            }
         }
     };
 
@@ -356,8 +362,8 @@ export default function ReportDetail() {
                                             id="reason"
                                             name="reason"
                                             placeholder="사유를 입력하세요"
-                                            value={reason} // 👈 연결
-                                            onChange={(e) => setReason(e.target.value)} // 👈 타이핑 감지
+                                            value={reason}
+                                            onChange={(e) => setReason(e.target.value)}
                                         />
                                     </div>
 
@@ -405,7 +411,7 @@ export default function ReportDetail() {
                                             type="text"
                                             id="reason"
                                             name="reason"
-                                            value={report?.prcrHis.prcsRsn || "등록된 사유가 없습니다."} // 👈 서버에서 온 사유 매핑
+                                            value={report?.prcrHis.prcsRsn || "등록된 사유가 없습니다."}
                                             readOnly={true}
                                         />
                                     </div>

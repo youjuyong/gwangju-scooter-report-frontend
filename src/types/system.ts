@@ -13,7 +13,7 @@ export interface settingResponse<T> {
     success: boolean;
     code: string;
     message: string;
-    data: T; // 👈 실제 데이터가 들어오는 알맹이
+    data: T;
 }
 
 export interface OperationSettingItem {

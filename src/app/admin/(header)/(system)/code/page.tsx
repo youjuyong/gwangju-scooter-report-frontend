@@ -36,7 +36,7 @@ export default function ZoneCodePage() {
         { id: 'pm', name: 'PM업체관리', path: '/admin/pm' },
         { id: 'point', name: '배치포인트관리', path: '/admin/point' },
         { id: 'zone', name: '권역관리', path: '/admin/zone' },
-        { id: 'code', name: '권역코드관리', path: '/admin/code' },
+        { id: 'code', name: '공통코드관리', path: '/admin/code' },
         { id: 'setting', name: '운영설정관리', path: '/admin/seting' },
     ];
 
