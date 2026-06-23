@@ -21,6 +21,11 @@ const geistMono = Geist_Mono({
 
 // src/app/layout.tsx
 export const metadata: Metadata = {
+    metadataBase: new URL(
+        process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL 
+            ? `https://${process.env.VERCEL_URL}` 
+            : "http://localhost:3000"
+    ),
     title: "경기도광주시 공유 킥보드 신고 시스템",
     description: "경기도 광주시에서 공유 킥보드를 신고 할수 있는 시스템입니다.",
     manifest: "/manifest.json",
