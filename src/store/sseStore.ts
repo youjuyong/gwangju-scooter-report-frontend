@@ -49,15 +49,36 @@ export const useSseStore = create<SseState>((set, get) => ({
     });
     // 신고자가 신고를 했을 때 PM에게 보내는 이벤트 감지
     sse.addEventListener("DCLR_REGISTERED", (e: any) => {
+
+      const currentPath = window.location.pathname;
+
+      if (currentPath.includes("/reportDetail")) {
+        console.log("[SSE] 상세 페이지 내부이므로 자동 새로고침을 건너뜁니다.");
+        return;
+      }
       window.location.reload(); // 화면 즉시 새로고침
     });
 
     // 자동 이관 발생 시 pm에게 보내는 이벤트 감지
     sse.addEventListener("TOW_ASSIGNED_TO_PM", (e: any) => {
+
+      const currentPath = window.location.pathname;
+      if (currentPath.includes("/reportDetail/")) {
+        console.log("[SSE] 상세 페이지 내부이므로 자동 새로고침을 건너뜁니다.");
+        return;
+      }
       window.location.reload(); // 화면 즉시 새로고침
     });
+
     //자동 이관시 tow에게 보내는 이벤트 감지
     sse.addEventListener("TOW_ASSIGNED_TO_TOW", (e: any) => {
+
+      const currentPath = window.location.pathname;
+      // URL에 '/reportDetail/'이 포함되어 있다면 새로고침을 건너뜁니다.
+      if (currentPath.includes("/reportDetail/")) {
+        console.log("[SSE] 상세 페이지 내부이므로 자동 새로고침을 건너뜁니다.");
+        return;
+      }
       window.location.reload(); // 화면 즉시 새로고침
     });
 
