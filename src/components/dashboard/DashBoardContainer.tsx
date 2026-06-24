@@ -1,5 +1,4 @@
 "use client";
-import Cookies from "js-cookie";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {getOutlineType} from "@/services/common/commonApi";
@@ -18,11 +17,13 @@ import {
 import {useModeStore} from "@/store/dashboardStore";
 import {getBatchPointListApi, getPmCompanyListApi} from "@/services/system/systemApi";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import {useSseStore} from "@/store/sseStore";
+import {useAuthStore} from "@/store/authStore";
 
 
 export default function DashboardContainer() {
     const queryClient = useQueryClient();
-    const token = Cookies.get("adminAccessToken");
+    const token = useAuthStore((state) => state.admin?.accessToken);
     const [activeListId, setActiveListId] = useState<number | null>(null);
     const [isLeftOff, setIsLeftOff] = useState(false);
     const [isUpperOff, setIsUpperOff] = useState(false);
@@ -41,6 +42,8 @@ export default function DashboardContainer() {
     const [isMobileSize, setIsMobileSize] = useState<boolean>(
         typeof window !== "undefined" ? window.innerWidth <= 1430 : false
     );
+
+    const {connectSSE, disconnectSSE} = useSseStore();
 
     const {setMode, setIsSubmitting} = useModeStore();
     const [isPmInitialized, setIsPmInitialized] = useState(false);
@@ -287,6 +290,16 @@ export default function DashboardContainer() {
         if (!activeListId || !Array.isArray(dashboardList)) return null;
         return dashboardList.find((item: any) => item.dclrId === activeListId) || null;
     }, [activeListId, dashboardList]);
+
+    useEffect(() => {
+        if (token) {
+            connectSSE(token, queryClient);
+        }
+
+        return () => {
+            disconnectSSE();
+        };
+    }, [token]);
 
     const optimizedPath = useMemo(() => {
         if (!outlineRes || !Array.isArray(outlineRes)) return [];
