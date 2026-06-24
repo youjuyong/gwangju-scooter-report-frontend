@@ -178,7 +178,8 @@ export default function StatisticMonthPage(){
             setFileName(`${targetMonth}_월별메뉴기능활용통계`);
         }
     }, [reportGridData, setGrid, setFileName]);
-
+    { console.log(userRole)
+        console.log( pathname.startsWith(`/${userRole}/statistic_menu02`))}
     return(
         <div className="wrap statistic_wrap">
 
@@ -186,8 +187,11 @@ export default function StatisticMonthPage(){
                 <nav>
                     <ul>
                         {subNavItems.map((item) => {
-                            const isStatisticMenu = pathname.startsWith(`/${userRole}/statistic0`);
-                            const isSubActive = item.id === 'statistic' ? isStatisticMenu : pathname === item.path;
+                            const isStatisticMenu = pathname.startsWith(`/${userRole}/statistic_menu02`);
+                            const isSubActive = item.id === 'menuStat' ? isStatisticMenu : pathname === item.path;
+                            console.log(pathname);
+                            console.log(isStatisticMenu);
+                            console.log(isSubActive);
                             return (
                                 <li key={item.id} className={isSubActive ? 'click' : ''}>
                                     <Link href={item.path}>{item.name}</Link>

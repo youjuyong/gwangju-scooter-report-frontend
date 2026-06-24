@@ -160,8 +160,8 @@ export default function StatisticMenuYearsPage(){
                 <nav>
                     <ul>
                         {subNavItems.map((item) => {
-                            const isStatisticMenu = pathname.startsWith(`/${userRole}/statistic0`);
-                            const isSubActive = item.id === 'statistic' ? isStatisticMenu : pathname === item.path;
+                            const isStatisticMenu = pathname.startsWith(`/${userRole}/statistic_menu03`);
+                            const isSubActive = item.id === 'menuStat' ? isStatisticMenu : pathname === item.path;
                             return (
                                 <li key={item.id} className={isSubActive ? 'click' : ''}>
                                     <Link href={item.path}>{item.name}</Link>
