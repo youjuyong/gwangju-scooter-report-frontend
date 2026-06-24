@@ -13,6 +13,7 @@ import {
 import {registerMenuLog} from "@/services/common/commonApi";
 import {useDrag} from "@/hooks/userDrag";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import {validateFields} from "@/utils/validation";
 
 // 1. 데이터 인터페이스 정의
 export interface codeResponse {
@@ -186,6 +187,13 @@ export default function ZoneCodePage() {
             alert("분류코드, 코드ID, 코드명은 필수 입력 항목입니다.");
             return;
         }
+
+        const codeIdResult = validateFields.codeId(inputCdId.trim());
+        if (codeIdResult !== true) {
+            alert(codeIdResult);
+            return;
+        }
+
 
         setIsLoading(true);
         try {

@@ -74,16 +74,13 @@ export const useSseStore = create<SseState>((set, get) => ({
             }
         });
 
+        //이벤트시 리스트 , 지도 리로드
         const handleSseReload = (e: any) => {
             const currentPath = window.location.pathname;
-
             // URL에 '/reportDetail'이 포함되어 있다면 새로고침을 건너뜁니다.
             if (currentPath.includes("/reportDetail")) {
-                console.log(`[SSE] ${e.type} 수신 - 상세 페이지 내부이므로 자동 새로고침을 건너뜁니다.`);
                 return;
             }
-
-            console.log(`[SSE] ${e.type} 수신 - 화면을 새로고침합니다.`);
             window.location.reload(); // 그 외의 페이지에서만 즉시 새로고침
         };
 

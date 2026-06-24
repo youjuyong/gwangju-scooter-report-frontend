@@ -19,6 +19,7 @@ import { ExpandableCell } from "@/utils/commGrid";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {ExcelContext} from "@/components/admin/ExcelContext";
 import {useDrag} from "@/hooks/userDrag";
+import {validateFields} from "@/utils/validation";
 
 // 트리 구조 인터페이스 정의
 export interface ZoneHierarchyResponse {
@@ -231,20 +232,11 @@ export default function ZonePage() {
         const childZoneIdTrimmed = inputChildZoneId.trim();
         const childZoneNameTrimmed = inputChildZoneName.trim();
 
-        if (!childZoneIdTrimmed) {
-            alert("하위권역(동·리) ID를 입력해 주세요.");
-            return;
-        }
-
-        if (!/^\d+$/.test(childZoneIdTrimmed)) {
-            alert("하위권역(동·리) ID는 숫자로만 입력해 주세요.");
-            return;
-        }
-
-        if (childZoneIdTrimmed.length > 10) {
-            alert("하위권역(동·리) ID는 최대 10자까지만 입력 가능합니다.");
-            return;
-        }
+        const subZoneIdResult = validateFields.subZoneId(childZoneIdTrimmed);
+            if (subZoneIdResult !== true) {
+                alert(subZoneIdResult);
+                return;
+            }
 
         // 하위권역 명칭 유효성 검사 추가
         if (!childZoneNameTrimmed) {
@@ -418,7 +410,7 @@ export default function ZonePage() {
                                 </tr>
                                 {/* 하위권역 명칭(sareaNm)을 입력받을 수 있는 행 추가 */}
                                 <tr>
-                                    <th>하위권역(동·리) 명칭</th>
+                                    <th>하위권역(동·리) 명</th>
                                     <td>
                                         <input
                                             type="text"
