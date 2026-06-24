@@ -636,7 +636,11 @@ export default function DashboardContainer() {
                 <section className="listBox">
                     <button className="btnarrow_left" onClick={() => setIsLeftOff(!isLeftOff)}></button>
                     <div className="leftinfo">
-                        {isToggleChecked ? <div className="hand">수동모드</div> : <div className="auto">자동 승인 처리중..</div>}
+                        {isToggleChecked ? <div className="hand">수동모드</div> :
+                            <div className="auto">
+                                <img src="/assets/style_admin/images/icon_self.png" alt="self"/>
+                                자동 승인 처리중..
+                            </div>}
                     </div>
 
                     {(isLoading || toggleMutation.isPending) && (

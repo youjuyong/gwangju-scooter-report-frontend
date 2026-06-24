@@ -96,8 +96,8 @@ input:not(:checked) + .modeslider .on {color: #fff;}
 .dashboardTop button.icon8.click{background:url(../images/icon_8_click.png)5px 3px #d22517 no-repeat; }
 
 .dashboardTop button:disabled{border: 1px solid #404043!important; color: #727274!important;}
-.dashboardTop button.icon1:disabled{background:url(../images/icon_1_disabled.png)7px 3px #404043 no-repeat!important;}
-.dashboardTop button.icon5:disabled{background:url(../images/icon_5_disabled.png)7px 3px #404043 no-repeat!important;}
+.dashboardTop button.icon1:disabled{background:url(../images/icon_1_disabled.png)5px 3px #404043 no-repeat!important;}
+.dashboardTop button.icon5:disabled{background:url(../images/icon_5_disabled.png)5px 3px #404043 no-repeat!important;}
 
 .btnarrow{position: absolute; z-index: 2; right:5px; color: #fff; background: url(../images/btn_close.png)center #4b4e52 no-repeat; padding-left:24px; border: none; width: 52px; border-top-left-radius: 0;border-top-right-radius: 0; height: 30px; display: none; border: 1px solid #121212;margin-top: -1px; }
 
