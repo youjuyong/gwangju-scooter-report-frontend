@@ -748,7 +748,10 @@ export default function DashboardContainer() {
                     {selectedItem && (
                         <ReportDetailPopup
                             isOpen={isPopupOpen}
-                            onClose={() => setIsPopupOpen(false)}
+                            onClose={() => {
+                                setIsPopupOpen(false);
+                                setActiveListId(null);
+                            }}
                             onRefreshList={() => {
                                 // sse 연동 후 추가 예정
                             }}
