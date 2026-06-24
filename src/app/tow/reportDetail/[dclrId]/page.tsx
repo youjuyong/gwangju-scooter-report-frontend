@@ -65,11 +65,11 @@ export default function ReportDetail() {
         const selectedFiles = e.target.files; // 사용자가 선택한 파일들 (배열 형태)
 
         if (selectedFiles && selectedFiles.length > 0) {
-            // 🌟 1. 앨범에서 1장만 선택한 경우 -> 클릭한 칸(activePhotoId)에 정확히 매핑
+            //  1. 앨범에서 1장만 선택한 경우 -> 클릭한 칸(activePhotoId)에 정확히 매핑
             if (selectedFiles.length === 1 && activePhotoId) {
                 await processFile(activePhotoId, selectedFiles[0]);
             }
-            // 🌟 2. 앨범에서 2장 이상을 동시에 선택한 경우 -> 앞의 2장을 순서대로 자동 배치
+            //  2. 앨범에서 2장 이상을 동시에 선택한 경우 -> 앞의 2장을 순서대로 자동 배치
             else if (selectedFiles.length >= 2) {
                 await processFile("firstImg", selectedFiles[0]);
                 await processFile("secondImg", selectedFiles[1]);
@@ -120,7 +120,14 @@ export default function ReportDetail() {
         }
         try {
             const res = await getReportDetail(dclrId);
-            if (res.success) {
+            if (res.success && res.data) {
+                const targetCdId = res.data.dclrStts?.cdId;
+                const validStatuses = ["DEST07", "DEST08", "DEST09"];
+
+                if (!targetCdId || !validStatuses.includes(targetCdId)) {
+                    window.location.reload(); // 즉시 새로고침
+                    return; // 아래 setReport를 실행하지 않고 종료
+                }
                 setReport(res.data);
             }
         } catch (error) {
