@@ -49,14 +49,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             };
 
             window.addEventListener('beforeunload', handleBeforeUnload);
-            
+
             return () => {
                 window.removeEventListener('beforeunload', handleBeforeUnload);
-                useSseStore.getState().disconnectSSE();
             };
         }
     }, [accessToken, connectSSE]);
-
 
 
     const isClient = useSyncExternalStore(

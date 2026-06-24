@@ -19,7 +19,7 @@ export const useSseStore = create<SseState>((set, get) => ({
 
     const currentSse = get().sseInstance;
     if (currentSse) {
-      currentSse.close();
+      return;
     }
 
     console.log("전역 [SSE] 연결 시도... ");
