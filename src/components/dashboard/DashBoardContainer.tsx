@@ -23,7 +23,7 @@ import {useAuthStore} from "@/store/authStore";
 
 export default function DashboardContainer() {
     const queryClient = useQueryClient();
-    const token = useAuthStore((state) => state.admin?.accessToken);
+    const token = useAuthStore((state) => state.admin?.accessToken) as string;
     const [activeListId, setActiveListId] = useState<number | null>(null);
     const [isLeftOff, setIsLeftOff] = useState(false);
     const [isUpperOff, setIsUpperOff] = useState(false);
