@@ -3,7 +3,6 @@
 import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {validateFields} from "@/utils/validation";
 import {ExcelContext} from "@/components/admin/ExcelContext";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {registerMenuLog} from "@/services/common/commonApi";
@@ -28,9 +27,11 @@ export default function ManagerPage() {
     //팝업 모드 관리
     const [popupMode, setPopupMode] = useState<'CREATE' | 'UPDATE'>('CREATE');
     //엑셀
+    // const {setGrid, setFileName}: any = useContext(ExcelContext);
+    // const [excelGridData,setExcelGridData] = useState<ManagerListResponse[]>([]);
+    // const excelGridRef = useRef<RaontecGridHandle>(null);
+    //엑셀
     const {setGrid, setFileName}: any = useContext(ExcelContext);
-    const [excelGridData,setExcelGridData] = useState<ManagerListResponse[]>([]);
-    const excelGridRef = useRef<RaontecGridHandle>(null);
 
     const [keyword, setKeyword] = useState('');
     const [userId, setUserId] = useState('');
@@ -144,29 +145,19 @@ export default function ManagerPage() {
             return;
         }
 
-        // try {
-        //     const response = await api.delete(`/dclr/user/${dclUserId}`, {
-        //     });
-        //
-        //     if (response.status === 200 || response.data === true) {
-        //         alert("성공적으로 삭제되었습니다.");
-        //         fetchData();
-        //         fetchUserAllList();  //보이지 않는 엑셀용 전체 데이터도 백엔드에서 새로고침
-        //     }
-        // } catch (error) {
-        //     console.error("회원 데이터 삭제 실패:", error);
-        // } finally {
-        //
-        // }
+        try {
+             api.delete(`/admin/user/${selectedGridtId}`);
+             alert("삭제가 완료되었습니다.");
+             fetchData();
+        } catch (error) {
+            console.error("회원 데이터 삭제 실패:", error);
+            alert("삭제에 실패했습니다.")
+        } 
     };
 
     const handleSearch = () => {
         keywordRef.current = keyword; // 즉시 업데이트 보장
         fetchData();
-    };
-
-    const handleExcelDownload = () => {
-        console.log('관리자목록 엑셀 다운로드 실행');
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -185,6 +176,7 @@ export default function ManagerPage() {
         setSelectedGridId(rowData.userId);
         setSelectedGrid(rowData);
     }
+
     useEffect(() => {
         fetchData();
         const recordMenuLog = async () => {
@@ -197,6 +189,14 @@ export default function ManagerPage() {
         recordMenuLog();
     }, []);
 
+
+    //엑셀 다운로드
+    useEffect(() => {
+        if (gridRef.current) {
+            setGrid(gridRef.current);
+            setFileName("관리자 관리");
+        }
+    }, [gridRef, setGrid, setFileName]);
     return (
         <div className="wrap">
             {/* 왼쪽 서브 네비게이션 영역 */}
@@ -248,7 +248,7 @@ export default function ManagerPage() {
                         <button className="btnSearch" onClick={handleSearch}>검색</button>
                     </div>
 
-                    <button className="btnExcel" onClick={handleExcelDownload}>엑셀저장</button>
+                    <ExcelDownload></ExcelDownload>
                 </div>
 
                 {/* 데이터 그리드 영역 */}

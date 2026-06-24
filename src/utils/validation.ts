@@ -70,6 +70,13 @@ export const validateFields = {
         return true;
     },
 
+    // 사용자 관리 -> 이름 (한글 없이 최대 50자)
+    userName: (value: string) => {
+        if (!value) return "이름을 입력해주세요.";
+        if (value.length > 50) return "이름은 최대 50자까지 가능합니다.";
+        return true;
+    },
+
     // 사용자 관리 -> 아이디 (한글 없이 최대 20자)
     userId: (value: string) => {
         if (!value) return "아이디를 입력해주세요.";
@@ -122,7 +129,10 @@ export const validateFields = {
     // 사용자 관리 -> 연락처 (000-0000-0000)
     phoneNumber: (value: string) => {
         if (!value) return "연락처를 입력해주세요.";
-        if (!REGEX.PHONE_NUMBER.test(value)) return "연락처는 010-0000-0000 형식이어야 합니다.";
+        const phoneRegex = /^0\d{1,3}-\d{3,4}-\d{4}$/;
+        if (!phoneRegex.test(value)) {
+            return "올바른 연락처 형식이 아닙니다.\n( (예: 010-1234-5678, 02-123-4567)";
+        }
         return true;
     }
 };

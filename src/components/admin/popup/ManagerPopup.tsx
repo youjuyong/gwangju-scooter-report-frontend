@@ -7,6 +7,7 @@ import {getSystemHierarchyApi} from "@/services/system/systemApi";
 import {getRegisterRoleApi} from "@/services/register/registerApi";
 import {roleResponse} from "@/types/regiser";
 import {registerMenuLog} from "@/services/common/commonApi";
+import {validateFields} from "@/utils/validation";
 
 interface ManagerDetailModalProps {
     isOpen: boolean;
@@ -52,9 +53,25 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
     const [isIdChecked, setIsIdChecked] = useState(false); // id 중복체크 여부
     const [bzenty , setBzenty] = useState<bzenty[]>([]);//pm,견인 업체리스트
     const [deptlist,setDeptList] = useState<any>([]); //업체 부서 리스트
-    const [zone, setZoneList] = useState<zone[]>([]);
-    const [regionList, setRegionList] = useState<any[]>([]); //전체 대분류 권역 목록
+    const [regionList, setRegionList] = useState<zone[]>([]); //전체 대분류 권역 목록
     const {position, handleMouseDown, isDragging} = useDrag(isOpen); // 팝업 드래그
+
+    //유효성 검사
+    const [errors, setErrors] = useState({
+        userId: '',
+        userNm: '',
+        password: '',
+        email: '',
+        telNum: ''
+    });
+    const errorStyle: React.CSSProperties = {
+        color: '#ff4d4f',
+        fontSize: '12px',
+        marginTop: '4px',
+        marginBlockEnd: 0,
+        whiteSpace: 'pre-wrap'
+    };
+
     const [formData, setFormData] = useState<any>({
         userId: '',         // 기존 id
         userNm: '',         // 기존 name
@@ -160,24 +177,37 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
             alert("아이디 중복확인을 진행해 주세요.");
             return;
         }
+        if (formData.userDeptId === ''){
+            alert("부서를 선택해 주세요.");
+            return;
+        }
+        //유효성 검사 강제 실행
+        const idRes = validateFields.userId(formData.userId);
+        const nmRes = validateFields.userName(formData.userNm);
+        const emailRes = validateFields.email(formData.email);
+        const telRes = validateFields.phoneNumber(formData.telNum);
 
-        const password = formData.password;
-        const passwordConfirm = formData.passwordConfirm;
+        // 비밀번호는 CREATE일 땐 필수, UPDATE일 땐 값이 있을 때만 검사
+        const pwRes: boolean | string = true;
+        const pwConfirmRes: boolean | string = true;
 
-        if (password && password.trim() !== "") {
+        // 2. 검사 결과 취합
+        const newErrors = {
+            userId: idRes === true ? '' : idRes,
+            userNm: nmRes === true ? '' : nmRes,
+            email: emailRes === true ? '' : emailRes,
+            telNum: telRes === true ? '' : telRes,
+            password: pwRes === true ? '' : pwRes,
+            passwordConfirm: pwConfirmRes === true ? '' : pwConfirmRes,
+        };
 
-            // 1. 비밀번호 규격 조건 검증 (8자리 또는 10자리 규칙)
-            const pwdValidation = validatePassword(password);
-            if (!pwdValidation.isValid) {
-                alert(pwdValidation.message);
-                return; // 검증 통과 못 하면 여기서 중단
-            }
+        setErrors(newErrors); // 화면에 에러들 한꺼번에 띄우기
 
-            // 2. 비밀번호와 비밀번호 확인 칸이 일치하는지 검증
-            if (password !== passwordConfirm) {
-                alert("비밀번호와 비밀번호 확인 값이 일치하지 않습니다.");
-                return; // 일치하지 않으면 여기서 중단
-            }
+        // 3. 에러가 하나라도 있는지 확인
+        const hasError = Object.values(newErrors).some(msg => msg !== '');
+        if (hasError) {
+            alert("입력 정보를 다시 확인해주세요.");
+            return; // 저장 중단!
         }
 
         if(mode === 'UPDATE'){
@@ -185,7 +215,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                 try {
                     const param = {
                         userNm: formData.userNm,
-                        pswd: password, // 검증 완료된 안전한 비밀번호 복사
+                        pswd: formData.password, // 검증 완료된 안전한 비밀번호 복사
                         deptId: formData.userDeptId,
                         sttsCd: formData.sttsCd,
                         sareaIds: formData.sareaIds
@@ -206,7 +236,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                     const param = {
                         userId: formData.userId,
                         userNm: formData.userNm,
-                        pswd: password,
+                        pswd: formData.password,
                         deptId: formData.userDeptId,
                         email: formData.email,
                         telNum: formData.telNum,
@@ -221,6 +251,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                     onClose();
                 } catch (error) {
                     console.error("등록 실패:", error);
+                    alert("등록에 실패했습니다.")
                 }
             }
         }
@@ -265,17 +296,18 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
             if (!isOpen) return;
         }
 
-        const fetchUserDetail = async()=>{
-            try{
-                const response = await api.get(`/admin/user/detail/${data.userId}`);
-                setUserDetail(null);
-                setUserDetail(response.data);
-                console.log("userDetail: ",response.data );
-            }catch(error){
-                console.error("유저 상세 데이터 로드 실패:", error);
+      //  if(mode === 'UPDATE') {
+            const fetchUserDetail = async () => {
+                try {
+                    const response = await api.get(`/admin/user/detail/${data.userId}`);
+                    setUserDetail(null);
+                    setUserDetail(response.data);
+                    console.log("userDetail: ", response.data);
+                } catch (error) {
+                    console.error("유저 상세 데이터 로드 실패:", error);
+                }
             }
-        }
-
+      //  }
        const fetchHierarchyZones = async ()=>{
            try {
                const response = await getSystemHierarchyApi();
@@ -299,9 +331,14 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                 console.error("유저 타입 로드 실패:", error);
             }
        }
-        fetchUserDetail();
         fetchUserType();
         fetchHierarchyZones();
+
+        if (mode === 'UPDATE' && data?.userId) {
+            fetchUserDetail();
+        } else {
+            setUserDetail(null);
+        }
 
     }, [isOpen, data, mode]);
 
@@ -360,6 +397,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                     sttsCd: 'USTS02',
                     sareaIds: []
                 });
+                loadDeptList('DPTY01'); // 기본값 관리자 부서 목록 호출
             }
         }, 0);
         return () => clearTimeout(timer);
@@ -370,6 +408,47 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
         const { name, value } = e.target;
 
         setFormData((prev: any) => ({ ...prev, [name]: value }));
+
+        //필드별 유효성 검사
+        let errMsg = '';
+
+        if (name === "userId") {
+            setIsIdChecked(false); // ID가 바뀌면 중복확인 리셋
+            const result = validateFields.userId(value);
+            errMsg = result === true ? '' : result; // true면 통과(''), 아니면 에러 메시지
+        }
+        else if (name === "userNm") {
+            const result = validateFields.userName(value);
+            errMsg = result === true ? '' : result;
+        }
+        else if (name === "email") {
+            const result = validateFields.email(value);
+            errMsg = result === true ? '' : result;
+        }
+        else if (name === "telNum") {
+            const result = validateFields.phoneNumber(value);
+            errMsg = result === true ? '' : result;
+        }
+        else if (name === "password") {
+            const result = validateFields.password(value);
+            errMsg = result === true ? '' : result;
+
+            // 비밀번호를 수정할 때 확인 칸도 다시 비교해주는 센스!
+            if (formData.passwordConfirm && value !== formData.passwordConfirm) {
+                setErrors(prev => ({ ...prev, passwordConfirm: '비밀번호가 일치하지 않습니다.' }));
+            } else {
+                setErrors(prev => ({ ...prev, passwordConfirm: '' }));
+            }
+        }
+        else if (name === "passwordConfirm") {
+            errMsg = value === formData.password ? '' : '비밀번호가 일치하지 않습니다.';
+        }
+
+        // 검사한 필드라면 errors 상태를 업데이트합니다.
+        if (["userId", "userNm", "password", "passwordConfirm", "email", "telNum"].includes(name)) {
+            setErrors(prev => ({ ...prev, [name]: errMsg }));
+        }
+
 
         // 아이디 입력칸의 글자가 하나라도 바뀌면 중복확인 상태를 초기화
         if (name === "userId") {
@@ -474,15 +553,42 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                         <tr>
                             <th>ID</th>
                             <td>
-                                <input
-                                    type="text"
-                                    name="userId"
-                                    value={formData?.userId}
-                                    onChange={handleChange}
-                                    className="menager_id"
-                                />
-                                <button className="duplicate" type="button"
-                                        onClick={handleIdCheck}>중복확인</button>
+                                {/* 인풋과 버튼을 나란히 두기 위해 div로 살짝 묶어줍니다 (기존 CSS에 따라 div는 빼셔도 무방합니다) */}
+                                <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                                    <input
+                                        type="text"
+                                        name="userId"
+                                        value={formData?.userId || ''} // 🎯 1. undefined 경고 방지용 || '' 추가
+                                        onChange={handleChange}
+                                        className="menager_id"
+                                        disabled={mode === 'UPDATE'} // 🎯 2. 수정(UPDATE) 모드일 때는 아이디를 못 바꾸게 잠금
+                                        maxLength={20} // 🎯 3. 만들어둔 유효성 검사 함수 규칙에 맞춰 물리적으로 20자까지만 입력되게 차단
+                                    />
+                                    {mode === 'CREATE' && (
+                                        <button
+                                            className="duplicate"
+                                            type="button"
+                                            onClick={handleIdCheck}
+                                        >
+                                            중복확인
+                                        </button>
+                                    )}
+                                </div>
+                                {errors.userId && (
+                                    <p style={errorStyle}>
+                                        {errors.userId}
+                                    </p>
+                                )}
+                                {mode === 'CREATE' && isIdChecked && !errors.userId && (
+                                    <p style={{
+                                        color: '#1890ff',
+                                        fontSize: '12px',
+                                        marginTop: '4px',
+                                        marginBlockEnd: 0
+                                    }}>
+                                        ✓ 사용 가능한 아이디입니다.
+                                    </p>
+                                )}
                             </td>
                         </tr>
                         <tr>
@@ -491,9 +597,15 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                 <input
                                     type="text"
                                     name="userNm"
-                                    value={formData?.userNm}
+                                    value={formData?.userNm || ''}
                                     onChange={handleChange}
+                                    maxLength={50}
                                 />
+                                {errors.userNm && (
+                                    <p style={errorStyle}>
+                                        {errors.userNm}
+                                    </p>
+                                )}
                             </td>
                         </tr>
                         <tr>
@@ -502,10 +614,15 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                 <input
                                     type="text"
                                     name="telNum"
-                                    placeholder="000-0000-0000"
-                                    value={formData?.telNum}
+                                    placeholder="'-'을 포함해 주세요"
+                                    value={formData?.telNum || ''}
                                     onChange={handleChange}
                                 />
+                                {errors.telNum && (
+                                    <p style={errorStyle}>
+                                        {errors.telNum}
+                                    </p>
+                                )}
                             </td>
                         </tr>
                         <tr>
@@ -514,9 +631,14 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                 <input
                                     type="text"
                                     name="email"
-                                    value={formData?.email}
+                                    value={formData?.email || ''}
                                     onChange={handleChange}
                                 />
+                                {errors.email && (
+                                    <p style={errorStyle}>
+                                        {errors.email}
+                                    </p>
+                                )}
                             </td>
                         </tr>
                         <tr>
@@ -531,6 +653,11 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                     readOnly
                                     onFocus={(e) => e.target.removeAttribute('readonly')}
                                 />
+                                {errors.password && (
+                                    <p style={errorStyle}>
+                                        {errors.password}
+                                    </p>
+                                )}
                             </td>
                         </tr>
                         <tr>
@@ -542,12 +669,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                     onChange={handleChange}
                                 />
                                 {formData.passwordConfirm && formData.password !== formData.passwordConfirm && (
-                                    <p style={{
-                                        color: '#ff4d4f',
-                                        fontSize: '12px',
-                                        marginTop: '4px',
-                                        marginBlockEnd: 0
-                                    }}>
+                                    <p style={errorStyle}>
                                         비밀번호가 일치하지 않습니다.
                                     </p>
                                 )}
@@ -578,6 +700,9 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                         value={formData?.userDeptId || ""}
                                         onChange={handleChange}
                                     >
+                                        {!formData?.userDeptId && (
+                                            <option value="">부서를 선택하세요</option>
+                                        )}
                                         {deptlist.map((type: any) => (
                                             <option key={type.deptId} value={type.deptId}>
                                                 {type.deptNm}
@@ -632,9 +757,9 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                             <th>계정상태</th>
                             <td>
                                 <select
-                                    name="sttsCd" // 🎯 formData의 key명과 일치시킵니다.
-                                    value={formData?.sttsCd} // 🎯 기본값으로 '사용(USTS02)'을 세팅하거나 formData 값을 추적합니다.
-                                    onChange={handleChange} // 🎯 기존에 만들어둔 핸들러를 그대로 연결합니다.
+                                    name="sttsCd"
+                                    value={formData?.sttsCd}
+                                    onChange={handleChange}
                                 >
                                     <option value="USTS02">사용</option>
                                     <option value="USTS01">사용안함</option>
