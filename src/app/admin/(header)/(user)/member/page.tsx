@@ -115,10 +115,9 @@ export default function MemberPage() {
     // 3. 버튼 이벤트 핸들러 정의
     const handleDelete = async () => {
         if (dclUserId === '') {
-            alert("삭제할 항목을 목록에서 최소 한 개 이상 선택해 주세요.");
+            alert("삭제할 항목을 선택해 주세요.");
             return;
         }
-
         const confirmMessage = `선택하신 회원을 정말로 삭제하시겠습니까?`;
 
         if (!window.confirm(confirmMessage)) {

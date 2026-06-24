@@ -3,7 +3,7 @@
 /*로그인*/
 .loginbody{position: absolute; left: 0; right: 0;top: 0; bottom: 0; background: #292a2e;}
 .loginBox{width: 500px; height: 530px; box-shadow: 0 0 10px rgba(0,0,0,1); background: #35363a; position: absolute; top: 50%;
-  left: 50%; transform: translate(-50%, -50%); text-align: center}
+    left: 50%; transform: translate(-50%, -50%); text-align: center}
 .loginBox h1{width: 100%; height: 86px; background: url(../images/login_bg.jpg)center no-repeat; background-size: cover; display: flex; justify-content: center; align-items: center;}
 .loginBox h1 span{display: block; background: url(../images/logo.png)center no-repeat; font-size: 0;  color: transparent; width: 178px; height: 26px;}
 .login_inputbox{width: 315px; margin: 57px auto 0 auto; padding-top: 40px; background: url(../images/login.png)left top no-repeat;}
@@ -50,8 +50,8 @@ header .header_Right{position: absolute; right: 0; top: 0; height: 52px; width: 
 .modeslider span{font-size: 13px; text-align: center; width: 100%; line-height: 32px; display: block;}
 /* 가운데 움직이는 버튼 */
 .modeslider::before {content: ""; position: absolute; box-shadow: 0 0 3px rgba(0,0,0,0.5);
-  width: 52%; height: 32px; left: 0; top: 0; background: #d22517; border-radius: 50px;
-  transition: 0.3s;}
+    width: 52%; height: 32px; left: 0; top: 0; background: #d22517; border-radius: 50px;
+    transition: 0.3s;}
 
 /* 체크되면 오른쪽으로 이동 */
 input:checked + .modeslider::before { transform: translateX(36px); background: #d22517;}
@@ -96,8 +96,8 @@ input:not(:checked) + .modeslider .on {color: #fff;}
 .dashboardTop button.icon8.click{background:url(../images/icon_8_click.png)5px 3px #d22517 no-repeat; }
 
 .dashboardTop button:disabled{border: 1px solid #404043!important; color: #727274!important;}
-.dashboardTop button.icon1:disabled{background:url(../images/icon_1_disabled.png)5px 3px #404043 no-repeat!important;}
-.dashboardTop button.icon5:disabled{background:url(../images/icon_5_disabled.png)5px 3px #404043 no-repeat!important;}
+.dashboardTop button.icon1:disabled{background:url(../images/icon_1_disabled.png)7px 3px #404043 no-repeat!important;}
+.dashboardTop button.icon5:disabled{background:url(../images/icon_5_disabled.png)7px 3px #404043 no-repeat!important;}
 
 .btnarrow{position: absolute; z-index: 2; right:5px; color: #fff; background: url(../images/btn_close.png)center #4b4e52 no-repeat; padding-left:24px; border: none; width: 52px; border-top-left-radius: 0;border-top-right-radius: 0; height: 30px; display: none; border: 1px solid #121212;margin-top: -1px; }
 
@@ -148,7 +148,7 @@ input:not(:checked) + .modeslider .on {color: #fff;}
 .btnSet button:hover{background: #53545a}
 .btnSet button:active{background: #47484c}
 .btnSet button.red{background: #d22517;}
-.btnSet button.red:hover{background: #e22011;} 
+.btnSet button.red:hover{background: #e22011;}
 .btnSet button.red:active{background: #bc1407;}
 
 .listconten .btnSet button{font-size: 12px;}
@@ -286,7 +286,7 @@ input:not(:checked) + .modeslider .on {color: #fff;}
 .tab li a{display: block; width: 100%; height: 100%;  color: #fff; font-size: 13px; font-weight: 300; line-height:34px;text-align: center; background: #48484b}
 .tab li:last-child{margin-right: 0;}
 .tab li.click{height: 35px; border-bottom: 1px solid #353538; }
-.tab li.click a{border-top: 3px solid #d22517; line-height:29px; background: #353538; border-right: 1px solid #48484b} 
+.tab li.click a{border-top: 3px solid #d22517; line-height:29px; background: #353538; border-right: 1px solid #48484b}
 
 /*민원처리통계*/
 .statistic_wrap .infoContent{top: 90px; overflow-y: auto;}
@@ -376,11 +376,11 @@ input[type="file"]::-webkit-file-upload-button{ padding:0 10px;}
 .popup_seting th{width:70px}
 
 /*관리자*/
-.popup_manager{width:445px;}
+.popup_manager{width:440px;}
 .popup_manager th{width:80px}
-.popup_manager label{width:109px; display:inline-block; margin: 5px 0}
+.popup_manager label{width:107px; display:inline-block; margin: 5px 0}
 
-.popup.popup_manager input, .popup.popup_manager select{width: 305px;}
+.popup.popup_manager input, .popup.popup_manager select{width: 320px;}
 
 .memberContent .gridbox{bottom: 100px; border-bottom: 1px solid #121214}
 .pagebox{width: 100%; position: absolute; bottom: 0; height: 100px; width:100%; text-align: center; border-top: 1px solid #2b2d32; padding-top: 20px;}
@@ -405,6 +405,11 @@ input[type="file"]::-webkit-file-upload-button{ padding:0 10px;}
 .pagebox button.page_back:active{background: url(../images/board_back.png)center #1b1c20 no-repeat;}
 .pagebox button.page_next:active{background: url(../images/board_next.png)center #1b1c20 no-repeat;}
 .pagebox button.page_last:active{background: url(../images/board_last.png)center #1b1c20 no-repeat;}
+
+.popup.popup_manager input.menager_id{width: 247px;}
+.duplicate{width:66px; height: 34px; background: #4b4c52; font-size: 12px; vertical-align: middle;margin-left: 3px;}
+.duplicate:hover{background: #53545a}
+.duplicate:active{background: #47484c;}
 
 
 /*에러*/

@@ -6,11 +6,12 @@ import api from "@/services/api";
 import {getSystemHierarchyApi} from "@/services/system/systemApi";
 import {getRegisterRoleApi} from "@/services/register/registerApi";
 import {roleResponse} from "@/types/regiser";
+import {registerMenuLog} from "@/services/common/commonApi";
 
 interface ManagerDetailModalProps {
     isOpen: boolean;
     onClose: () => void;
-   // onRefreshList: () => void;
+    onRefreshList: () => void;
     data: any | null;
     mode : 'CREATE' | 'UPDATE';
    // isDashBoard?: boolean;
@@ -23,6 +24,8 @@ interface UserDetail{
     userBzentyNm : string;
     userId : string;
     userNm : string;
+    userEail : string;
+    telNo : string;
     userTypeCd : string;
     userTypeNm :  string;
     userDeptId : string;
@@ -42,25 +45,29 @@ interface zone {
     sareaId : string;
     sareaNm : string;
 }
-export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModalProps){
+export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:ManagerDetailModalProps){
     const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
     const [userType,setUserType] = useState<roleResponse[]>([]);
     const [Company, setCompanyList] = useState<Company[]>([]);
-
+    const [isIdChecked, setIsIdChecked] = useState(false); // id 중복체크 여부
     const [bzenty , setBzenty] = useState<bzenty[]>([]);//pm,견인 업체리스트
     const [deptlist,setDeptList] = useState<any>([]); //업체 부서 리스트
     const [zone, setZoneList] = useState<zone[]>([]);
     const [regionList, setRegionList] = useState<any[]>([]); //전체 대분류 권역 목록
     const {position, handleMouseDown, isDragging} = useDrag(isOpen); // 팝업 드래그
     const [formData, setFormData] = useState<any>({
-        id: '',
-        name: '',
+        userId: '',         // 기존 id
+        userNm: '',         // 기존 name
+        email: '',
+        telNum: '',
         password: '',
         passwordConfirm: '',
-        userType: '관리자',
-        pmCompany: '-',
-        isUse: '사용',
-        regions: [] as string[] // 담당권역 체크박스용 배열
+        userTypeCd: 'DPTY01',
+        userTypeNm: '관리자', // 기존 userType
+        userDeptId: '',
+        userBzentyId: '',
+        sttsCd: 'USTS02',   // 기존 isUse ('사용'의 공통코드)
+        sareaIds: []        // 기존 regions
     });
 
     const loadDeptList = useCallback(async (typeCd: string) => {
@@ -79,7 +86,7 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
     const loadCompanyList = useCallback(async (typeCd: string) => {
         if (!typeCd || ["DPTY01", "DPTY02"].includes(typeCd)) {
             setCompanyList([]);
-            return;
+            return [];
         }
         try {
             let response = null;
@@ -89,8 +96,10 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
             } else {
                 response = await api.get(`/code/bzType/BZTY02`);
             }
-            // 💡 대소문자 매칭 확인: 상태 변수명이 Company이므로 여기에 정확히 넣어줍니다.
-            setCompanyList(response.data.data || []);
+            const compList = response.data.data || [];
+            setCompanyList(compList);
+
+            return compList;
         } catch (error) {
             console.error("업체 리스트 로드 실패:", error);
         }
@@ -147,6 +156,11 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
     };
 
     const handleSave = async () => {
+        if (mode === 'CREATE' && !isIdChecked) {
+            alert("아이디 중복확인을 진행해 주세요.");
+            return;
+        }
+
         const password = formData.password;
         const passwordConfirm = formData.passwordConfirm;
 
@@ -166,28 +180,85 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
             }
         }
 
-        console.log(formData);
-        if (confirm("수정 하시겠습니까?")) {
-            try {
-                const param = {
-                    userNm: formData.userNm,
-                    pswd: password, // 검증 완료된 안전한 비밀번호 복사
-                    deptId: formData.userDeptId,
-                    sttsCd: formData.sttsCd,
-                    sareaIds: formData.sareaIds
-                };
+        if(mode === 'UPDATE'){
+            if (confirm("수정 하시겠습니까?")) {
+                try {
+                    const param = {
+                        userNm: formData.userNm,
+                        pswd: password, // 검증 완료된 안전한 비밀번호 복사
+                        deptId: formData.userDeptId,
+                        sttsCd: formData.sttsCd,
+                        sareaIds: formData.sareaIds
+                    };
 
-                console.log("전송 파라미터:", param);
-                await api.put(`/admin/user/detail/${formData.userId}`, param);
-                alert("수정이 완료되었습니다.");
-                onClose();
-            } catch (error) {
-                console.error("수정 실패:", error);
+                    console.log("전송 파라미터:", param);
+                    await api.put(`/admin/user/detail/${formData.userId}`, param);
+                    alert("수정이 완료되었습니다.");
+                    onRefreshList();
+                    onClose();
+                } catch (error) {
+                    console.error("수정 실패:", error);
+                }
+            }
+        }else if(mode ==='CREATE'){
+            if (confirm("저장 하시겠습니까?")) {
+                try {
+                    const param = {
+                        userId: formData.userId,
+                        userNm: formData.userNm,
+                        pswd: password,
+                        deptId: formData.userDeptId,
+                        email: formData.email,
+                        telNum: formData.telNum,
+                        sttsCd: formData.sttsCd,
+                        sareaIds: formData.sareaIds
+                    };
+
+                    console.log("전송 파라미터:", param);
+                    await api.post(`/admin/user/register`, param);
+                    alert("등록이 완료되었습니다.");
+                    onRefreshList();
+                    onClose();
+                } catch (error) {
+                    console.error("등록 실패:", error);
+                }
             }
         }
-
     };
+
+    const handleIdCheck = async () => {
+        const userId = formData.userId;
+
+        if (!userId || userId.trim() === "") {
+            alert("아이디를 입력해 주세요.");
+            return;
+        }
+
+            try {
+                    await api.get('/admin/user/check-id', {
+                    params: {
+                        userId: userId // 스웨거에 적힌 파라미터 이름(userId) 그대로 매칭
+                    }
+                });
+                alert("사용 가능한 아이디입니다.");
+                setIsIdChecked(true);
+        } catch (error) {
+            alert("이미 사용 중이거나 사용할 수 없는 아이디입니다.");
+            setIsIdChecked(false);
+        }
+    };
+
     useEffect(()=>{
+        if (!isOpen) {
+            setUserDetail(null);
+            setFormData((prev: any) => ({
+                ...prev,
+                userTypeCd: 'DPTY01', // 닫힐 때도 관리자로 초기화
+                sareaIds: []
+            }));
+            return;
+        }
+
         if(mode === 'UPDATE'){
             if (!isOpen || !data.userId) return;
         }else{
@@ -251,6 +322,8 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
                 setFormData({
                     userId: userDetail.userId || '',
                     userNm: userDetail.userNm || '',
+                    email: userDetail.userEail,
+                    telNum: userDetail.telNo,
                     password: '',
                     passwordConfirm: '',
                     userTypeNm: userDetail.userTypeNm || '관리자',
@@ -274,8 +347,18 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
                 }
             } else {
                 setFormData({
-                    id: '', name: '', password: '', passwordConfirm: '',
-                    userType: '관리자', pmCompany: '-', isUse: '사용', regions: []
+                    userId: '',
+                    userNm: '',
+                    email: '',
+                    telNum: '',
+                    password: '',
+                    passwordConfirm: '',
+                    userTypeCd: 'DPTY01',
+                    userTypeNm: '관리자',
+                    userDeptId: '',
+                    userBzentyId: '',
+                    sttsCd: 'USTS02',
+                    sareaIds: []
                 });
             }
         }, 0);
@@ -288,31 +371,61 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
 
         setFormData((prev: any) => ({ ...prev, [name]: value }));
 
-        // 🎯 사용자 종류(userTypeCd)가 변경된 경우
+        // 아이디 입력칸의 글자가 하나라도 바뀌면 중복확인 상태를 초기화
+        if (name === "userId") {
+            setIsIdChecked(false);
+        }
+        // 사용자 종류(userTypeCd)가 변경된 경우
         if (name === "userTypeCd") {
-            // 기존에 쌓여있던 다른 회사의 부서 목록 데이터를 먼저 깨끗하게 청소합니다. (섞임 방지)
             setBzenty([]);
             setDeptList([]);
 
             if (value === "DPTY01" || value === "DPTY02") {
                 loadDeptList(value);
+                setFormData((prev: any) => ({
+                    ...prev,
+                    userTypeCd: value,
+                    userBzentyId: "",
+                    userDeptId: ""
+                }));
             } else {
-                // 🔥 [핵심] 관리자 계열이 아니라면, 선택된 종류(PM사/견인사 등)에 맞는 회사 목록을 새로 긁어옵니다!
-                loadCompanyList(value);
-            }
+                // 🔥 [핵심 추가] 비동기 함수를 만들어 연쇄 호출을 실행합니다.
+                const fetchAndSelectFirstCompany = async () => {
+                    // 1. 회사 리스트를 긁어옵니다.
+                    const compList = await loadCompanyList(value);
 
-            // 회사 종류와 부서 선택값을 모두 비워서 화면을 리셋시킵니다.
-            setFormData((prev: any) => ({
-                ...prev,
-                userTypeCd: value,
-                userBzentyId: "",
-                userDeptId: ""
-            }));
+                    if (compList && compList.length > 0) {
+                        // 2. 리스트 중 젤 첫 번째 회사의 ID를 추출합니다.
+                        const firstCompanyId = compList[0].bzentyId;
+
+                        // 3. formData에 첫 번째 회사를 강제로 세팅합니다.
+                        setFormData((prev: any) => ({
+                            ...prev,
+                            userTypeCd: value,
+                            userBzentyId: firstCompanyId,
+                            userDeptId: ""
+                        }));
+
+                        // 4. 그 즉시 첫 번째 회사의 부서 목록도 호출하여 채워 넣습니다!
+                        loadBzentyList(firstCompanyId);
+                    } else {
+                        // 회사가 아예 하나도 없을 때의 예외 처리
+                        setFormData((prev: any) => ({
+                            ...prev,
+                            userTypeCd: value,
+                            userBzentyId: "",
+                            userDeptId: ""
+                        }));
+                    }
+                };
+
+                // 위에서 만든 함수 실행
+                fetchAndSelectFirstCompany();
+            }
         }
 
-        // 🎯 회사 종류(userBzentyId)가 변경된 경우
+        // 🎯 회사 종류(userBzentyId)가 사용자에 의해 수동으로 변경된 경우 (기존 유지)
         if (name === "userBzentyId") {
-            // 선택한 회사의 ID를 정확히 찔러서 그 회사 "진짜 내부 부서"만 가져옵니다.
             loadBzentyList(value);
             setFormData((prev: any) => ({ ...prev, userDeptId: "" }));
         }
@@ -329,6 +442,17 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
             return { ...prev, sareaIds: nextIds };
         });
     };
+
+    useEffect(() => {
+        const recordMenuLog = async () => {
+            try {
+                await registerMenuLog("OPR5200");
+            } catch (error) {
+                console.error("메뉴 이력 적재 실패:", error);
+            }
+        };
+        recordMenuLog();
+    }, []);
 
     return(
     <div className="popupWrap">
@@ -352,11 +476,13 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
                             <td>
                                 <input
                                     type="text"
-                                    name="id"
+                                    name="userId"
                                     value={formData?.userId}
                                     onChange={handleChange}
-                                    disabled={mode !== 'UPDATE'}
+                                    className="menager_id"
                                 />
+                                <button className="duplicate" type="button"
+                                        onClick={handleIdCheck}>중복확인</button>
                             </td>
                         </tr>
                         <tr>
@@ -364,8 +490,31 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
                             <td>
                                 <input
                                     type="text"
-                                    name="name"
+                                    name="userNm"
                                     value={formData?.userNm}
+                                    onChange={handleChange}
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>연락처</th>
+                            <td>
+                                <input
+                                    type="text"
+                                    name="telNum"
+                                    placeholder="000-0000-0000"
+                                    value={formData?.telNum}
+                                    onChange={handleChange}
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>이메일</th>
+                            <td>
+                                <input
+                                    type="text"
+                                    name="email"
+                                    value={formData?.email}
                                     onChange={handleChange}
                                 />
                             </td>
@@ -379,10 +528,7 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
                                     value={formData?.password || ''}
                                     onChange={handleChange}
                                     autoComplete="new-password"
-
-                                    // 🎯 처음엔 읽기 전용으로 두어 자동완성을 막음
                                     readOnly
-                                    // 🎯 마우스 클릭이나 포커스가 가자마자 읽기 전용을 해제하여 입력을 가능하게 만듦
                                     onFocus={(e) => e.target.removeAttribute('readonly')}
                                 />
                             </td>
@@ -396,7 +542,12 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
                                     onChange={handleChange}
                                 />
                                 {formData.passwordConfirm && formData.password !== formData.passwordConfirm && (
-                                    <p style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px', marginBlockEnd: 0 }}>
+                                    <p style={{
+                                        color: '#ff4d4f',
+                                        fontSize: '12px',
+                                        marginTop: '4px',
+                                        marginBlockEnd: 0
+                                    }}>
                                         비밀번호가 일치하지 않습니다.
                                     </p>
                                 )}
@@ -427,7 +578,6 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
                                         value={formData?.userDeptId || ""}
                                         onChange={handleChange}
                                     >
-                                        <option value="">부서를 선택하세요</option>
                                         {deptlist.map((type: any) => (
                                             <option key={type.deptId} value={type.deptId}>
                                                 {type.deptNm}
@@ -447,7 +597,6 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
                                             value={formData?.userBzentyId || ""}
                                             onChange={handleChange}
                                         >
-                                            <option value="">회사를 선택하세요</option>
                                             {Company.map((company: any) => (
                                                 <option key={company.bzentyId} value={company.bzentyId}>
                                                     {company.bzentyNm}
@@ -456,27 +605,27 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
                                         </select>
                                     </td>
                                 </tr>
-                                {formData?.userBzentyId ? (
-                                    <tr>
-                                        <th>부서</th>
-                                        <td>
-                                            <select
-                                                name="userDeptId"
-                                                value={formData?.userDeptId || ""}
-                                                onChange={handleChange}
-                                            >
-                                                <option value="">부서를 선택하세요</option>
-                                                {bzenty && bzenty.length > 0 && (
-                                                    bzenty.map((dept: any) => (
-                                                        <option key={dept.deptId} value={dept.deptId}>
-                                                            {dept.deptNm}
-                                                        </option>
-                                                    ))
-                                                )}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                ) : null}
+                                <tr>
+                                    <th>부서</th>
+                                    <td>
+                                        <select
+                                            name="userDeptId"
+                                            value={formData?.userDeptId || ""}
+                                            onChange={handleChange}
+                                            // 💡 [핵심] 회사가 선택되지 않았다면 부서 창을 비활성화(회색 처리) 합니다.
+                                            disabled={!formData?.userBzentyId}
+                                        >
+                                            <option value="">부서를 선택하세요</option>
+                                            {bzenty && bzenty.length > 0 && (
+                                                bzenty.map((dept: any) => (
+                                                    <option key={dept.deptId} value={dept.deptId}>
+                                                        {dept.deptNm}
+                                                    </option>
+                                                ))
+                                            )}
+                                        </select>
+                                    </td>
+                                </tr>
                             </>
                         )}
                         <tr>
@@ -492,30 +641,25 @@ export default function MangerPopup({isOpen,onClose,data,mode}:ManagerDetailModa
                                 </select>
                             </td>
                         </tr>
+                        {!["DPTY01", "DPTY02"].includes(formData?.userTypeCd) && (
                         <tr>
                             <th>담당권역</th>
                             <td style={{padding: '10px 0px'}}>
-                                {/*<div style={{display: 'flex', flexWrap: 'wrap', gap: '10px'}}>*/}
-                                    {regionList && regionList.length > 0 ? (
-                                        regionList.map((region: any) => (
-                                            <label key={region.sareaId}
-                                                  >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={formData?.sareaIds?.includes(String(region.sareaId)) || false}
-                                                    onChange={(e) => handleCheckboxChange(String(region.sareaId), e.target.checked)}
-                                                />
-                                                {" "}{region.sareaNm}
-                                            </label>
-                                        ))
-                                    ) : (
-                                        <span style={{color: '#888', fontSize: '13px', paddingLeft: '5px'}}>
-                                            등록된 권역 데이터가 없습니다.
-                                        </span>
-                                    )}
-                                {/*</div>*/}
+                                {  regionList.map((region: any) => (
+                                        <label key={region.sareaId}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={formData?.sareaIds?.includes(String(region.sareaId)) || false}
+                                                onChange={(e) => handleCheckboxChange(String(region.sareaId), e.target.checked)}
+                                            />
+                                            {" "}{region.sareaNm}
+                                        </label>
+                                    ))
+                                }
                             </td>
                         </tr>
+                        )}
                         </tbody>
                     </table>
 

@@ -3,6 +3,7 @@
 import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import {validateFields} from "@/utils/validation";
 import {ExcelContext} from "@/components/admin/ExcelContext";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {registerMenuLog} from "@/services/common/commonApi";
@@ -124,10 +125,8 @@ export default function ManagerPage() {
     };
 
     const handleUpdate = (rowData: any)  => {
-        console.log(selectedGrid);
         if(selectedGrid == null ) {
-            console.log("sdfsdfsdsdfs");
-            alert("수정할 관리자를 선택해 주세요.");
+            alert("수정할 항목을 선택해 주세요.");
             return;
         }
         setPopupMode('UPDATE');
@@ -135,7 +134,30 @@ export default function ManagerPage() {
     };
 
     const handleDelete = () => {
-        console.log('관리자 삭제 버튼 클릭');
+        console.log(selectedGridtId);
+        if(selectedGrid == null ) {
+            alert("삭제할 항목을 선택해 주세요.");
+            return;
+        }
+        const confirmMessage = `선택하신 회원을 정말로 삭제하시겠습니까?`;
+        if (!window.confirm(confirmMessage)) {
+            return;
+        }
+
+        // try {
+        //     const response = await api.delete(`/dclr/user/${dclUserId}`, {
+        //     });
+        //
+        //     if (response.status === 200 || response.data === true) {
+        //         alert("성공적으로 삭제되었습니다.");
+        //         fetchData();
+        //         fetchUserAllList();  //보이지 않는 엑셀용 전체 데이터도 백엔드에서 새로고침
+        //     }
+        // } catch (error) {
+        //     console.error("회원 데이터 삭제 실패:", error);
+        // } finally {
+        //
+        // }
     };
 
     const handleSearch = () => {
@@ -251,6 +273,7 @@ export default function ManagerPage() {
                     }}
                     isOpen={isDetailOpen}
                     mode={popupMode}
+                    onRefreshList={fetchData}
                 />
             )}
         </div>
