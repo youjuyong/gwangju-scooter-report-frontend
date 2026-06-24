@@ -13,8 +13,18 @@ export default function UserHistory(){
     const pathname = usePathname();
     const userRole = "admin";
 
-    const [startDate, setStartDate] =  useState(new Date().toISOString().split('T')[0]);
-    const [endDate, setEndDate] =  useState(new Date().toISOString().split('T')[0]);
+    const [startDate, setStartDate] = useState(() => {
+        const now = new Date();
+        const kstOffset = now.getTimezoneOffset() * 60000;
+        const kstDate = new Date(now.getTime() - kstOffset);
+        return kstDate.toISOString().split('T')[0];
+    });
+    const [endDate, setEndDate] = useState(() => {
+        const now = new Date();
+        const kstOffset = now.getTimezoneOffset() * 60000;
+        const kstDate = new Date(now.getTime() - kstOffset);
+        return kstDate.toISOString().split('T')[0];
+    });
     const [keyword, setKeyword] = useState('');
 
     //그리드
