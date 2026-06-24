@@ -22,10 +22,20 @@ export default function ReportPage() {
     const userRole = "admin";
 
     // 1. 검색 필터 상태 관리 (기능 컴포넌트화를 위한 state)
-    const [startDate, setStartDate] =  useState(new Date().toISOString().split('T')[0]);
+    const [startDate, setStartDate]= useState(() => {
+        const now = new Date();
+        const kstOffset = now.getTimezoneOffset() * 60000;
+        const kstDate = new Date(now.getTime() - kstOffset);
+        return kstDate.toISOString().split('T')[0];
+    });
+    const [endDate, setEndDate]= useState(() => {
+        const now = new Date();
+        const kstOffset = now.getTimezoneOffset() * 60000;
+        const kstDate = new Date(now.getTime() - kstOffset);
+        return kstDate.toISOString().split('T')[0];
+    });
     const [pmCompanyList, setPmCompanyList] = useState<PmCompany[]>([]);
     const [statusOptions, setStatusOptions] = useState<any[]>([]);
-    const [endDate, setEndDate] =  useState(new Date().toISOString().split('T')[0]);
     const [pmCompany, setPmCompany] = useState('전체');
     const [status, setStatus] = useState('전체');
     const [keyword, setKeyword] = useState('');
