@@ -19,7 +19,7 @@ export function useDrag(isOpen: boolean) {
         };
 
         // 🔥 [핵심] 마우스를 클릭하는 순간, .subarticle과 팝업창의 크기를 재서 이동 한계선을 계산합니다.
-        const container = document.querySelector('.subarticle');
+        const container = document.querySelector('.subarticle') || document.querySelector('.subnav.dashboardTop');
         if (container && popupRef.current) {
             const containerRect = container.getBoundingClientRect();
             const popupRect = popupRef.current.getBoundingClientRect();

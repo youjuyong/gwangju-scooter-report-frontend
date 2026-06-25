@@ -430,6 +430,32 @@ export default function DashboardContainer() {
         return () => window.removeEventListener("resize", handleResize);
     }, [mapInstance, mapCenter, position, isLeftOff, isUpperOff]);
 
+    const scrollRef = React.useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!activeListId) return;
+
+        const container = scrollRef.current;
+        const element = document.getElementById(`dclr-item-${activeListId}`);
+
+        if (!container || !element) return;
+
+        const targetTop =
+            element.getBoundingClientRect().top -
+            container.getBoundingClientRect().top +
+            container.scrollTop;
+
+        const maxScrollTop =
+            container.scrollHeight - container.clientHeight;
+
+        const paddingTop = 25;
+
+        container.scrollTo({
+            top: Math.min(targetTop - paddingTop, maxScrollTop),
+            behavior: "smooth",
+        });
+    }, [activeListId]);
+
     const handleListClick = (item: any) => {
         setActiveListId(item.dclrId);
         setIsPopupOpen(true);
@@ -439,10 +465,8 @@ export default function DashboardContainer() {
 
         if (item.latVl && item.lotVl) {
             const targetPos = {lat: Number(item.latVl), lng: Number(item.lotVl)};
-
             setPosition(targetPos);
             setMapCenter(targetPos);
-
         }
     };
 
@@ -686,7 +710,7 @@ export default function DashboardContainer() {
                         <LoadingOverlay message="처리 중입니다..."/>
                     )}
 
-                    <div className="listconten">
+                    <div className="listconten" ref={scrollRef}>
                         <h2>목록</h2>
                         <ul className="">
                             {Array.isArray(dashboardList) && dashboardList.map((item: any) => {
@@ -715,7 +739,8 @@ export default function DashboardContainer() {
                                 const currentLoading = processingDclrId === String(item.dclrId);
 
                                 return (
-                                    <li key={item.dclrId} className={activeListId === item.dclrId ? "click" : ""}
+                                    <li key={item.dclrId} id={`dclr-item-${item.dclrId}`}
+                                        className={activeListId === item.dclrId ? "click" : ""}
                                         onClick={() => handleListClick(item)}>
                                         <div className="listtop">
                                             <p className={`state ${currentStatus.className}`}>{currentStatus.text}</p>
