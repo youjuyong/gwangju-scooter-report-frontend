@@ -70,10 +70,11 @@ export default function ReportDetailPopup({
         },
         onError: (error: any) => {
             console.error("승인 실패:", error);
-            const errMsg = error?.response?.data?.message || error?.message || "이미 처리중이거나 승인할 수 없는 상태입니다.";
-            showAlert(errMsg);
             setProcessingDclrId(null);
-            queryClient.refetchQueries({ queryKey: ["dashboardList", token] });
+            const serverData = error?.response?.data;
+            const errMsg = serverData?.resultMsg || serverData?.message || error?.message || "이미 처리중이거나 승인할 수 없는 상태입니다.";
+            alert(errMsg);
+            queryClient.refetchQueries({queryKey: ["dashboardList", token]});
             fetchDetail();
         },
     });
@@ -96,9 +97,13 @@ export default function ReportDetailPopup({
                 setProcessingDclrId(null);
             }
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error("승인 실패:", error);
             setProcessingDclrId(null);
+            const serverData = error?.response?.data;
+            const errMsg = serverData?.resultMsg || serverData?.message || error?.message || "이미 처리중이거나 승인할 수 없는 상태입니다.";
+            alert(errMsg);
+            queryClient.refetchQueries({queryKey: ["dashboardList", token]});
         },
     });
 
@@ -109,7 +114,6 @@ export default function ReportDetailPopup({
         },
         onSuccess: async () => {
             try {
-
                 await queryClient.refetchQueries({
                     queryKey: ["dashboardList", token]
                 });
@@ -122,9 +126,13 @@ export default function ReportDetailPopup({
                 setProcessingDclrId(null);
             }
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error("반려 실패:", error);
             setProcessingDclrId(null);
+            const serverData = error?.response?.data;
+            const errMsg = serverData?.resultMsg || serverData?.message || error?.message || "이미 처리중이거나 승인할 수 없는 상태입니다.";
+            alert(errMsg);
+            queryClient.refetchQueries({queryKey: ["dashboardList", token]});
         },
     });
 

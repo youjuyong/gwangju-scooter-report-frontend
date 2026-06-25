@@ -172,7 +172,6 @@ export default function DashboardContainer() {
                 await queryClient.refetchQueries({
                     queryKey: ["dashboardList", token]
                 });
-
                 showAlert("승인 처리 완료");
             } finally {
                 setProcessingDclrId(null);
@@ -180,10 +179,13 @@ export default function DashboardContainer() {
         },
         onError:
             (error: any) => {
-                console.error("승인 실패:", error);
-                const errMsg = error?.response?.data?.message || error?.message || "이미 처리중이거나 승인할 수 없는 상태입니다.";
-                showAlert(errMsg);
-                queryClient.refetchQueries({ queryKey: ["dashboardList", token] });
+                console.error("승인 실패:", error?.response?.data);
+                setProcessingDclrId(null);
+                const serverData = error?.response?.data;
+                const errMsg = serverData?.resultMsg || serverData?.message || error?.message || "이미 처리중이거나 승인할 수 없는 상태입니다.";
+
+                alert(errMsg);
+                queryClient.refetchQueries({queryKey: ["dashboardList", token]});
             },
     });
 
@@ -204,8 +206,14 @@ export default function DashboardContainer() {
             }
         },
         onError:
-            (error) => {
-                console.error("승인 실패:", error);
+            (error: any) => {
+                console.error("승인 실패:", error?.response?.data);
+                setProcessingDclrId(null);
+                const serverData = error?.response?.data;
+                const errMsg = serverData?.resultMsg || serverData?.message || error?.message || "이미 처리중이거나 승인할 수 없는 상태입니다.";
+
+                alert(errMsg);
+                queryClient.refetchQueries({queryKey: ["dashboardList", token]});
             },
     });
 
@@ -225,8 +233,14 @@ export default function DashboardContainer() {
                 setProcessingDclrId(null);
             }
         },
-        onError: (error) => {
-            console.error("반려 실패:", error);
+        onError: (error: any) => {
+            console.error("반려 실패:", error?.response?.data);
+            setProcessingDclrId(null);
+            const serverData = error?.response?.data;
+            const errMsg = serverData?.resultMsg || serverData?.message || error?.message || "이미 처리중이거나 반려할 수 없는 상태입니다.";
+
+            alert(errMsg);
+            queryClient.refetchQueries({queryKey: ["dashboardList", token]});
         },
     });
 
@@ -472,6 +486,20 @@ export default function DashboardContainer() {
         if (confirm("반려하시겠습니까?")) {
             rejectMutation.mutate(dclrId);
         }
+    };
+
+    useEffect(() => {
+        if (newReports.length === 0) return;
+        const interval = window.setInterval(() => {
+            checkExpiredReports();
+        }, 1000);
+
+        return () => window.clearInterval(interval);
+    }, [newReports.length, checkExpiredReports]);
+
+    const handleNewReportConfirm = (item: any) => {
+        handleListClick(item);
+        removeNewReport(item.dclrId);
     };
 
     const fetchAddressInfo = useCallback((lat: number, lng: number) => {
@@ -783,6 +811,36 @@ export default function DashboardContainer() {
                             }}
                             isDashBoard={isPopupOpen}
                         />
+                    )}
+
+                    {/*수동모드일 때 신규신고 알림*/}
+                    {isToggleChecked && isReportPopup && newReports.length > 0 && (
+                        <div className="alarm">
+                            <h3>신규신고</h3>
+                            <div className="alarmBox">
+                                <ul>
+                                    {[...newReports]
+                                        .sort((a, b) => b.timestamp - a.timestamp)
+                                        .map((item, index) => {
+                                            const originAddr = item.dclrAddrTxt || "";
+                                            const address = originAddr.split(" ");
+                                            const filteredAddress = address
+                                                .filter((part: string) => !part.endsWith("경기") && !part.endsWith("시"))
+                                                .join(" ");
+
+                                            return (
+                                                <li key={item.dclrId || index}>
+                                                    <p>{filteredAddress || "주소 정보 없음"}</p>
+
+                                                    <button type="button" onClick={() => handleNewReportConfirm(item)}>
+                                                        확인하기
+                                                    </button>
+                                                </li>
+                                            );
+                                        })}
+                                </ul>
+                            </div>
+                        </div>
                     )}
 
                     <div className="map">

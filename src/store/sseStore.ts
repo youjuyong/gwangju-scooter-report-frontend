@@ -5,6 +5,11 @@ import {QueryClient} from "@tanstack/react-query";
 interface SseState {
     alarmList: any[];
     sseInstance: EventSourcePolyfill | null;
+    newReports: any[];
+    isReportPopup: boolean;
+    setIsReportPopup: (open: boolean) => void;
+    removeNewReport: (dclrId: any) => void;
+    checkExpiredReports: () => void;
     setInitialList: (list: any[]) => void;
     connectSSE: (accessToken: string, queryClient?: QueryClient) => void;
     disconnectSSE: () => void;
@@ -39,6 +44,34 @@ const sortDashboardList = (list: any[]) => {
 export const useSseStore = create<SseState>((set, get) => ({
     alarmList: [],
     sseInstance: null,
+
+    newReports: [],
+    isReportPopup: false,
+
+    setIsReportPopup: (open) => set({isReportPopup: open}),
+
+    removeNewReport: (dclrId) => {
+        set((state) => {
+            const filtered = state.newReports.filter((item) => String(item.dclrId) !== String(dclrId));
+            return {
+                newReports: filtered,
+                isReportPopup: filtered.length > 0
+            };
+        });
+    },
+
+    checkExpiredReports: () => {
+        const now = Date.now();
+        const ONE_MINUTE = 60 * 1000;
+        set((state) => {
+            if (state.newReports.length === 0) return {};
+            const filtered = state.newReports.filter((item) => now - item.timestamp < ONE_MINUTE);
+            return {
+                newReports: filtered,
+                isReportPopup: filtered.length > 0
+            };
+        });
+    },
 
     setInitialList: (list) => set({alarmList: list}),
 
@@ -92,8 +125,34 @@ export const useSseStore = create<SseState>((set, get) => ({
 
         // 자동이관 발생시 admin
         sse.addEventListener("TOW_ASSIGNED_TO_ADMIN", (e: any) => {
-            const targetData = JSON.parse(e.data);
-            console.log(targetData, '자동이관 발생시');
+            try {
+                const targetData = JSON.parse(e.data);
+
+                if (targetData && targetData.dclrId) {
+                    updateItemStatusInCache(targetData.dclrId, "DEST07", "견인요청", targetData);
+                } else {
+                    queryClient?.invalidateQueries({queryKey: ["dashboardList", accessToken]});
+                }
+            } catch (err) {
+                console.error("TOW_ASSIGNED_TO_ADMIN 처리 중 에러:", err);
+                queryClient?.invalidateQueries({queryKey: ["dashboardList", accessToken]});
+            }
+        });
+
+        // 자동취소 발생시
+        sse.addEventListener("TOW_AUTO_CANCLE_TO_ADMIN", (e: any) => {
+            try {
+                const targetData = JSON.parse(e.data);
+
+                if (targetData && targetData.dclrId) {
+                    updateItemStatusInCache(targetData.dclrId, "DEST10", "자동취소", targetData);
+                } else {
+                    queryClient?.invalidateQueries({queryKey: ["dashboardList", accessToken]});
+                }
+            } catch (err) {
+                console.error("TOW_AUTO_CANCLE_TO_ADMIN 처리 중 에러:", err);
+                queryClient?.invalidateQueries({queryKey: ["dashboardList", accessToken]});
+            }
         });
 
         // 캐시 상태 변경
@@ -129,7 +188,6 @@ export const useSseStore = create<SseState>((set, get) => ({
         sse.addEventListener("DCLR_TO_ADMIN", (e: any) => {
             try {
                 const targetData = JSON.parse(e.data);
-
                 if (targetData && targetData.dclrId) {
                     queryClient?.setQueryData(["dashboardList", accessToken], (old: any) => {
                         if (!old || !old.data) return old;
@@ -142,6 +200,10 @@ export const useSseStore = create<SseState>((set, get) => ({
 
                         return {...old, data: sortedList};
                     });
+                    set((state) => ({
+                        newReports: [{...targetData, timestamp: Date.now()}, ...state.newReports],
+                        isReportPopup: true
+                    }));
                 } else {
                     queryClient?.invalidateQueries({queryKey: ["dashboardList", accessToken]});
                 }
@@ -199,11 +261,10 @@ export const useSseStore = create<SseState>((set, get) => ({
             }
         });
 
-        // 견인업체 수거 완료 시 (예: DEST09 - 견인완료)
+        // 견인업체 수거 완료 시
         sse.addEventListener("TOW_COLLECTION_COMPLETED_TO_ADMIN", (e: any) => {
             try {
                 const targetData = JSON.parse(e.data);
-                // console.log(targetData, 'data');
 
                 if (targetData && targetData.dclrId) {
                     updateItemStatusInCache(targetData.dclrId, "DEST09", "견인완료", targetData.prcrHis);
@@ -228,7 +289,7 @@ export const useSseStore = create<SseState>((set, get) => ({
         if (sse) {
             sse.close();
             console.log("전역 [SSE] 연결 정상 종료");
-            set({sseInstance: null, alarmList: []});
+            set({sseInstance: null, alarmList: [], newReports: [], isReportPopup: false});
         }
     }
 }));
