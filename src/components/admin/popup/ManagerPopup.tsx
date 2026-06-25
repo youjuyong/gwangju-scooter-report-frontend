@@ -217,6 +217,8 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                         userNm: formData.userNm,
                         pswd: formData.password, // 검증 완료된 안전한 비밀번호 복사
                         deptId: formData.userDeptId,
+                        email: formData.email,
+                        telNum: formData.telNum,
                         sttsCd: formData.sttsCd,
                         sareaIds: formData.sareaIds
                     };
