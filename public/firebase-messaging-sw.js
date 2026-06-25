@@ -21,7 +21,6 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("push" , function (e) {
-  console.log("Push received:", e);
 
   let title = "새 알림";
   let body = "내용이 없습니다.";

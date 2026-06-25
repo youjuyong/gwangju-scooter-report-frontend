@@ -104,7 +104,6 @@ export default function PointPage() {
         try {
             setIsLoading(true);
             const data = await getBatchPointListApi();
-            console.log(data)
             setGridData(data || []);
             clearSelection();
             setCheckedRows([]);
@@ -282,7 +281,7 @@ export default function PointPage() {
 
         try {
             setIsLoading(true);
-            console.log(payload);
+
             if (popupMode === 'update') {
                 await updateBatchPointApi(payload);
                 alert("배치포인트가 수정되었습니다.");

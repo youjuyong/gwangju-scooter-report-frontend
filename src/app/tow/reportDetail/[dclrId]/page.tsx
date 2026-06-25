@@ -195,6 +195,7 @@ export default function ReportDetail() {
 
     // 완료 처리 함수
     const handleComplete = async (dclrId: string) => {
+        toast.dismiss();
         // DOM 대신 상태(state)에 저장된 파일 객체를 바로 가져옵니다.
         const file1 = files.firstImg;
         const file2 = files.secondImg;

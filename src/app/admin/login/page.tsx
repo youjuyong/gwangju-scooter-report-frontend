@@ -6,6 +6,7 @@ import {MemberRole, useAuthStore} from "@/store/authStore";
 import {toast} from "react-hot-toast";
 import {loginService} from "@/services/auth/loginApi";
 import {setCookie} from "cookies-next";
+import {useSqlValidator} from "@/hooks/useSqlValidator";
 
 export default function LoginPage() {
     const [userId, setUserId] = useState("");
@@ -15,6 +16,7 @@ export default function LoginPage() {
     const [isMounted, setIsMounted] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
+    const { sqlValidate } = useSqlValidator();
 
     useEffect(() => {
         setIsMounted(true);
@@ -43,8 +45,16 @@ export default function LoginPage() {
 
     const handleLogin = async (e?: React.FormEvent, forceLogin: boolean = false) => {
         if (e) e.preventDefault();
+
+        toast.dismiss();
+
         if (!userId) return toast.error("아이디를 입력해주세요.");
         if (!pswd) return toast.error("비밀번호를 입력해주세요.");
+
+        //SQL인젝션 방어
+        if (!sqlValidate(userId)) {
+            return;
+        }
 
         const toastId = "login-process-toast";
         toast.loading("로그인 정보 확인 중...", {id: toastId});

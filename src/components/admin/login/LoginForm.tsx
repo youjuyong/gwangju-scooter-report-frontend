@@ -9,6 +9,8 @@ import { useAuthStore, MemberRole } from "@/store/authStore"; // MemberRole 타�
 import { toast } from "react-hot-toast";
 import { loginService } from "@/services/auth/loginApi";
 import {useAlert} from "@/components/popup/PopupProvider";
+import {useSqlValidator} from "@/hooks/useSqlValidator";
+
 
 export default function LoginForm() {
     const [userId, setUserId] = useState("");
@@ -22,6 +24,7 @@ export default function LoginForm() {
     const showAlert = useAlert();
     const state = useAuthStore();
     const { logout, updateFcmToken } = state;
+    const { sqlValidate } = useSqlValidator(); // 훅 불러오기
 
     useEffect(() => {
         setIsMounted(true);
@@ -48,7 +51,7 @@ export default function LoginForm() {
 
     const accessToken = useAuthStore((state) => state[authType].accessToken);
     const { setAdminAuth, setPmAuth, setTowAuth, setReporterAuth } = useAuthStore();
-
+    const toastId = "login-process-toast";
 
     const {
         handleAllowNotification,
@@ -64,11 +67,16 @@ export default function LoginForm() {
 
     const handleLogin = async (e?: React.FormEvent, forceLogin: boolean = false) => {
         if (e) e.preventDefault();
+        toast.dismiss();
 
-        if (!userId) return toast.error("아이디를 입력해주세요.");
-        if (!pswd) return toast.error("비밀번호를 입력해주세요.");
+        if (!userId) return toast.error("아이디를 입력해주세요.",{ id: toastId });
+        if (!pswd) return toast.error("비밀번호를 입력해주세요.",{ id: toastId });
 
-        const toastId = "login-process-toast";
+        //SQL인젝션 방어
+        if (!sqlValidate(userId)) {
+            return;
+        }
+
         toast.loading("로그인 정보 확인 중...", { id: toastId });
 
         try {
@@ -133,7 +141,7 @@ export default function LoginForm() {
 
             if (err.response?.status === 409) {
                 const userRole = err.response.data?.role;
-                if (userRole == "REPORT_USER ") {
+                if (userRole == "REPORT_USER") {
                     return handleLogin(undefined, true);
                 } else {
                     if (await showAlert("다른 기기에서 로그인중입니다.\n여기서 로그인하시겠습니까?")) {
@@ -145,14 +153,14 @@ export default function LoginForm() {
 
             const resultCode = err.response?.data.resultCode;
             if (resultCode === "E008") {
-                toast.error(ERROR_MESSAGES[resultCode]);
+                toast.error(ERROR_MESSAGES[resultCode], { id: toastId });
                 return;
             }else if(resultCode === "E005") {
-                toast.error(err.response?.data.resultMsg);
+                toast.error(err.response?.data.resultMsg, { id: toastId });
             }else if(resultCode === "E001") {
-                toast.error(err.response?.data.resultMsg);
+                toast.error(err.response?.data.resultMsg, { id: toastId });
             }else if(resultCode === "E002") {
-                toast.error(err.response?.data.resultMsg);
+                toast.error(err.response?.data.resultMsg, { id: toastId });
             }
             //handleApiError(err, "로그인 정보가 올바르지 않습니다.");
         }
