@@ -28,7 +28,7 @@ export default function ReportDetailPopup({
                                               isDashBoard
                                           }: ReportDetailModalProps) {
     const [report, setReport] = useState<any>(null);
-    const {position, handleMouseDown, isDragging} = useDrag(isOpen); // 팝업 드래그
+    const {position, handleMouseDown, isDragging, popupRef} = useDrag(isOpen); // 팝업 드래그
     const {currentMode, isSubmitting} = useModeStore();
     const showAlert = useAlert();
     const queryClient = useQueryClient();
@@ -207,6 +207,7 @@ export default function ReportDetailPopup({
             <div className="popupInner">
                 <div
                     className="popup popup_kick"
+                    ref={popupRef}
                     style={{  // 팝업 드래그
                         transform: `translate(${position.x}px, ${position.y}px)`,
                         transition: isDragging ? 'none' : 'transform 0.1s ease'
