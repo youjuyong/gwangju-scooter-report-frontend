@@ -51,7 +51,7 @@ export default function UserHistory(){
         {
             header: 'ID',
             accessorKey: 'chgUserId',
-            meta: { id: 'chgUserId', isKey: true , filterType: "check"}, // 고유 Key(PK) 설정
+            meta: { id: 'chgUserId', filterType: "check"}, // 고유 Key(PK) 설정
             size: 200
 
         },

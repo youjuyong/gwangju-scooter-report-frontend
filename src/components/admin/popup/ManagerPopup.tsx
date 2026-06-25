@@ -38,7 +38,7 @@ interface Company{
     bzentyNm: string;
 }
 
-interface bzenty{
+interface bzenDept{
     deptId : string;
     deptNm : string;
 }
@@ -49,20 +49,20 @@ interface zone {
 export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:ManagerDetailModalProps){
     const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
     const [userType,setUserType] = useState<roleResponse[]>([]);
-    const [Company, setCompanyList] = useState<Company[]>([]);
+    const [Company, setCompanyList] = useState<Company[]>([]); //Pm,견인사 별 회사 목록
     const [isIdChecked, setIsIdChecked] = useState(false); // id 중복체크 여부
-    const [bzenty , setBzenty] = useState<bzenty[]>([]);//pm,견인 업체리스트
-    const [deptlist,setDeptList] = useState<any>([]); //업체 부서 리스트
+    const [bzenDeptlist , setBzenDeptlist] = useState<bzenDept[]>([]);//업체별 부서 리스트
+    const [deptlist,setDeptList] = useState<any>([]); //운영자,관리자 부서 리스트
     const [regionList, setRegionList] = useState<zone[]>([]); //전체 대분류 권역 목록
-    const {position, handleMouseDown, isDragging} = useDrag(isOpen); // 팝업 드래그
+    const { position, handleMouseDown, isDragging, popupRef } = useDrag(isOpen);
 
     //유효성 검사
     const [errors, setErrors] = useState({
         userId: '',
         userNm: '',
         password: '',
-        email: '',
-        telNum: ''
+   //     email: '',
+   //     telNum: ''
     });
     const errorStyle: React.CSSProperties = {
         color: '#ff4d4f',
@@ -87,6 +87,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
         sareaIds: []        // 기존 regions
     });
 
+    //운영자,관리자 부서 리스트 조회
     const loadDeptList = useCallback(async (typeCd: string) => {
         if (!typeCd || !["DPTY01", "DPTY02"].includes(typeCd)) {
             setDeptList([]);
@@ -96,7 +97,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
             const response = await api.get(`/code/adminOper/${typeCd}`);
             setDeptList(response.data.data || []);
         } catch (error) {
-            console.error("부서 리스트 로드 실패:", error);
+            console.error("(운영자,관리자)부서 리스트 로드 실패:", error);
         }
     }, []);
 
@@ -122,55 +123,20 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
         }
     }, []);
 
-    const loadBzentyList = useCallback(async (bzentyId: string) => {
+    const loadBzenDeptList = useCallback(async (bzentyId: string) => {
         if (!bzentyId) {
-            setBzenty([]);
+            setBzenDeptlist([]);
             return;
         }
         try {
             const response = await api.get(`/code/company/${bzentyId}`);
-            setBzenty(response.data.data || []);
+            setBzenDeptlist(response.data.data || []);
         } catch (error) {
             console.error("업체 부서 리스트 로드 실패:", error);
-            setBzenty([]);
+            setBzenDeptlist([]);
         }
     }, []);
 
-    const validatePassword = (password: string): { isValid: boolean; message: string } => {
-        // if (!password) {
-        //     return { isValid: false, message: "비밀번호를 입력해 주세요." };
-        // }
-
-        // 1. 포함된 문자 종류 카운트 규칙 설정
-        const hasLetter = /[a-zA-Z]/.test(password); // 영문자 포함 여부
-        const hasNumber = /[0-9]/.test(password);    // 숫자 포함 여부
-        const hasSpecial = /[^a-zA-Z0-9]/.test(password); // 특수문자 포함 여부
-
-        // 2. 참(true)인 종류의 개수를 더합니다.
-        let typeCount = 0;
-        if (hasLetter) typeCount++;
-        if (hasNumber) typeCount++;
-        if (hasSpecial) typeCount++;
-
-        const len = password.length;
-
-        // 3. 조건별 분기 처리
-        if (typeCount >= 2) {
-            // 두 종류 이상의 문자를 조합한 경우 -> 최소 8자리 이상
-            if (len < 8) {
-                return { isValid: false, message: "문자/숫자/특수문자 중 2종류 이상 조합 시 최소 8자리 이상 입력해야 합니다." };
-            }
-        } else if (typeCount === 1) {
-            // 하나의 문자 종류로만 구성한 경우 -> 최소 10자리 이상
-            if (len < 10) {
-                return { isValid: false, message: "한 종류의 문자로만 구성 시 최소 10자리 이상 입력해야 합니다." };
-            }
-        } else {
-            return { isValid: false, message: "유효하지 않은 비밀번호 형식입니다." };
-        }
-
-        return { isValid: true, message: "사용 가능한 비밀번호입니다." };
-    };
 
     const handleSave = async () => {
         if (mode === 'CREATE' && !isIdChecked) {
@@ -184,8 +150,8 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
         //유효성 검사 강제 실행
         const idRes = validateFields.userId(formData.userId);
         const nmRes = validateFields.userName(formData.userNm);
-        const emailRes = validateFields.email(formData.email);
-        const telRes = validateFields.phoneNumber(formData.telNum);
+    //    const emailRes = validateFields.email(formData.email);
+     //   const telRes = validateFields.phoneNumber(formData.telNum);
 
         // 비밀번호는 CREATE일 땐 필수, UPDATE일 땐 값이 있을 때만 검사
         const pwRes: boolean | string = true;
@@ -195,8 +161,8 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
         const newErrors = {
             userId: idRes === true ? '' : idRes,
             userNm: nmRes === true ? '' : nmRes,
-            email: emailRes === true ? '' : emailRes,
-            telNum: telRes === true ? '' : telRes,
+       //     email: emailRes === true ? '' : emailRes,
+        //    telNum: telRes === true ? '' : telRes,
             password: pwRes === true ? '' : pwRes,
             passwordConfirm: pwConfirmRes === true ? '' : pwConfirmRes,
         };
@@ -246,7 +212,6 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                         sareaIds: formData.sareaIds
                     };
 
-                    console.log("전송 파라미터:", param);
                     await api.post(`/admin/user/register`, param);
                     alert("등록이 완료되었습니다.");
                     onRefreshList();
@@ -298,18 +263,16 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
             if (!isOpen) return;
         }
 
-      //  if(mode === 'UPDATE') {
-            const fetchUserDetail = async () => {
+        const fetchUserDetail = async () => {
                 try {
                     const response = await api.get(`/admin/user/detail/${data.userId}`);
                     setUserDetail(null);
                     setUserDetail(response.data);
-                    console.log("userDetail: ", response.data);
                 } catch (error) {
                     console.error("유저 상세 데이터 로드 실패:", error);
                 }
-            }
-      //  }
+        }
+
        const fetchHierarchyZones = async ()=>{
            try {
                const response = await getSystemHierarchyApi();
@@ -347,7 +310,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
     useEffect(() => {
       //  console.log("실제로 바뀐 userType 데이터:", userType);
       //   console.log("실제로 바뀐 pmCompanyList 데이터:", pmCompanyList);
-         console.log("실제로 바뀐 formData 데이터:", formData);
+       //  console.log("실제로 바뀐 formData 데이터:", formData);
        // console.log("실제로 바뀐 userDetail 데이터:", userDetail);
     }, [userType,formData,userDetail]); // <- 감시할 대상(디펜던시)에 userType을 넣어줍니다.
 
@@ -381,7 +344,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                     loadCompanyList(type);
                     // 기존 유저가 속해있던 회사의 부서 리스트를 연달아 가져옵니다.
                     if (userDetail.userBzentyId) {
-                        loadBzentyList(userDetail.userBzentyId);
+                        loadBzenDeptList(userDetail.userBzentyId);
                     }
                 }
             } else {
@@ -403,7 +366,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
             }
         }, 0);
         return () => clearTimeout(timer);
-    }, [userDetail, mode, loadDeptList, loadCompanyList, loadBzentyList]);
+    }, [userDetail, mode, loadDeptList, loadCompanyList, loadBzenDeptList]);
 
     // 3. 인풋 값 핸들러
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -458,7 +421,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
         }
         // 사용자 종류(userTypeCd)가 변경된 경우
         if (name === "userTypeCd") {
-            setBzenty([]);
+            setBzenDeptlist([]);
             setDeptList([]);
 
             if (value === "DPTY01" || value === "DPTY02") {
@@ -488,7 +451,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                         }));
 
                         // 4. 그 즉시 첫 번째 회사의 부서 목록도 호출하여 채워 넣습니다!
-                        loadBzentyList(firstCompanyId);
+                        loadBzenDeptList(firstCompanyId);
                     } else {
                         // 회사가 아예 하나도 없을 때의 예외 처리
                         setFormData((prev: any) => ({
@@ -507,7 +470,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
 
         // 🎯 회사 종류(userBzentyId)가 사용자에 의해 수동으로 변경된 경우 (기존 유지)
         if (name === "userBzentyId") {
-            loadBzentyList(value);
+            loadBzenDeptList(value);
             setFormData((prev: any) => ({ ...prev, userDeptId: "" }));
         }
     };
@@ -535,10 +498,58 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
         recordMenuLog();
     }, []);
 
+    // 사용자 종류 or 회사 변경시 디폴트 부서 아이디 자동 매핑
+    useEffect(() => {
+        // 1. 사용자 종류에 따라 검사할 타겟 리스트를 동적으로 결정합니다.
+        const isManager = ["DPTY01", "DPTY02"].includes(formData?.userTypeCd);
+        const targetList = isManager ? deptlist : bzenDeptlist;
+
+        // 2. 타겟 리스트에 데이터가 존재할 때만 검사를 수행합니다.
+        if (targetList && targetList.length > 0) {
+            // 현재 폼 데이터의 부서 ID가 타겟 목록에 존재하는지 확인
+            const hasValidDept = targetList.some((dept: any) => dept.deptId === formData?.userDeptId);
+
+            // 존재하지 않거나 비어있다면, 타겟 리스트의 첫 번째 부서 ID를 강제로 꽂아줍니다!
+            if (!hasValidDept) {
+                setFormData((prev: any) => ({
+                    ...prev,
+                    userDeptId: targetList[0].deptId
+                }));
+            }
+        }
+    }, [deptlist, bzenDeptlist, formData?.userTypeCd]);
+
+    //등록시 최로 권역 리스트 모두 선택 처리
+    useEffect(() => {
+        // 1. 등록(CREATE) 모드이면서 권역 리스트가 성공적으로 불러와졌을 때만 작동
+        if ( regionList && regionList.length > 0) {
+
+            // 2. 사용자 종류가 관리자/운영자(DPTY01, 02)가 아닐 때 (즉, PM사/견인사일 때)
+            if (!["DPTY01", "DPTY02"].includes(formData?.userTypeCd)) {
+
+                // regionList에서 sareaId 값만 싹 다 뽑아내어 문자열 배열로 만듭니다.
+                const allRegionIds = regionList.map((region: any) => String(region.sareaId));
+
+                // formData의 sareaIds에 전체 ID 배열을 강제로 세팅
+                setFormData((prev: any) => ({
+                    ...prev,
+                    sareaIds: allRegionIds
+                }));
+
+            } else {
+                // 3. 만약 사용자가 PM사를 눌렀다가 다시 '관리자'로 변경했다면 권역 체크를 깔끔하게 비워줍니다.
+                setFormData((prev: any) => ({
+                    ...prev,
+                    sareaIds: []
+                }));
+            }
+        }
+    }, [formData?.userTypeCd, regionList, mode]);
+
     return(
     <div className="popupWrap">
         <div className="popupInner">
-            <div className="popup popup_manager"
+            <div className="popup popup_manager" ref={popupRef}
                  style={{  // 팝업 드래그
                      transform: `translate(${position.x}px, ${position.y}px)`,
                      transition: isDragging ? 'none' : 'transform 0.1s ease'
@@ -620,11 +631,11 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                     value={formData?.telNum || ''}
                                     onChange={handleChange}
                                 />
-                                {errors.telNum && (
-                                    <p style={errorStyle}>
-                                        {errors.telNum}
-                                    </p>
-                                )}
+                                {/*{errors.telNum && (*/}
+                                {/*    <p style={errorStyle}>*/}
+                                {/*        {errors.telNum}*/}
+                                {/*    </p>*/}
+                                {/*)}*/}
                             </td>
                         </tr>
                         <tr>
@@ -636,11 +647,11 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                     value={formData?.email || ''}
                                     onChange={handleChange}
                                 />
-                                {errors.email && (
-                                    <p style={errorStyle}>
-                                        {errors.email}
-                                    </p>
-                                )}
+                                {/*{errors.email && (*/}
+                                {/*    <p style={errorStyle}>*/}
+                                {/*        {errors.email}*/}
+                                {/*    </p>*/}
+                                {/*)}*/}
                             </td>
                         </tr>
                         <tr>
@@ -702,7 +713,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                         value={formData?.userDeptId || ""}
                                         onChange={handleChange}
                                     >
-                                        {!formData?.userDeptId && (
+                                        {mode=='CREATE'&&!formData?.userDeptId && (
                                             <option value="">부서를 선택하세요</option>
                                         )}
                                         {deptlist.map((type: any) => (
@@ -742,9 +753,12 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                             // 💡 [핵심] 회사가 선택되지 않았다면 부서 창을 비활성화(회색 처리) 합니다.
                                             disabled={!formData?.userBzentyId}
                                         >
-                                            <option value="">부서를 선택하세요</option>
-                                            {bzenty && bzenty.length > 0 && (
-                                                bzenty.map((dept: any) => (
+                                            {mode=='CREATE'&&!formData?.userDeptId && (
+                                                <option value="">부서를 선택하세요</option>
+                                            )}
+                                            {/*<option value="">부서를 선택하세요</option>*/}
+                                            {bzenDeptlist && bzenDeptlist.length > 0 && (
+                                                bzenDeptlist.map((dept: any) => (
                                                     <option key={dept.deptId} value={dept.deptId}>
                                                         {dept.deptNm}
                                                     </option>

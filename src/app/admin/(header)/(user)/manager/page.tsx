@@ -134,8 +134,7 @@ export default function ManagerPage() {
         setIsDetailOpen(true);
     };
 
-    const handleDelete = () => {
-        console.log(selectedGridtId);
+    const handleDelete = async () => {
         if(selectedGrid == null ) {
             alert("삭제할 항목을 선택해 주세요.");
             return;
@@ -146,7 +145,7 @@ export default function ManagerPage() {
         }
 
         try {
-             api.delete(`/admin/user/${selectedGridtId}`);
+            await api.delete(`/admin/user/${selectedGridtId}`);
              alert("삭제가 완료되었습니다.");
              fetchData();
         } catch (error) {
