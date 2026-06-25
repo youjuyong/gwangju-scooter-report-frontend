@@ -54,7 +54,7 @@ export default function ZonePage() {
     const zoneGridRef = useRef<RaontecGridHandle>(null);
     const { setGrid, setFileName }: any = useContext(ExcelContext);
 
-    const { position, handleMouseDown, isDragging } = useDrag(isPopupOpen); // 팝업 드래그
+    const { position, handleMouseDown, isDragging,popupRef } = useDrag(isPopupOpen); // 팝업 드래그
 
     // 서브 내비게이션 메뉴 데이터 정의
     const subNavItems = [
@@ -365,8 +365,7 @@ export default function ZonePage() {
             {isPopupOpen && (
                 <div className="popupWrap">
                     <div className="popupInner">
-                        <div className="popup popup_zone"
-
+                        <div className="popup popup_zone" ref={popupRef}
                              style={{  // 팝업 드래그
                                  transform: `translate(${position.x}px, ${position.y}px)`,
                                  transition: isDragging ? 'none' : 'transform 0.1s ease'

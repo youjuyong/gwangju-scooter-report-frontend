@@ -28,7 +28,7 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
 
     const [existingFiles, setExistingFiles] = useState<any[]>([]); // 서버에서 온 파일들
     const [newFiles, setNewFiles] = useState<File[]>([]);           // 새로 업로드할 파일들
-    const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
+    const { position, handleMouseDown, isDragging,popupRef } = useDrag(isOpen); // 팝업 드래그
 
     useEffect(() => {
         const fetchDetail = async () => {
@@ -205,7 +205,7 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
     return (
         <div className="popupWrap" style={{ display: 'block' }}>
             <div className="popupInner">
-                <div className="popup popup_notice"
+                <div className="popup popup_notice" ref={popupRef}
                         style={{  // 팝업 드래그
                             transform: `translate(${position.x}px, ${position.y}px)`,
                             transition: isDragging ? 'none' : 'transform 0.1s ease'

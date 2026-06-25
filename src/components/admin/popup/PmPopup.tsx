@@ -26,7 +26,7 @@ export default function PmPopup({ isOpen, onClose, initialData, onSave }: PmComp
     const [qrcdIdExtrRule, setQrcdIdExtrRule] = useState('');
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
+    const { position, handleMouseDown, isDragging,popupRef } = useDrag(isOpen); // 팝업 드래그
 
     useEffect(() => {
         if (isOpen) {
@@ -124,7 +124,7 @@ export default function PmPopup({ isOpen, onClose, initialData, onSave }: PmComp
     return (
         <div className="popupWrap" style={{display: 'block'}}>
             <div className="popupInner">
-                <div className="popup popup_pm"
+                <div className="popup popup_pm" ref={popupRef}
 
                 style={{  // 팝업 드래그
                 transform: `translate(${position.x}px, ${position.y}px)`,

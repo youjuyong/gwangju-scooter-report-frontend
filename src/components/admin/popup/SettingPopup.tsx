@@ -31,7 +31,7 @@ export default function SettingPopup({
     const [startTime, setStartTime] = useState("07:00");
     const [endTime, setEndTime] = useState("17:00");
     const [isUsed, setIsUsed] = useState("사용");
-    const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
+    const { position, handleMouseDown, isDragging,popupRef } = useDrag(isOpen); // 팝업 드래그
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -84,7 +84,7 @@ export default function SettingPopup({
     return (
         <div className="popupWrap">
             <div className="popupInner">
-                <div className="popup popup_seting"
+                <div className="popup popup_seting" ref={popupRef}
                      style={{
                          transform: `translate(${position.x}px, ${position.y}px)`,
                          transition: isDragging ? 'none' : 'transform 0.1s ease'

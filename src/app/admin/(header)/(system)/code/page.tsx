@@ -60,7 +60,7 @@ export default function ZoneCodePage() {
     const [originCdId, setOriginCdId] = useState('');
     const zoneGridRef = useRef<RaontecGridHandle>(null);
     const { setGrid, setFileName }: any = useContext(ExcelContext);
-    const { position, handleMouseDown, isDragging } = useDrag(isPopupOpen); // 팝업 드래그
+    const { position, handleMouseDown, isDragging,popupRef } = useDrag(isPopupOpen); // 팝업 드래그
 
     // [추가] 고유한 분류코드(clsfCd) 목록 추출 (Select 박스용)
     const uniqueClsfCodes = useMemo(() => {
@@ -336,7 +336,7 @@ export default function ZoneCodePage() {
             {isPopupOpen && (
                 <div className="popupWrap">
                     <div className="popupInner">
-                        <div className="popup popup_code"
+                        <div className="popup popup_code" ref={popupRef}
                              style={{  // 팝업 드래그
                                  transform: `translate(${position.x}px, ${position.y}px)`,
                                  transition: isDragging ? 'none' : 'transform 0.1s ease'

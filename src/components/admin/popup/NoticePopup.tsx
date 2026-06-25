@@ -30,7 +30,7 @@ export default function NoticeModal({ isOpen, onClose, onSave }: NoticeModalProp
     const [endDate, setEndDate] = useState('');
     const [content, setContent] = useState('');
     const [file, setFile] = useState<File | null>(null);
-    const { position, handleMouseDown, isDragging } = useDrag(isOpen); // 팝업 드래그
+    const { position, handleMouseDown, isDragging,popupRef} = useDrag(isOpen); // 팝업 드래그
 
 
     useEffect(() => {
@@ -109,7 +109,7 @@ export default function NoticeModal({ isOpen, onClose, onSave }: NoticeModalProp
     return (
         <div className="popupWrap" style={{display: 'block'}}> {/* Next.js 연동을 위해 display 블록 처리 */}
             <div className="popupInner">
-                <div className="popup popup_notice"
+                <div className="popup popup_notice"  ref={popupRef}
                 style={{  // 팝업 드래그
                 transform: `translate(${position.x}px, ${position.y}px)`,
                 transition: isDragging ? 'none' : 'transform 0.1s ease'
