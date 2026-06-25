@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, {useState, useMemo, useRef, useEffect, useContext} from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { RaontecGridHandle, RaontecTanstackGrid, CustomColumnDef } from "@rxjacx/raontec-grid";
@@ -14,6 +14,9 @@ import {registerMenuLog} from "@/services/common/commonApi";
 import {useDrag} from "@/hooks/userDrag";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import {validateFields} from "@/utils/validation";
+import ExcelDownload from "@/components/admin/ExcelDownload";
+import {ExcelContext} from "@/components/admin/ExcelContext";
+import {useAlert} from "@/components/popup/PopupProvider";
 
 // 1. 데이터 인터페이스 정의
 export interface codeResponse {
@@ -40,7 +43,7 @@ export default function ZoneCodePage() {
         { id: 'code', name: '공통코드관리', path: '/admin/code' },
         { id: 'setting', name: '운영설정관리', path: '/admin/seting' },
     ];
-
+    const showAlert = useAlert();
     // API에서 가져올 실제 공통 코드 상태 관리
     const [gridData, setGridData] = useState<codeResponse[]>([]);
     const [checkedRows, setCheckedRows] = useState<codeResponse[]>([]);
@@ -56,7 +59,7 @@ export default function ZoneCodePage() {
     const [inputCdNm, setInputCdNm] = useState('');
     const [originCdId, setOriginCdId] = useState('');
     const zoneGridRef = useRef<RaontecGridHandle>(null);
-
+    const { setGrid, setFileName }: any = useContext(ExcelContext);
     const { position, handleMouseDown, isDragging } = useDrag(isPopupOpen); // 팝업 드래그
 
     // [추가] 고유한 분류코드(clsfCd) 목록 추출 (Select 박스용)
@@ -96,6 +99,12 @@ export default function ZoneCodePage() {
             setIsLoading(false);
         }
     };
+    useEffect(() => {
+        if (zoneGridRef.current) {
+            setGrid(zoneGridRef.current);
+            setFileName("코드관리 ");
+        }
+    }, [gridData, setGrid, setFileName]);
 
     useEffect(() => {
         fetchCodeList();
@@ -159,7 +168,7 @@ export default function ZoneCodePage() {
     // API 기반 삭제 처리
     const handleDelete = async () => {
         if (checkedRows.length === 0) {
-            alert("삭제할 대상을 체크박스에서 선택해 주세요.");
+            showAlert("삭제할 대상을 체크박스에서 선택해 주세요.");
             return;
         }
 
@@ -305,7 +314,7 @@ export default function ZoneCodePage() {
                         <button className="btnSearch" onClick={handleSearch}>검색</button>
                     </div>
 
-                    <button className="btnExcel" onClick={() => alert("엑셀 저장을 수행합니다.")}>엑셀저장</button>
+                    <ExcelDownload />
                 </div>
 
                 {/* 그리드박스 구역 */}
