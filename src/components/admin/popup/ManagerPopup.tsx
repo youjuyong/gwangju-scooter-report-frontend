@@ -778,7 +778,7 @@ export default function MangerPopup({isOpen,onClose,data,mode,onRefreshList}:Man
                                     onChange={handleChange}
                                 >
                                     <option value="USTS02">사용</option>
-                                    <option value="USTS01">사용안함</option>
+                                    <option value="USTS03">사용안함</option>
                                 </select>
                             </td>
                         </tr>

@@ -44,7 +44,7 @@ export default function UserHistory(){
         {
             header : '접속 로그 ID',
             accessorKey : 'cntnLogId',
-            meta: { id: 'chgUserNm', isKey: true }, // 고유 Key(PK) 설정
+            meta: { id: 'chgUserNm'}, // 고유 Key(PK) 설정
         }
         ,
         {
