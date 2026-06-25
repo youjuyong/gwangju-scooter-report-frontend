@@ -32,7 +32,6 @@ export default function DashboardContainer() {
     const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
     const [address, setAddress] = useState<string>("위치를 선택해 주세요");
     const [zoneId, setZoneId] = useState<string>("");
-    const [bachList, setBachList] = useState<any[]>([]);
     const [jibunAddress, setJibunAddress] = useState<string>("");
     const [selectedPmIds, setSelectedPmIds] = useState<string[]>([]);
 
@@ -43,7 +42,15 @@ export default function DashboardContainer() {
         typeof window !== "undefined" ? window.innerWidth <= 1430 : false
     );
 
-    const {connectSSE, disconnectSSE} = useSseStore();
+    const {
+        connectSSE,
+        disconnectSSE,
+        newReports,
+        isReportPopup,
+        setIsReportPopup,
+        removeNewReport,
+        checkExpiredReports
+    } = useSseStore();
 
     const {setMode, setIsSubmitting} = useModeStore();
     const [isPmInitialized, setIsPmInitialized] = useState(false);
@@ -172,8 +179,11 @@ export default function DashboardContainer() {
             }
         },
         onError:
-            (error) => {
+            (error: any) => {
                 console.error("승인 실패:", error);
+                const errMsg = error?.response?.data?.message || error?.message || "이미 처리중이거나 승인할 수 없는 상태입니다.";
+                showAlert(errMsg);
+                queryClient.refetchQueries({ queryKey: ["dashboardList", token] });
             },
     });
 
@@ -640,7 +650,8 @@ export default function DashboardContainer() {
                             <div className="auto">
                                 <img src="/assets/style_admin/images/icon_self.png" alt="self"/>
                                 자동 승인 처리중..
-                            </div>}
+                            </div>
+                        }
                     </div>
 
                     {(isLoading || toggleMutation.isPending) && (

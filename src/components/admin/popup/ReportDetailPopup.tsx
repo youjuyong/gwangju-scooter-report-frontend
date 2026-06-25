@@ -7,8 +7,8 @@ import {useModeStore} from "@/store/dashboardStore";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {approveDclr, approveTowDclr, rejectDclr} from "@/services/dashboard/dashboardApi";
 import {useAlert} from "@/components/popup/PopupProvider";
-import Cookies from "js-cookie";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import {useAuthStore} from "@/store/authStore";
 
 interface ReportDetailModalProps {
     isOpen: boolean;
@@ -32,8 +32,9 @@ export default function ReportDetailPopup({
     const {currentMode, isSubmitting} = useModeStore();
     const showAlert = useAlert();
     const queryClient = useQueryClient();
-    const token = Cookies.get("adminAccessToken");
+    const token = useAuthStore((state) => state.admin?.accessToken) as string;
     const {processingDclrId, setProcessingDclrId} = useModeStore();
+    const currentStatusCd = data?.prcsStpCd;
 
     const fetchDetail = useCallback(async () => {
         if (!data?.dclrId) return;
@@ -67,9 +68,13 @@ export default function ReportDetailPopup({
                 setProcessingDclrId(null);
             }
         },
-        onError: (error) => {
+        onError: (error: any) => {
             console.error("승인 실패:", error);
+            const errMsg = error?.response?.data?.message || error?.message || "이미 처리중이거나 승인할 수 없는 상태입니다.";
+            showAlert(errMsg);
             setProcessingDclrId(null);
+            queryClient.refetchQueries({ queryKey: ["dashboardList", token] });
+            fetchDetail();
         },
     });
 
@@ -182,7 +187,6 @@ export default function ReportDetailPopup({
     const getStatusInfo = (prcsStpCd: string) => {
         return STATUS_CONFIG[prcsStpCd] || {className: "st4", label: "알 수 없음"};
     };
-    const currentStatusCd = data?.prcsStpCd;
     const {className, text} = getStatusInfo(currentStatusCd);
 
     const isLoading = processingDclrId === String(data?.dclrId);
