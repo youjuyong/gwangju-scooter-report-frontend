@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 export function useDrag(isOpen: boolean) {
-    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [position, setPosition] = useState({x: 0, y: 0});
     const isDragging = useRef(false);
-    const dragStart = useRef({ x: 0, y: 0 });
+    const dragStart = useRef({x: 0, y: 0});
 
     // 🎯 팝업이 움직일 수 있는 최대/최소 한계선을 저장할 변수
-    const bounds = useRef({ minX: 0, maxX: 0, minY: 0, maxY: 0 });
+    const bounds = useRef({minX: 0, maxX: 0, minY: 0, maxY: 0});
 
     // 🎯 팝업창 자체의 크기를 측정하기 위한 Ref
     const popupRef = useRef<HTMLDivElement>(null);
@@ -18,19 +18,35 @@ export function useDrag(isOpen: boolean) {
             y: e.clientY - position.y
         };
 
-        // 🔥 [핵심] 마우스를 클릭하는 순간, .subarticle과 팝업창의 크기를 재서 이동 한계선을 계산합니다.
-        const container = document.querySelector('.subarticle') || document.querySelector('.subnav.dashboardTop');
-        if (container && popupRef.current) {
-            const containerRect = container.getBoundingClientRect();
+        const container = document.querySelector('.subarticle');
+        const dashboardTop = document.querySelector('.subnav.dashboardTop');
+        const listContent = document.querySelector('.listconten');
+
+        if (popupRef.current) {
             const popupRect = popupRef.current.getBoundingClientRect();
 
-            bounds.current = {
-                // 현재 내 위치에서 (팝업창의 왼쪽 끝 - 컨테이너의 왼쪽 끝) 만큼만 더 갈 수 있음
-                minX: position.x - (popupRect.left - containerRect.left),
-                maxX: position.x + (containerRect.right - popupRect.right),
-                minY: position.y - (popupRect.top - containerRect.top),
-                maxY: position.y + (containerRect.bottom - popupRect.bottom),
-            };
+            if (container) {
+                const containerRect = container.getBoundingClientRect();
+                const popupRect = popupRef.current.getBoundingClientRect();
+
+                bounds.current = {
+                    minX: position.x - (popupRect.left - containerRect.left),
+                    maxX: position.x + (containerRect.right - popupRect.right),
+                    minY: position.y - (popupRect.top - containerRect.top),
+                    maxY: position.y + (containerRect.bottom - popupRect.bottom),
+                };
+            } else if (dashboardTop || listContent) {
+                const topLimit = dashboardTop ? dashboardTop.getBoundingClientRect().bottom : 0;
+
+                const listLeftLimit = listContent ? listContent.getBoundingClientRect().right : 0;
+
+                bounds.current = {
+                    minX: position.x + (listLeftLimit - popupRect.left),
+                    maxX: position.x + (window.innerWidth - popupRect.right),
+                    minY: position.y + (topLimit - popupRect.top),
+                    maxY: position.y + (window.innerHeight - popupRect.bottom),
+                };
+            }
         }
     };
 
@@ -42,12 +58,16 @@ export function useDrag(isOpen: boolean) {
             let newY = e.clientY - dragStart.current.y;
 
             // 🔥 [핵심] 계산해둔 한계선(bounds)을 넘어가려고 하면 강제로 막아버립니다.
-            if (document.querySelector('.subarticle') && popupRef.current) {
+            const container = document.querySelector('.subarticle');
+            const dashboardTop = document.querySelector('.subnav.dashboardTop');
+            const listContent = document.querySelector('.listconten');
+
+            if ((container || dashboardTop || listContent) && popupRef.current) {
                 newX = Math.max(bounds.current.minX, Math.min(newX, bounds.current.maxX));
                 newY = Math.max(bounds.current.minY, Math.min(newY, bounds.current.maxY));
             }
 
-            setPosition({ x: newX, y: newY });
+            setPosition({x: newX, y: newY});
         };
 
         const handleMouseUp = () => {
@@ -67,7 +87,7 @@ export function useDrag(isOpen: boolean) {
 
     useEffect(() => {
         if (!isOpen) {
-            setPosition({ x: 0, y: 0 });
+            setPosition({x: 0, y: 0});
         }
     }, [isOpen]);
 
