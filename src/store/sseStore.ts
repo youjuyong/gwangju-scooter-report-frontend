@@ -101,9 +101,6 @@ export const useSseStore = create<SseState>((set, get) => ({
         }));
     },
 
-    markAsRead: (pushLogId: string) => void;
-    markAllAsRead: () => void;
-
     connectSSE: (accessToken, queryClient) => {
 
         const currentSse = get().sseInstance;
