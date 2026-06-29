@@ -307,7 +307,6 @@ export const useSseStore = create<SseState>((set, get) => ({
         sse.addEventListener("PARAM_TO_ADMIN", (e: any) => {
             try {
                 const targetData = JSON.parse(e.data);
-                console.log(targetData, 'data from param to dadmin');
                 const isManual = targetData.paramVl === "N";
 
                 useModeStore.getState().setMode(isManual ? 'MANUAL' : 'AUTO');
