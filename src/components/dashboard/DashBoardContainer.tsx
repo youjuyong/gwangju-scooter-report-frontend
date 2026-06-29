@@ -925,7 +925,7 @@ export default function DashboardContainer() {
                                                     {pmImg ? (
                                                         <img src={pmImg} alt={item.bzenty?.bzentyNm || "logo"}/>
                                                     ) : (
-                                                        <img src="/assets/style_pm/images/mark.png" alt="defaultLogo"/>
+                                                        <img src="/assets/style_admin/images/mark.png" alt="defaultLogo"/>
                                                     )}
                                                 </div>
                                             </div>
