@@ -788,6 +788,10 @@ export default function DashboardContainer() {
                                                     </tbody>
                                                 </table>
                                             </div>
+                                            <img
+                                                src={item.imgUrls?.[0] || "/assets/style_admin/images/no_img.png"}
+                                                alt="신고이미지"
+                                            />
                                         </div>
                                         {isToggleChecked && ["DEST01", "DEST06"].includes(item?.dclrStts?.cdId) && !currentLoading && (
                                             <div className="btnSet">
