@@ -1,6 +1,7 @@
 import {create} from 'zustand';
 import {EventSourcePolyfill} from 'event-source-polyfill';
 import {QueryClient} from "@tanstack/react-query";
+import {useModeStore} from "@/store/dashboardStore";
 
 interface SseState {
     alarmList: any[];
@@ -88,7 +89,7 @@ export const useSseStore = create<SseState>((set, get) => ({
         set((state) => ({
             alarmList: state.alarmList.map((item) =>
                 String(item.pushLogId) === String(pushLogId)
-                    ? { ...item, readYn: 'Y' }
+                    ? {...item, readYn: 'Y'}
                     : item
             ),
         }));
@@ -97,7 +98,7 @@ export const useSseStore = create<SseState>((set, get) => ({
     // 전체 읽음 처리: 모든 알람의 readYn을 'Y'로 변경
     markAllAsRead: () => {
         set((state) => ({
-            alarmList: state.alarmList.map((item) => ({ ...item, readYn: 'Y' })),
+            alarmList: state.alarmList.map((item) => ({...item, readYn: 'Y'})),
         }));
     },
 
@@ -302,7 +303,22 @@ export const useSseStore = create<SseState>((set, get) => ({
                 queryClient?.invalidateQueries({queryKey: ["dashboardList", accessToken]});
             }
         });
+        // PARAM_TO_ADMIN 대시모드 모드변경
+        sse.addEventListener("PARAM_TO_ADMIN", (e: any) => {
+            try {
+                const targetData = JSON.parse(e.data);
+                console.log(targetData, 'data from param to dadmin');
+                const isManual = targetData.paramVl === "N";
 
+                useModeStore.getState().setMode(isManual ? 'MANUAL' : 'AUTO');
+                if (queryClient) {
+                    queryClient.invalidateQueries({queryKey: ["dashboardList", accessToken]});
+                    queryClient.invalidateQueries({queryKey: ["status"]});
+                }
+            } catch (err) {
+                console.error(`PARAM_TO_ADMIN 에러:`, err);
+            }
+        });
         sse.onerror = (err) => {
             console.error("[SSE] 연결 오류 발생:", err);
         };

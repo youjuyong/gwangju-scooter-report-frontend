@@ -53,9 +53,8 @@ export default function DashboardContainer() {
         clearReports
     } = useSseStore();
 
-    const {setMode, setIsSubmitting} = useModeStore();
+    const {setMode, setIsSubmitting, currentMode, processingDclrId, setProcessingDclrId} = useModeStore();
     const [isPmInitialized, setIsPmInitialized] = useState(false);
-    const {processingDclrId, setProcessingDclrId} = useModeStore();
     const isLoading = !!processingDclrId;
 
     const {data: outlineRes} = useQuery({
@@ -118,31 +117,26 @@ export default function DashboardContainer() {
         return map;
     }, [pmCompanyResponse]);
 
+    const isToggleChecked = currentMode === 'MANUAL';
     useEffect(() => {
         if (approveResponse !== undefined) {
             const isManualFromServer = approveResponse?.data === false || approveResponse?.data === "N";
             setMode(isManualFromServer ? 'MANUAL' : 'AUTO');
-
-            if (isManualFromServer) {
-                setSelectedStatus((prev) => {
-                    const nextStatus = [...prev];
-                    if (!nextStatus.includes("DEST01")) nextStatus.push("DEST01");
-                    if (!nextStatus.includes("DEST06")) nextStatus.push("DEST06");
-                    return nextStatus;
-                });
-            }
         }
     }, [approveResponse, setMode]);
 
-    const [tempToggleOverride, setTempToggleOverride] = useState<boolean | null>(null);
-
-    const isToggleChecked = tempToggleOverride !== null
-        ? tempToggleOverride
-        : (approveResponse?.data === false || approveResponse?.data === "N");
-
     useEffect(() => {
-        setMode(isToggleChecked ? 'MANUAL' : 'AUTO');
-    }, [isToggleChecked, setMode]);
+        if (isToggleChecked) {
+            setSelectedStatus((prev) => {
+                const nextStatus = [...prev];
+                if (!nextStatus.includes("DEST01")) nextStatus.push("DEST01");
+                if (!nextStatus.includes("DEST06")) nextStatus.push("DEST06");
+                return nextStatus;
+            });
+        } else {
+            setSelectedStatus((prev) => prev.filter(code => code !== "DEST01" && code !== "DEST06"));
+        }
+    }, [isToggleChecked]);
 
     const toggleMutation = useMutation({
         mutationFn: (checkedStatus: boolean) => patchAutoApprove(checkedStatus),
@@ -150,13 +144,11 @@ export default function DashboardContainer() {
             setIsSubmitting(true);
         },
         onSuccess: (data, checkedStatus) => {
-            setTempToggleOverride(checkedStatus);
             setMode(checkedStatus ? 'MANUAL' : 'AUTO');
             queryClient.invalidateQueries({queryKey: ["status"]});
         },
         onError: (error) => {
             console.error("모드 변경 실패:", error);
-            setTempToggleOverride(null);
         },
         onSettled: () => {
             setIsSubmitting(false);
