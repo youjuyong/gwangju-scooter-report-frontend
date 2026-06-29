@@ -10,6 +10,7 @@ interface SseState {
     setIsReportPopup: (open: boolean) => void;
     removeNewReport: (dclrId: any) => void;
     checkExpiredReports: () => void;
+    clearReports: () => void;
     setInitialList: (list: any[]) => void;
     connectSSE: (accessToken: string, queryClient?: QueryClient) => void;
     disconnectSSE: () => void;
@@ -72,6 +73,11 @@ export const useSseStore = create<SseState>((set, get) => ({
             };
         });
     },
+
+    clearReports: () => set({
+        newReports: [],
+        isReportPopup: false
+    }),
 
     setInitialList: (list) => set({alarmList: list}),
 

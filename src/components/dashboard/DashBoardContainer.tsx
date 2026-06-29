@@ -49,7 +49,8 @@ export default function DashboardContainer() {
         isReportPopup,
         setIsReportPopup,
         removeNewReport,
-        checkExpiredReports
+        checkExpiredReports,
+        clearReports
     } = useSseStore();
 
     const {setMode, setIsSubmitting} = useModeStore();
@@ -513,13 +514,19 @@ export default function DashboardContainer() {
     };
 
     useEffect(() => {
-        if (newReports.length === 0) return;
+        if (!isToggleChecked || newReports.length === 0) return;
         const interval = window.setInterval(() => {
             checkExpiredReports();
         }, 1000);
 
         return () => window.clearInterval(interval);
-    }, [newReports.length, checkExpiredReports]);
+    }, [newReports.length, checkExpiredReports, isToggleChecked]);
+
+    useEffect(() => {
+        if (!isToggleChecked) {
+            clearReports();
+        }
+    }, [isToggleChecked, clearReports]);
 
     const handleNewReportConfirm = (item: any) => {
         handleListClick(item);
