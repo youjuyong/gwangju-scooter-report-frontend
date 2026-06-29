@@ -13,7 +13,7 @@ import {getAlarmListApi} from "@/services/alarm/alarmApi";
 import Popup from "@/components/popup/Popup";
 import {useAlert} from "@/components/popup/PopupProvider";
 import {AlarmResponse} from "@/types/alarm";
-import { useAlarmStore } from '@/store/alamStore';
+import {useSseStore} from "@/store/sseStore";
 
 interface HeaderProps {
     activeTab: string;
@@ -44,9 +44,8 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
     const logout = useAuthStore((state) => state.logout);
     const accessToken = useAuthStore((state) => state[authType].accessToken);
     const showAlert = useAlert();
-    const alarmList = useAlarmStore((state) => state.alarmList);
-    const clearStore = useAlarmStore((state) => state.clearStore);
-    const hasNewAlarm =  alarmList.some((alarm) => alarm.readYn === 'N');
+    const alarmList = useSseStore((state) => state.alarmList);
+    const hasUnreadAlarm =  alarmList.some((alarm) => alarm.readYn === 'N');
 
 
 
@@ -85,7 +84,7 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
             deleteCookie(`${authType}AccessToken`);
 
             delete axios.defaults.headers.common["Authorization"];
-            clearStore(); // 헤더 알림 리스트 삭제
+         //   clearStore(); // 헤더 알림 리스트 삭제
             toast.success("로그아웃되었습니다.");
 
             // 로그아웃 후 해당 서비스의 로그인 페이지 또는 메인으로 이동
@@ -128,9 +127,16 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
                 )}
 
                 <div className="header_right">
-                    {hasNewAlarm ? (<a href="alarm.html" className="btnalarm"  onClick={(e) => handleNavigation(e, "/alarm", true)}><span className="new">읽지 않은 알림 있음</span>알림</a>)
-                        :   ( <a href="#" className="btnalarm" onClick={(e) => handleNavigation(e, "/alarm", true)}>알림</a>)
-                    }
+                    {hasUnreadAlarm ? (
+                        <a href="#" className="btnalarm" onClick={(e) => handleNavigation(e, "/alarm", true)}>
+                            <span className="new">읽지 않은 알림 있음</span>
+                            알림
+                        </a>
+                    ) : (
+                        <a href="#" className="btnalarm" onClick={(e) => handleNavigation(e, "/alarm", true)}>
+                            알림
+                        </a>
+                    )}
                     {prefix ? (
                         <a href="#" className="btnlogout" onClick={handleLogout}>로그아웃</a>
                     ) : (

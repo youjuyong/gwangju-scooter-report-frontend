@@ -5,10 +5,15 @@ import {getAlarmListApi, readAllNotifications, UpdateAlarmStatus} from "@/servic
 import {AlarmResponse} from "@/types/alarm";
 import {usePathname, useRouter} from "next/navigation";
 import {toast} from "react-hot-toast";
-import { useAlarmStore } from '@/store/alamStore';
+import { useSseStore } from '@/store/sseStore';
 
 export default function AlarmList(){
-    const [alarmList , setAlarmList] = useState<AlarmResponse[]>([]);
+    //알림 상태 구독
+    const alarmList = useSseStore((state) => state.alarmList);
+    const setInitialList = useSseStore((state) => state.setInitialList);
+    const markAsRead = useSseStore((state) => state.markAsRead);
+    const markAllAsRead = useSseStore((state) => state.markAllAsRead);
+
     const router = useRouter();
     const pathname = usePathname();
     const prefix = pathname.startsWith("/pm") ? "/pm" : pathname.startsWith("/tow") ? "/tow" : "";
@@ -17,44 +22,65 @@ export default function AlarmList(){
        router.push(`${prefix}/reportDetail/${id}`);
     };
 
-    const alarmStatusUpdate = async (logId: string) =>{
-        const markAsRead = useAlarmStore.getState().markAsRead;
-       try{
-           await UpdateAlarmStatus(logId);
-           markAsRead(logId);
-       } catch (error: any) {
-           console.error("리스트 업데이트 실패:", error);
-       }
-    }
+    // const alarmStatusUpdate = async (logId: string) =>{
+    //     const markAsRead = useAlarmStore.getState().markAsRead;
+    //    try{
+    //        await UpdateAlarmStatus(logId);
+    //        markAsRead(logId);
+    //    } catch (error: any) {
+    //        console.error("리스트 업데이트 실패:", error);
+    //    }
+    // }
 
-    const alarmStatusAllUpdate = async () =>{
-        const markAllasRead = useAlarmStore.getState().markAllAsRead;
-        try{
+    // 알람 하나 클릭 시 읽음 처리
+    const alarmStatusUpdate = async (logId: string) => {
+        try {
+            await UpdateAlarmStatus(logId);
+            markAsRead(logId); // 전역 스토어 상태 업데이트 (화면 즉시 반영)
+        } catch (error: any) {
+            console.error("리스트 업데이트 실패:", error);
+        }
+    };
+
+    // const alarmStatusAllUpdate = async () =>{
+    //     const markAllasRead = useAlarmStore.getState().markAllAsRead;
+    //     try{
+    //         const res = await readAllNotifications();
+    //         if(res.success){
+    //             markAllasRead();
+    //          //   toast.success("처리 되었습니다.");
+    //          //   setTimeout(() => {
+    //                 window.location.reload();
+    //         //    }, 1000);
+    //         }
+    //     } catch (error: any) {
+    //         console.error("리스트 업데이트 실패:", error);
+    //     }
+    // }
+    // 모두 읽음 처리
+    const alarmStatusAllUpdate = async () => {
+        try {
             const res = await readAllNotifications();
-            if(res.success){
-                markAllasRead();
-             //   toast.success("처리 되었습니다.");
-             //   setTimeout(() => {
-                    window.location.reload();
-            //    }, 1000);
+            if (res.success) {
+                markAllAsRead(); // 전역 스토어 상태 업데이트 (화면 즉시 반영)
             }
         } catch (error: any) {
             console.error("리스트 업데이트 실패:", error);
         }
-    }
+    };
 
     useEffect(()=>{
         const fetchAlarmList = async ()=>{
             try{
                 const result = await getAlarmListApi();
-                setAlarmList(result);
+                setInitialList(result);
 
             }catch (error){
                 console.error("알람 리스트 로딩 실패: ", error);
             }
         };
         fetchAlarmList();
-    },[]);
+    },[setInitialList]);
 
     return(
         <div className="wrap noMenubody noMenubodyLine">

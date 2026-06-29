@@ -4,6 +4,8 @@ import {QueryClient} from "@tanstack/react-query";
 
 interface SseState {
     alarmList: any[];
+    markAsRead: (pushLogId: string) => void;
+    markAllAsRead: () => void;
     sseInstance: EventSourcePolyfill | null;
     newReports: any[];
     isReportPopup: boolean;
@@ -80,6 +82,27 @@ export const useSseStore = create<SseState>((set, get) => ({
     }),
 
     setInitialList: (list) => set({alarmList: list}),
+
+    // 단건 읽음 처리: 리스트에서 해당 알람의 readYn을 'Y'로 변경
+    markAsRead: (pushLogId) => {
+        set((state) => ({
+            alarmList: state.alarmList.map((item) =>
+                String(item.pushLogId) === String(pushLogId)
+                    ? { ...item, readYn: 'Y' }
+                    : item
+            ),
+        }));
+    },
+
+    // 전체 읽음 처리: 모든 알람의 readYn을 'Y'로 변경
+    markAllAsRead: () => {
+        set((state) => ({
+            alarmList: state.alarmList.map((item) => ({ ...item, readYn: 'Y' })),
+        }));
+    },
+
+    markAsRead: (pushLogId: string) => void;
+    markAllAsRead: () => void;
 
     connectSSE: (accessToken, queryClient) => {
 
