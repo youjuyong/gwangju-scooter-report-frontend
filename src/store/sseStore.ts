@@ -2,6 +2,8 @@ import {create} from 'zustand';
 import {EventSourcePolyfill} from 'event-source-polyfill';
 import {QueryClient} from "@tanstack/react-query";
 import {useModeStore} from "@/store/dashboardStore";
+import { getAlarmListApi } from "@/services/alarm/alarmApi";
+import { useReportStore } from "@/store/useReportStore";
 
 interface SseState {
     alarmList: any[];
@@ -134,14 +136,63 @@ export const useSseStore = create<SseState>((set, get) => ({
             }
         });
 
-        //이벤트시 리스트 , 지도 리로드
-        const handleSseReload = (e: any) => {
+        //
+        // //이벤트시 리스트 , 지도 리로드
+        // const handleSseReload = (e: any) => {
+        //     const currentPath = window.location.pathname;
+        //     // URL에 '/reportDetail'이 포함되어 있다면 새로고침을 건너뜁니다.
+        //     if (currentPath.includes("/reportDetail")) {
+        //         return;
+        //     }
+        //     window.location.reload(); // 그 외의 페이지에서만 즉시 새로고침
+        // };
+
+        const getAlarmList = async () => {
+            try {
+                const freshAlarms = await getAlarmListApi();
+                get().setInitialList(freshAlarms);
+            } catch (err) {
+                console.error("알림 리스트 갱신 실패:", err);
+            }
+        };
+
+        const getDclrList = async () => {
+            try{
+
+            }  catch (err) {
+                console.error("회수 리스트 갱신 실패:", err);
+            }
+        };
+
+        const handleSseReload = async (e: any) => {
             const currentPath = window.location.pathname;
-            // URL에 '/reportDetail'이 포함되어 있다면 새로고침을 건너뜁니다.
             if (currentPath.includes("/reportDetail")) {
                 return;
             }
-            window.location.reload(); // 그 외의 페이지에서만 즉시 새로고침
+            // window.location.reload()를 과감히 주석 처리하거나 지우세요!
+            // 대신 서버에서 새로운 대시보드 리스트를 '깜빡임 없이' 실시간으로 새로 가져오도록 만듭니다.
+            queryClient?.invalidateQueries({ queryKey: ["dashboardList", accessToken] });
+
+            //알림 리스트 초기화
+            switch (e.type) {
+                case "DCLR_REGISTERED":
+                    await getAlarmList();
+                    await useReportStore.getState().fetchReports(accessToken);
+                    break;
+
+                case "TOW_ASSIGNED_TO_PM":
+                    await  getAlarmList();
+                case "TOW_ASSIGNED_TO_TOW":
+                    await getAlarmList();
+                    break;
+
+                case "TOW_AUTO_CANCLE_TO_TOW":
+                case "TOW_AUTO_CANCLE_TO_ADMIN":
+                    break;
+
+                default:
+                    break;
+            }
         };
 
         sse.addEventListener("DCLR_REGISTERED", handleSseReload);
