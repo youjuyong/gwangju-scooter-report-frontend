@@ -43,13 +43,13 @@ export default function UserHistory(){
     ];
     const historyGridColumns = useMemo<CustomColumnDef<UserHistoryResponse>[]>(() => [
         {
-            header : '사용자이름',
+            header : '사용자 이름',
             accessorKey : 'chgUserNm',
             size: 200
         }
         ,
         {
-            header: 'ID',
+            header: '사용자 아이디',
             accessorKey: 'chgUserId',
             meta: { id: 'chgUserId', filterType: "check"}, // 고유 Key(PK) 설정
             size: 200
@@ -78,7 +78,7 @@ export default function UserHistory(){
             size: 200
         },
         {
-            header: '로그일시',
+            header: '변경 일시',
             accessorKey: 'chgDt',
             meta: { filterType: "check" },
             size: 300
