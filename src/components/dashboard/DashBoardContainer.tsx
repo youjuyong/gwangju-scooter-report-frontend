@@ -752,7 +752,7 @@ export default function DashboardContainer() {
                                                 ) : null}
                                             </div>
                                         </div>
-                                        <div className="address">{item.address}</div>
+                                        <div className="address">{item.dclrAddrTxt}</div>
                                         <div className="details">
                                             <div className="detail_tableBox">
                                                 <table>
@@ -835,7 +835,8 @@ export default function DashboardContainer() {
                                 prcsStpNm: selectedItem.dclrStts?.cdNm,
                                 prcrId: selectedItem.prcrHis?.prcr?.userId,
                                 prcsDt: selectedItem.prcrHis?.prcsDt,
-                                prcsRsn: selectedItem.prcrHis?.prcsRsn
+                                prcsRsn: selectedItem.prcrHis?.prcsRsn,
+                                dclrAddrTxt: selectedItem.dclrAddrTxt
                             }}
                             isDashBoard={isPopupOpen}
                         />
@@ -917,7 +918,8 @@ export default function DashboardContainer() {
                                                     {pmImg ? (
                                                         <img src={pmImg} alt={item.bzenty?.bzentyNm || "logo"}/>
                                                     ) : (
-                                                        <img src="/assets/style_admin/images/mark.png" alt="defaultLogo"/>
+                                                        <img src="/assets/style_admin/images/mark.png"
+                                                             alt="defaultLogo"/>
                                                     )}
                                                 </div>
                                             </div>
