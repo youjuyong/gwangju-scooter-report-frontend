@@ -6,6 +6,7 @@ import { getAlarmListApi } from "@/services/alarm/alarmApi";
 import { useReportStore } from "@/store/useReportStore";
 
 interface SseState {
+    sseTrigger: number;
     alarmList: any[];
     markAsRead: (pushLogId: string) => void;
     markAllAsRead: () => void;
@@ -48,6 +49,7 @@ const sortDashboardList = (list: any[]) => {
 };
 
 export const useSseStore = create<SseState>((set, get) => ({
+    sseTrigger: 0,
     alarmList: [],
     sseInstance: null,
 
@@ -171,6 +173,7 @@ export const useSseStore = create<SseState>((set, get) => ({
             if (currentPath.includes("/reportDetail")) {
                 return;
             }
+            set((state) => ({ sseTrigger: state.sseTrigger + 1 })); // 숫자만 변경!
             // window.location.reload()를 과감히 주석 처리하거나 지우세요!
             // 대신 서버에서 새로운 대시보드 리스트를 '깜빡임 없이' 실시간으로 새로 가져오도록 만듭니다.
             queryClient?.invalidateQueries({ queryKey: ["dashboardList", accessToken] });
