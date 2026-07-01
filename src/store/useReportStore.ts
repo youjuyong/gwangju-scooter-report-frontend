@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { pmDcleReportRequestForm, pmDcleReportResponse } from "@/types/report";
 import { getPmDclrListApi } from "@/services/report/reportApi";
+import { getTowDclrListApi } from "@/services/report/reportApi_tow";
 
 interface ReportState {
     reports: pmDcleReportResponse[];
@@ -15,7 +16,7 @@ interface ReportState {
     setWorkerFilter: (worker: string) => void;
 
     // true면 로딩 스피너 안 띄움
-    fetchReports: (token: string | undefined, isSilent?: boolean) => Promise<void>;
+    fetchReports: (token: string | undefined, prefix: string, isSilent?: boolean) => Promise<void>;
 }
 
 export const useReportStore = create<ReportState>((set, get) => ({
@@ -29,7 +30,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
     setStatusFilter: (status) => set({ statusFilter: status }),
     setWorkerFilter: (worker) => set({ workerFilter: worker }),
 
-    fetchReports: async (token,isSilent = false) => {
+    fetchReports: async (token,prefix,isSilent = false) => {
         // get()을 통해 스토어 내부의 최신 필터 값들을 가져옵니다.
         const { searchDate, statusFilter, workerFilter } = get();
 
@@ -53,7 +54,15 @@ export const useReportStore = create<ReportState>((set, get) => ({
                 dclrSttsCd: statusFilter
             };
 
-            const data = await getPmDclrListApi(requestParams, token);
+            let data;
+            if (prefix === "/tow") {
+                // 견인업체 계정일 때 호출할 API
+                data = await getTowDclrListApi(requestParams, token);
+            } else {
+                // PM 계정(또는 기본값)일 때 호출할 API
+                data = await getPmDclrListApi(requestParams, token);
+            }
+
             set({ reports: data || [] });
         } catch (error) {
             console.error("Zustand에서 데이터 로드 실패:", error);

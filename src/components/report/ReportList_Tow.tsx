@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import { pmDcleReportRequestForm, pmDcleReportResponse, staffsResponse } from "@/types/report";
 import { getTowDclrCollect, getTowDclrListApi, getStaffsList } from "@/services/report/reportApi_tow";
 import {useAuthStore} from "@/store/authStore";
+import { useReportStore } from "@/store/useReportStore";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import {useAlert} from "@/components/popup/PopupProvider";
 
@@ -24,40 +25,53 @@ export default function ReportList({
     const router = useRouter();
 
     // 1. 상태 관리 (필터 및 데이터)
-    const [reports, setReports] = useState<pmDcleReportResponse[]>([]);
-    const [searchDate, setSearchDate] = useState("");
-    const [statusFilter, setStatusFilter] = useState(""); // dclrSttsCd
-    const [workerFilter, setWorkerFilter] = useState(""); // prcsUserId
-    const [loading, setLoading] = useState(false);
+    // const [reports, setReports] = useState<pmDcleReportResponse[]>([]);
+    // const [searchDate, setSearchDate] = useState("");
+    // const [statusFilter, setStatusFilter] = useState(""); // dclrSttsCd
+    // const [workerFilter, setWorkerFilter] = useState(""); // prcsUserId
+    // const [loading, setLoading] = useState(false);
+    const {
+        reports, searchDate, statusFilter, workerFilter, loading,
+        setSearchDate, setStatusFilter, setWorkerFilter, fetchReports
+    } = useReportStore();
+
     const [staffs, setStaffs] = useState<staffsResponse[]>([]); // 처리자 목록
 
     const towUserInfo = useAuthStore((state) => state.tow.userInfo);
     const currentUserName = towUserInfo?.id; // 로그인한 유저의 name
     const showAlert = useAlert();
     // 2. 데이터 페칭 함수
-    const fetchReports = async () => {
-        setLoading(true);
+    // const fetchReports = async () => {
+    //     setLoading(true);
+    //     try {
+    //         let extractedMonth = "";
+    //         if (searchDate) {
+    //             const dateParts = searchDate.split("-");
+    //             extractedMonth = `${dateParts[0]}-${dateParts[1]}`;
+    //         }
+    //         const requestParams: pmDcleReportRequestForm = {
+    //             searchMonth: extractedMonth,
+    //             searchDate: searchDate,
+    //             prcsUserId: workerFilter,
+    //             dclrSttsCd: statusFilter
+    //         };
+    //        const data = await getTowDclrListApi(requestParams, token);
+    //        setReports(data || []);
+    //     } catch (error) {
+    //         console.error(`${title} 데이터 로드 실패:`, error);
+    //         toast.error("리스트를 불러오는 데 실패했습니다.");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+    const handleSearch = async () => {
         try {
-            let extractedMonth = "";
-            if (searchDate) {
-                const dateParts = searchDate.split("-");
-                extractedMonth = `${dateParts[0]}-${dateParts[1]}`;
-            }
-            const requestParams: pmDcleReportRequestForm = {
-                searchMonth: extractedMonth,
-                searchDate: searchDate,
-                prcsUserId: workerFilter,
-                dclrSttsCd: statusFilter
-            };
-           const data = await getTowDclrListApi(requestParams, token);
-           setReports(data || []);
-        } catch (error) {
-            console.error(`${title} 데이터 로드 실패:`, error);
+            await fetchReports(token, prefix);
+        } catch {
             toast.error("리스트를 불러오는 데 실패했습니다.");
-        } finally {
-            setLoading(false);
         }
     };
+
 
     // 3. 처리자 목록 가져오기
     const fetchStaffs = async () => {
@@ -72,7 +86,7 @@ export default function ReportList({
     // 4. 초기 로드
     useEffect(() => {
         fetchStaffs();
-        fetchReports();
+        handleSearch(); // 초기 로드
     }, []);
 
     // 5. 상태별 CSS 클래스 및 텍스트 매핑
@@ -105,7 +119,7 @@ export default function ReportList({
         try {
             await getTowDclrCollect(dclrId);
             toast.success("회수진행 처리가 완료되었습니다.");
-            fetchReports();
+            handleSearch();
         } catch (error) {
             console.error("회수진행 실패:", error);
             toast.error("처리 중 오류가 발생했습니다.");
@@ -151,7 +165,7 @@ export default function ReportList({
                         </select>
                     </dd>
                 </dl>
-                <button className="btn_search" onClick={fetchReports}>검색</button>
+                <button className="btn_search" onClick={handleSearch}>검색</button>
             </div>
 
             <div className="searchResult">

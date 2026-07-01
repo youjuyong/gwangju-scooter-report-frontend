@@ -69,7 +69,7 @@ export default function ReportList({
     // 스토어 함수를 컴포넌트의 이벤트를 위해 한 번 래핑 (토스트 에러 처리용)
     const handleSearch = async () => {
         try {
-            await fetchReports(token);
+            await fetchReports(token, prefix);
         } catch {
             toast.error("리스트를 불러오는 데 실패했습니다.");
         }
