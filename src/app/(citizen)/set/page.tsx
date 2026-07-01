@@ -10,7 +10,7 @@ import {authApi} from "@/services/api";
 import axios from "axios";
 import {useFcmToken} from "@/hooks/useFcmToken";
 import {useAlert} from "@/components/popup/PopupProvider";
-import {useAlarmStore} from '@/store/alamStore';
+import {useSseStore} from "@/store/sseStore";
 
 export default function SettingsPage() {
     const router = useRouter();
@@ -27,7 +27,7 @@ export default function SettingsPage() {
     const showAlert = useAlert();
     const currentAuth = state[authType];
     const {logout, updateFcmToken} = state;
-    const clearStore = useAlarmStore((state) => state.clearStore);
+    const clearAlarms = useSseStore((state) => state.clearAlarms);
 
     const [mounted, setMounted] = useState(false);
     const [isSafari, setIsSafari] = useState(false);
@@ -82,7 +82,7 @@ export default function SettingsPage() {
             logout(authType);
             deleteCookie(`${authType}AccessToken`);
             delete axios.defaults.headers.common["Authorization"];
-            clearStore(); //알림 리스트 삭제
+            clearAlarms(); //알림 리스트 삭제
             toast.success("로그아웃되었습니다.");
             router.replace("/");
         } catch (error) {

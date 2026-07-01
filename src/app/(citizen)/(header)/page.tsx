@@ -7,7 +7,7 @@ import {useFcmToken} from "@/hooks/useFcmToken";
 import MainNotice from "@/components/notice/MainNotice";
 import {useRouter} from "next/navigation";
 import {getAlarmListApi} from "@/services/alarm/alarmApi";
-import {useAlarmStore} from "@/store/alamStore";
+import {useSseStore} from "@/store/sseStore";
 import {registerGuestMenuLog} from "@/services/common/commonApi";
 import {useEffect,useState} from "react";
 import {useAlert} from "@/components/popup/PopupProvider";
@@ -25,8 +25,8 @@ function HomeSection({accessToken}: { accessToken: string | null }) {
     const router = useRouter();
     const showAlert = useAlert();
     const [timeConfig, setTimeConfig] = useState({ bgngHm: "07:00", endHm: "17:00" });
-    const setInitialList = useAlarmStore((state) => state.setInitialList);
-    const alarmList = useAlarmStore((state) => state.alarmList);
+    const setInitialList = useSseStore((state) => state.setInitialList);
+    const alarmList = useSseStore((state) => state.alarmList);
     const alarmLength = alarmList.length;
 
 const formatTime = (timeStr:string) => {
@@ -55,19 +55,19 @@ const formatTime = (timeStr:string) => {
 
     // 로그인시 알람 리스트 삽입
     useEffect(() => {
-        // 토큰이 없거나, 이미 알림이 있다면 아무것도 하지 않고 즉시 종료
-        if (!accessToken || alarmLength !== 0) return;
+        if (!accessToken) return;
 
         const fetchAlarms = async () => {
             try {
                 const data = await getAlarmListApi();
-                setInitialList(data);
+                setInitialList(data || []); // null 에러 방지를 위해 || [] 추가
             } catch (error) {
                 console.error("알림 리스트 초기화 실패:", error);
             }
         };
+
         fetchAlarms();
-    }, [setInitialList, alarmLength, accessToken]);
+    }, [accessToken, setInitialList]);
 
     useEffect(() => {
         const recordMenuLog = async () => {

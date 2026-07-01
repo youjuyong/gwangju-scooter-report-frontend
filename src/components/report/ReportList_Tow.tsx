@@ -24,12 +24,6 @@ export default function ReportList({
                                    }: ReportBoardListProps) {
     const router = useRouter();
 
-    // 1. 상태 관리 (필터 및 데이터)
-    // const [reports, setReports] = useState<pmDcleReportResponse[]>([]);
-    // const [searchDate, setSearchDate] = useState("");
-    // const [statusFilter, setStatusFilter] = useState(""); // dclrSttsCd
-    // const [workerFilter, setWorkerFilter] = useState(""); // prcsUserId
-    // const [loading, setLoading] = useState(false);
     const {
         reports, searchDate, statusFilter, workerFilter, loading,
         setSearchDate, setStatusFilter, setWorkerFilter, fetchReports
@@ -40,30 +34,7 @@ export default function ReportList({
     const towUserInfo = useAuthStore((state) => state.tow.userInfo);
     const currentUserName = towUserInfo?.id; // 로그인한 유저의 name
     const showAlert = useAlert();
-    // 2. 데이터 페칭 함수
-    // const fetchReports = async () => {
-    //     setLoading(true);
-    //     try {
-    //         let extractedMonth = "";
-    //         if (searchDate) {
-    //             const dateParts = searchDate.split("-");
-    //             extractedMonth = `${dateParts[0]}-${dateParts[1]}`;
-    //         }
-    //         const requestParams: pmDcleReportRequestForm = {
-    //             searchMonth: extractedMonth,
-    //             searchDate: searchDate,
-    //             prcsUserId: workerFilter,
-    //             dclrSttsCd: statusFilter
-    //         };
-    //        const data = await getTowDclrListApi(requestParams, token);
-    //        setReports(data || []);
-    //     } catch (error) {
-    //         console.error(`${title} 데이터 로드 실패:`, error);
-    //         toast.error("리스트를 불러오는 데 실패했습니다.");
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
+
     const handleSearch = async () => {
         try {
             await fetchReports(token, prefix);
@@ -71,7 +42,6 @@ export default function ReportList({
             toast.error("리스트를 불러오는 데 실패했습니다.");
         }
     };
-
 
     // 3. 처리자 목록 가져오기
     const fetchStaffs = async () => {

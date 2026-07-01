@@ -8,6 +8,7 @@ import { useReportStore } from "@/store/useReportStore";
 interface SseState {
     sseTrigger: number;
     alarmList: any[];
+    clearAlarms: () => void;
     markAsRead: (pushLogId: string) => void;
     markAllAsRead: () => void;
     sseInstance: EventSourcePolyfill | null;
@@ -87,6 +88,8 @@ export const useSseStore = create<SseState>((set, get) => ({
     }),
 
     setInitialList: (list) => set({alarmList: list}),
+
+    clearAlarms: () => set({ alarmList: [], newReports: [], isReportPopup: false }),
 
     // 단건 읽음 처리: 리스트에서 해당 알람의 readYn을 'Y'로 변경
     markAsRead: (pushLogId) => {

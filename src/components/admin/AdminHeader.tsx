@@ -10,7 +10,6 @@ import {toast} from "react-hot-toast";
 import {useAlert} from "@/components/popup/PopupProvider";
 import {useFcmToken} from "@/hooks/useFcmToken";
 import {useAuthStore} from "@/store/authStore";
-import {useAlarmStore} from "@/store/alamStore";
 
 interface HeaderProps {
     // 현재 로그인한 사용자의 권한 (예: admin, pm, tow 등)
@@ -31,7 +30,6 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
     };
     const authType = getAuthType();
     const state = useAuthStore();
-    const clearStore = useAlarmStore((state) => state.clearStore);
     const prefix = authType === "reporter" ? "" : `/${authType}`;
 
     // 실시간 시계 상태 관리
@@ -70,7 +68,6 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
             deleteCookie(`${authType}AccessToken`);
 
             delete axios.defaults.headers.common["Authorization"];
-            clearStore(); // 헤더 알림 리스트 삭제
             toast.success("로그아웃되었습니다.");
 
             // 로그아웃 후 해당 서비스의 로그인 페이지 또는 메인으로 이동

@@ -3,7 +3,6 @@
 import Header from "@/components/Header";
 import { usePathname } from "next/navigation";
 import React, {useState, useEffect, useSyncExternalStore} from "react";
-import {useAlarmStore} from "@/store/alamStore";
 import {useAuthStore} from "@/store/authStore";
 import {getAlarmListApi} from "@/services/alarm/alarmApi";
 import {useSseStore} from "@/store/sseStore";

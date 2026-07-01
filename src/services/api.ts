@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { MemberRole } from '@/store/authStore';
 import { deleteCookie } from "cookies-next";
-import { useAlarmStore } from '@/store/alamStore';
+import { useSseStore } from '@/store/sseStore';
 
 // CSRF 및 기본 설정 전역 적용
 axios.defaults.withCredentials = true;
@@ -64,13 +64,13 @@ const handleDuplicateLogin = async (errorResponse: any, state: any, authType: st
 };
 
 const clearAuthSession = (authType: any, prefix: any) => {
-    const { clearStore } = useAlarmStore.getState(); 
+    const { clearAlarms } = useSseStore.getState();
     const state = useAuthStore.getState();
     
     state.logout(authType);
     deleteCookie(`${authType}AccessToken`);
     delete axios.defaults.headers.common["Authorization"];
-    clearStore(); 
+    clearAlarms();
 
     if (typeof window !== "undefined") {
         window.location.href = prefix ? `${prefix}/login` : "/";
