@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { useKakaoLoader } from "react-kakao-maps-sdk";
-import {  getOutlineType } from "@/services/common/commonApi";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {usePathname, useRouter} from "next/navigation";
+import {useKakaoLoader} from "react-kakao-maps-sdk";
+import {getOutlineType, registerMenuLog} from "@/services/common/commonApi";
 import Cookies from "js-cookie";
 import KakaoMapSection from "@/components/dashboard/KakaoMapContainer";
-import { getTowDclrListApi } from "@/services/report/reportApi_tow";
-import { registerMenuLog } from "@/services/common/commonApi";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSseStore } from "@/store/sseStore";
+import {getTowDclrListApi} from "@/services/report/reportApi_tow";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {useSseStore} from "@/store/sseStore";
 
-const pmtoken = Cookies.get("pmAccessToken");
+const token = Cookies.get("towAccessToken");
 
 export default function MainHome() {
     const router = useRouter();
@@ -37,14 +36,14 @@ export default function MainHome() {
             const savedLocation = sessionStorage.getItem("selected_kickboard_loc");
             if (savedLocation) {
                 const parsed = JSON.parse(savedLocation);
-                return { lat: parsed.lat, lng: parsed.lng };
+                return {lat: parsed.lat, lng: parsed.lng};
             }
         }
-        return { lat: 37.429, lng: 127.255 };
+        return {lat: 37.429, lng: 127.255};
     });
 
     // 3. [실시간 갱신 대상] 견인 마커 리스트 - React Query 연동
-    const { data: reports = [] } = useQuery({
+    const {data: reports = []} = useQuery({
         queryKey: ["towMapReportList"], // 🚛 견인 전용 키 명명
         queryFn: () => getTowDclrListApi({
             searchMonth: "",
@@ -52,12 +51,12 @@ export default function MainHome() {
             prcsUserId: "",
             dclrSttsCd: "",
             isMap: "Y"
-        }, pmtoken).then(res => res || []),
-        enabled: !loading && !!pmtoken,
+        }, token).then(res => res || []),
+        enabled: !loading && !!token,
     });
 
     // 4. [고정 대상] 외곽선 데이터 - 변하지 않으므로 무효화 대상에서 제외
-    const { data: outlinePath = [] } = useQuery({
+    const {data: outlinePath = []} = useQuery({
         queryKey: ["mapOutlinePath"],
         queryFn: async () => {
             const outlineRes = await getOutlineType();
