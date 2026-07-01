@@ -177,13 +177,14 @@ export const useSseStore = create<SseState>((set, get) => ({
             switch (e.type) {
                 case "DCLR_REGISTERED":
                     await getAlarmList();
-                    await useReportStore.getState().fetchReports(accessToken);
+                    await useReportStore.getState().fetchReports(accessToken,true); // true : 로딩바 표출 안함
                     break;
 
                 case "TOW_ASSIGNED_TO_PM":
                     await  getAlarmList();
                 case "TOW_ASSIGNED_TO_TOW":
                     await getAlarmList();
+                    await useReportStore.getState().fetchReports(accessToken,true); // true : 로딩바 표출 안함
                     break;
 
                 case "TOW_AUTO_CANCLE_TO_TOW":
