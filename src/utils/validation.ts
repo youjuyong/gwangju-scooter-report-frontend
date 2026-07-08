@@ -121,14 +121,14 @@ export const validateFields = {
 
     // 사용자 관리 -> 이메일
     email: (value: string) => {
-        if (!value) return "이메일을 입력해주세요.";
+      //  if (!value) return "이메일을 입력해주세요.";
         if (!REGEX.EMAIL.test(value)) return "올바른 이메일 형식이 아닙니다.";
         return true;
     },
 
     // 사용자 관리 -> 연락처 (000-0000-0000)
     phoneNumber: (value: string) => {
-        if (!value) return "연락처를 입력해주세요.";
+    //    if (!value) return "연락처를 입력해주세요.";
         const phoneRegex = /^0\d{1,3}-\d{3,4}-\d{4}$/;
         if (!phoneRegex.test(value)) {
             return "올바른 연락처 형식이 아닙니다.\n( (예: 010-1234-5678, 02-123-4567)";

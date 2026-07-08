@@ -141,8 +141,8 @@ export function useManagerForm({ isOpen, data, mode, onClose, onRefreshList }: U
 
         const idRes = validateFields.userId(formData.userId);
         const nmRes = validateFields.userName(formData.userNm);
-        const telRes = validateFields.phoneNumber(formData.telNum);
-        const emailRes = validateFields.email(formData.email);
+        const telRes = formData.telNum ? validateFields.phoneNumber(formData.telNum) : true;
+        const emailRes = formData.email ? validateFields.email(formData.email) : true;
 
         const newErrors = {
             userId: idRes === true ? '' : idRes,
@@ -208,11 +208,19 @@ export function useManagerForm({ isOpen, data, mode, onClose, onRefreshList }: U
             const result = validateFields.userName(value);
             errMsg = result === true ? '' : result;
         } else if (name === "email") {
-            const result = validateFields.email(value);
-            errMsg = result === true ? '' : result;
+            if (value.trim() === "") {
+                errMsg = '';
+            } else {
+                const result = validateFields.email(value);
+                errMsg = result === true ? '' : result;
+            }
         } else if (name === "telNum") {
-            const result = validateFields.phoneNumber(value);
-            errMsg = result === true ? '' : result;
+            if (value.trim() === "") {
+                errMsg = '';
+            } else {
+                const result = validateFields.phoneNumber(value);
+                errMsg = result === true ? '' : result;
+            }
         } else if (name === "password") {
             const result = validateFields.password(value);
             errMsg = result === true ? '' : result;
