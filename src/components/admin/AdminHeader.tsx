@@ -134,7 +134,7 @@ export default function AdminHeader({ userRole = 'admin' }: HeaderProps) {
                                 key={item.id}
                                 className={`menu ${item.classNum} ${isActive ? 'click' : ''}`.trim()}
                             >
-                                <Link href={item.path}>
+                                <Link prefetch={false}  href={item.path}>
                                     {item.name}
                                 </Link>
                             </li>

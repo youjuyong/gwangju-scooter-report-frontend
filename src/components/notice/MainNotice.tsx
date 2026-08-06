@@ -57,7 +57,7 @@ export default function MainNotice() {
             <div className="title">
                 {/* 공지사항 화면 나오면  이동  */}
                 {/*<a href={`/notice/${notices[currentIndex].ntcId}`}>*/}
-                <Link
+                <Link 
                     href={`/notice/${notices[currentIndex].ntcId}`}
                     prefetch={false}
                 >

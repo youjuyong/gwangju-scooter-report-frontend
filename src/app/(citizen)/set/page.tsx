@@ -144,7 +144,7 @@ export default function SettingsPage() {
         <div className="wrap noMenubody">
             <header>
                 <h1>설정</h1>
-                <Link href="/" className="back" style={{cursor: 'pointer'}}>뒤로 가기</Link>
+                <Link href="/" prefetch={false} className="back" style={{cursor: 'pointer'}}>뒤로 가기</Link>
             </header>
 
             <main className="sub_article set_article">
@@ -163,7 +163,7 @@ export default function SettingsPage() {
                     </li>
 
                     <li>
-                        <Link href="/set/agree" className="go_agree">
+                        <Link prefetch={false}  href="/set/agree" className="go_agree">
                             약관 조회
                         </Link>
                     </li>

@@ -203,7 +203,7 @@ export default function NoticePage() {
                             const isSubActive = pathname === item.path;
                             return (
                                 <li key={item.id} className={isSubActive ? 'click' : ''}>
-                                    <Link href={item.path}>
+                                    <Link prefetch={false}  href={item.path}>
                                         {item.name}
                                     </Link>
                                 </li>

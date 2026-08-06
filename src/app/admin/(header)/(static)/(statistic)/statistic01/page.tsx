@@ -164,7 +164,7 @@ export default function StatisticDayPage() {
                             const isSubActive = item.id === 'statistic' ? isStatisticMenu : pathname === item.path;
                             return (
                                 <li key={item.id} className={isSubActive ? 'click' : ''}>
-                                    <Link href={item.path}>{item.name}</Link>
+                                    <Link prefetch={false} href={item.path}>{item.name}</Link>
                                 </li>
                             );
                         })}
@@ -180,7 +180,7 @@ export default function StatisticDayPage() {
                             const isTabActive = pathname === tab.path;
                             return (
                                 <li key={tab.id} className={isTabActive ? 'click' : ''}>
-                                    <Link href={tab.path}>{tab.name}</Link>
+                                    <Link prefetch={false}  href={tab.path}>{tab.name}</Link>
                                 </li>
                             );
                         })}

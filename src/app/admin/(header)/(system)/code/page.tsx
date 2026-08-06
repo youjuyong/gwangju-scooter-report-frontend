@@ -280,7 +280,7 @@ export default function ZoneCodePage() {
                             const isSubActive = pathname === item.path || (item.id === 'code');
                             return (
                                 <li key={item.id} className={isSubActive ? 'click' : ''}>
-                                    <Link href={item.path}>{item.name}</Link>
+                                    <Link prefetch={false}  href={item.path}>{item.name}</Link>
                                 </li>
                             );
                         })}

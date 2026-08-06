@@ -139,7 +139,7 @@ export default function CommonError({
                             다시 시도하기
                         </button>
                     ) : (
-                        <Link
+                        <Link prefetch={false} 
                             href={loginUrl}
                             className="gologin"
                             style={{
