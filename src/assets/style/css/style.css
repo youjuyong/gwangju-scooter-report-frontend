@@ -164,7 +164,7 @@ nav li.click .menuBoard{background: url(../images/main_board_s_click.png)calc(50
 .add{width: 100%; font-size: 15px; font-weight: 500; line-height: 20px; padding:10px 0}
 .listconten{width: 100%; clear: both; overflow: hidden; position: relative;}
 .listconten .leftbox{width: 100%; padding-right: 97px; }
-.listconten .list_img{position: absolute; right: 0px; top:0px; width:80px; height: 80px; border: 1px solid #000; border-radius: 10px; overflow: hidden; object-fit: cover;}
+.listconten .list_img{position: absolute; right: 0px; top:0px; width:80px; height: 80px; border: 1px solid #000; border-radius: 10px; overflow: hidden}
 .leftbox dl{clear: both; position: relative; width: 100%; padding-bottom: 10px;}
 .listconten dt{position: absolute; width: 58px; left: 0; font-size: 12px; text-align: left; color: #383838; font-weight: 300; }
 .listconten dd{width: 100%; padding-left: 58px; text-align: right; font-size: 14px;color: #000;font-weight:500; line-height: 16px; }
