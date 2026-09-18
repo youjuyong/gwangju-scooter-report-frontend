@@ -29,7 +29,8 @@ export default function DashboardContainer() {
     const [isUpperOff, setIsUpperOff] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const showAlert = useAlert();
-    const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
+    const DEFAULT_POSITION = {lat: 37.42870, lng: 127.25618}; // 기본 좌표값: 경기도 광주시청
+    const [position, setPosition] = useState<{ lat: number; lng: number } | null>(DEFAULT_POSITION);
     const [address, setAddress] = useState<string>("위치를 선택해 주세요");
     const [zoneId, setZoneId] = useState<string>("");
     const [jibunAddress, setJibunAddress] = useState<string>("");
@@ -556,6 +557,7 @@ export default function DashboardContainer() {
     useEffect(() => {
         if (!navigator.geolocation) {
             showAlert("GPS를 지원하지 않는 기기입니다.");
+            fetchAddressInfo(DEFAULT_POSITION.lat, DEFAULT_POSITION.lng);
             return;
         }
         navigator.geolocation.getCurrentPosition(
@@ -580,11 +582,10 @@ export default function DashboardContainer() {
                         fetchAddressInfo(newPos.lat, newPos.lng);
                     },
                     (secondErr) => {
-                        console.error("최종 위치 획득 실패, 기본 위치로 지도를 엽니다:", secondErr);
+                        console.error("최종 위치 획득 실패, 기본 위치를 유지합니다:", secondErr);
 
-                        const defaultPos = {lat: 37.42870, lng: 127.25618};
-                        setPosition(defaultPos);
-                        fetchAddressInfo(defaultPos.lat, defaultPos.lng);
+                        setPosition(DEFAULT_POSITION);
+                        fetchAddressInfo(DEFAULT_POSITION.lat, DEFAULT_POSITION.lng);
                     },
                     {enableHighAccuracy: true, timeout: 15000, maximumAge: 60000}
                 );
