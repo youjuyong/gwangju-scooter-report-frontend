@@ -21,9 +21,10 @@ const MARKER_CONFIG = {
     } as Record<string, string>
 };
 
-const KakaoMapSection = memo(({ reports, outlinePath, center, onMarkerClick, bachList = [], activeDclrId }: any) => {
+const KakaoMapSection = memo(({ reports, outlinePath, center, onMarkerClick, bachList = [], activeDclrId, mapRef: externalMapRef }: any) => {
     //  1. 실제 카카오 지도 인스턴스를 핸들링할 Ref 생성
-    const mapRef = useRef<kakao.maps.Map>(null);
+    const internalMapRef = useRef<kakao.maps.Map>(null);
+    const mapRef = externalMapRef ?? internalMapRef; // 부모(줌 버튼)에서 지도 접근이 필요하면 외부 ref 사용
 
     const optimizedPath = useMemo(() => {
         if (!outlinePath || outlinePath.length === 0) return [];

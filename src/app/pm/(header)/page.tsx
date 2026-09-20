@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {useKakaoLoader} from "react-kakao-maps-sdk";
 import {getMyBachList, getPmDclrListApi} from "@/services/report/reportApi";
@@ -21,6 +21,7 @@ export default function MainHome() {
     // 1. 전역 스토어에서 실시간 알림 트리거 감지
     const sseTrigger = useSseStore((state) => state.sseTrigger);
 
+    const mapRef = useRef<kakao.maps.Map>(null);
     const [isGpsLoading, setIsGpsLoading] = useState(false);
     const [activeDclrId, setActiveDclrId] = useState<string | null>(null);
 
@@ -160,6 +161,13 @@ export default function MainHome() {
         recordMenuLog();
     }, [moveToCurrentPosition]);
 
+    // 지도 줌 인/아웃 (카카오 level: 숫자가 작을수록 확대)
+    const zoomMap = useCallback((delta: number) => {
+        const map = mapRef.current;
+        if (!map) return;
+        map.setLevel(map.getLevel() + delta, { animate: true });
+    }, []);
+
     const handleMarkerClick = useCallback((id: string) => {
         router.push(`${prefix}/reportDetail/${id}`);
     }, [prefix, router]);
@@ -187,6 +195,11 @@ export default function MainHome() {
                 {isGpsLoading ? "조회중..." : "내위치"}
             </button>
 
+            <div className="zoom_ctrl">
+                <button type="button" className="zoom_in" aria-label="지도 확대" onClick={() => zoomMap(-1)}>+</button>
+                <button type="button" className="zoom_out" aria-label="지도 축소" onClick={() => zoomMap(1)}>−</button>
+            </div>
+
             <div className="legend">
                 <div className="item red">
                     <span className="badge">{counts.red}</span><span className="label">미배정</span>
@@ -211,6 +224,7 @@ export default function MainHome() {
                         onMarkerClick={handleMarkerClick}
                         bachList={bachList}
                         activeDclrId={activeDclrId}
+                        mapRef={mapRef}
                     />
                 )}
             </div>
