@@ -10,11 +10,12 @@ const buildCsp = () => {
 
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' *.kakao.com *.daumcdn.net https://www.gstatic.com${isDev ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' *.kakao.com *.daumcdn.net https://www.gstatic.com${isDev ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: *.daumcdn.net *.kakao.com",
     "font-src 'self' data:",
-    "connect-src 'self' *.daumcdn.net *.kakao.com https://*.googleapis.com",
+    "connect-src 'self' *.daumcdn.net *.kakao.com https://*.googleapis.com https://fastly.jsdelivr.net",
+    "media-src 'self' data:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
