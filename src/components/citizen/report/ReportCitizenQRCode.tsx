@@ -20,13 +20,41 @@ interface QRProps {
 
 export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QRProps) {
     const router = useRouter();
-    const [isCamera, setIsCamera] = useState<boolean>(true);
+    const [isCamera, setIsCamera] = useState<boolean>(false);
+    const [isCameraChecking, setIsCameraChecking] = useState<boolean>(true);
     const [businessList, setBusinessList] = useState<BusinessInfo[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const isValid = formData.brand.trim() !== "" && formData.deviceId.trim() !== "";
     const [isValidated, setIsValidated] = useState<boolean>(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [message, setMessage] = useState("");
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const checkCameraPermission = async () => {
+            if (!navigator.mediaDevices?.getUserMedia) {
+                if (!cancelled) setIsCameraChecking(false);
+                return;
+            }
+
+            let stream: MediaStream | null = null;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({video: true});
+                if (!cancelled) setIsCamera(true);
+            } catch {
+            } finally {
+                stream?.getTracks().forEach(track => track.stop());
+                if (!cancelled) setIsCameraChecking(false);
+            }
+        };
+
+        checkCameraPermission();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     useEffect(() => {
         const fetchBrands = async () => {
@@ -166,7 +194,9 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
             <main className="sub_article">
                 <div className="min">
                     <div className="QRcamera">
-                        {!isCamera ? (
+                        {isCameraChecking ? (
+                            <div className="camera_none">카메라 권한을 확인하고 있습니다...</div>
+                        ) : !isCamera ? (
                             <div className="camera_none" aria-live="assertive">
                                 미디어 장치를 감지할 수 없습니다.
                             </div>
@@ -174,15 +204,13 @@ export default function ReportCitizenQRCode({formData, onUpdate, onComplete}: QR
                             <div className="camera_on">
                                 <div className="camera_bg"></div>
                                 <div className="camera_box" aria-label="QR코드 스캔 영역">
-                                    {isCamera && (
-                                        <Scanner
-                                            onScan={handleScan}
-                                            onError={() => setIsCamera(false)}
-                                            constraints={{
-                                                facingMode: { ideal: "environment" }
-                                            }}
-                                        />
-                                    )}
+                                    <Scanner
+                                        onScan={handleScan}
+                                        onError={() => setIsCamera(false)}
+                                        constraints={{
+                                            facingMode: { ideal: "environment" }
+                                        }}
+                                    />
                                 </div>
                             </div>
                         )}
