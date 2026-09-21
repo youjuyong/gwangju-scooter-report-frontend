@@ -11,6 +11,7 @@ import ReportDetailPopup from "@/components/admin/popup/ReportDetailPopup";
 import ExcelDownload from "@/components/admin/ExcelDownload";
 import {ExcelContext} from "@/components/admin/ExcelContext";
 import {registerMenuLog} from "@/services/common/commonApi";
+import {useFillGridColumns} from "@/hooks/useFillGridColumns";
 
 interface PmCompany {
     bzentyId: string;
@@ -78,50 +79,60 @@ export default function ReportPage() {
         {
             header : '이력ID',
             accessorKey : 'prcsHstryId',
-            meta: { id: 'prcsHstryId', isKey: true } // 고유 Key(PK) 설정
+            meta: { id: 'prcsHstryId', isKey: true }, // 고유 Key(PK) 설정
+            size: 120
         }
         ,
         {
             header: '신고일시',
             accessorKey: 'dclDt',
-            meta: { filterType: "check" }
+            meta: { filterType: "check" },
+            size: 140
 
         },
         {
             header: '처리일시',
             accessorKey: 'prcsDt',
-            meta: { filterType: "check" }
+            meta: { filterType: "check" },
+            size: 140
         },
         {
             header: '신고ID',
             accessorKey: 'dclrId',
+            size: 120
         },
         {
             header: 'PM사',
             accessorKey: 'bzentyNm',
-            meta: { filterType: "check" }
+            meta: { filterType: "check" },
+            size: 110
         },
         {
             header: '킥보드ID',
             accessorKey: 'qrVal',
+            size: 110
         },
         {
             header: '주소',
             accessorKey: 'dclrAddrTxt',
+            size: 320
         },
         {
             header: '위반유형',
             accessorKey: 'vltnTypeNm',
-            meta: { filterType: "check" }
+            meta: { filterType: "check" },
+            size: 210
         },
         {
             header: '신고자ID(*마스킹)',
             accessorKey: 'dclrUserId',
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            size: 240
         },
         {
             header: '처리자명',
             accessorKey: 'prcrId',
+            size: 90
         },
         {
             header: '처리상태',
@@ -130,9 +141,13 @@ export default function ReportPage() {
             cell: ({ getValue }) => {
                 const rawValue = getValue() as string; // 기존 코드값 (예: '01', 'COMPLETE' 등)
                 return getStatusName(rawValue);      // 아래에서 만들 매칭 함수 실행
-            }
+            },
+            size: 90
         },
     ], []);
+
+    const {gridBoxRef, columns: filledReportGridColumns} = useFillGridColumns(reportGridColumns);
+
     const handleSearch = () => {
         const requestData: AdminReportForm = {
             startDate: startDate,
@@ -322,12 +337,12 @@ export default function ReportPage() {
 
                 {/* 데이터 결과 영역 */}
                 <div className="infoContent">
-                    <div className="gridbox">
+                    <div className="gridbox" ref={gridBoxRef}>
                         {/*<div>그리드(그리드내부스크롤, 창 사이즈에 따라 실시간으로 사이즈 변하게)</div>*/}
                         <RaontecTanstackGrid
                             ref={reportGridRef}
                             data={reportGridData}
-                            columns={reportGridColumns}
+                            columns={filledReportGridColumns}
                             globalCellClickEvent={onClickReportRow} // 클릭 하이라이트 및 수정 연동
                             // enablePagination={true}
                   //          rowsPerPage={10}
