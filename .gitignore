@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 작업 계획 메모
+BASEPATH_PM_PLAN.md
