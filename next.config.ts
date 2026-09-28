@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 // 카카오맵 SDK(dapi.kakao.com)가 지도 타일/이미지/XHR을 daumcdn.net, kakao.com 하위 도메인에서
 // 불러오고, firebase-messaging-sw.js가 gstatic.com에서 firebase 스크립트를 importScripts로
@@ -28,6 +29,7 @@ const nextConfig: NextConfig = {
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
   reactStrictMode: false,
   output: 'standalone',
+  outputFileTracingRoot: path.join(__dirname),
   async headers() {
     return [
       {
