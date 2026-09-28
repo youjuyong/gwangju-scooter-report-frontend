@@ -1,5 +1,6 @@
 "use client";
 
+import { withBase } from "@/utils/basePath";
 import React, {useEffect, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {MemberRole, useAuthStore} from "@/store/authStore";
@@ -151,7 +152,7 @@ export default function LoginPage() {
                     </form>
                 </div>
                 <div className="login_bottom_logo">
-                    <img src="/assets/style_admin/images/logo2.png" alt="로고"/>
+                    <img src={withBase("/assets/style_admin/images/logo2.png")} alt="로고"/>
                 </div>
             </div>
         </div>

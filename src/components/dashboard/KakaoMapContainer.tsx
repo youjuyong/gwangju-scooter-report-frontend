@@ -1,23 +1,24 @@
 "use client";
 
+import { withBase } from "@/utils/basePath";
 import React, { memo, useMemo, useRef, useEffect } from "react"; //  useRef, useEffect 추가
 import { Circle, CustomOverlayMap, Map } from "react-kakao-maps-sdk";
 import { CityOutline } from "@/components/dashboard/CityOutline";
 
 const MARKER_CONFIG = {
     images: {
-        "DEST02": "/assets/style_pm/images/icon_red.png",
-        "DEST03": "/assets/style_pm/images/icon_blue.png",
-        "DEST04": "/assets/style_pm/images/icon_gray.png",
+        "DEST02": withBase("/assets/style_pm/images/icon_red.png"),
+        "DEST03": withBase("/assets/style_pm/images/icon_blue.png"),
+        "DEST04": withBase("/assets/style_pm/images/icon_gray.png"),
 
-        "DEST07": "/assets/style_pm/images/icon_red.png",
-        "DEST08": "/assets/style_pm/images/icon_blue.png",
-        "DEST09": "/assets/style_pm/images/icon_gray.png",
+        "DEST07": withBase("/assets/style_pm/images/icon_red.png"),
+        "DEST08": withBase("/assets/style_pm/images/icon_blue.png"),
+        "DEST09": withBase("/assets/style_pm/images/icon_gray.png"),
     } as Record<string, string>,
     logos: {
-        "빔(BEAM)": "/assets/style_pm/images/logo_beam.png",
-        "스윙(SWING)": "/assets/style_pm/images/simbol.png",
-        "카카오 T 바이크": "/assets/style_pm/images/logo_dear.png",
+        "빔(BEAM)": withBase("/assets/style_pm/images/logo_beam.png"),
+        "스윙(SWING)": withBase("/assets/style_pm/images/simbol.png"),
+        "카카오 T 바이크": withBase("/assets/style_pm/images/logo_dear.png"),
     } as Record<string, string>
 };
 
@@ -58,7 +59,7 @@ const KakaoMapSection = memo(({ reports, outlinePath, center, onMarkerClick, bac
                                 style={{ cursor: "pointer" }}
                             >
                                 <img
-                                    src={MARKER_CONFIG.images[report.dclrStts?.cdId] || "/assets/style_pm/images/mark.png"}
+                                    src={MARKER_CONFIG.images[report.dclrStts?.cdId] || withBase("/assets/style_pm/images/mark.png")}
                                     alt="marker"
                                     style={{ width: "25px", height: "36px" }}
                                 />

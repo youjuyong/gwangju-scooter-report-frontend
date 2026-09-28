@@ -1,10 +1,11 @@
+import { stripBase } from "@/utils/basePath";
 import {authApi} from "../api";
 import {ApiResponse} from "@/types/auth";
 import {LoginData, LoginResponseData} from "@/types/login";
 
 const getDynamicBaseURL = () => {
     if (typeof window !== "undefined") {
-        const path = window.location.pathname; // 현재 경로 (예: /pm/main 또는 /tow/report)
+        const path = stripBase(window.location.pathname); // 현재 경로 (예: /pm/main 또는 /tow/report)
 
         if (path.startsWith("/pm")) {
             return "/pm/login";

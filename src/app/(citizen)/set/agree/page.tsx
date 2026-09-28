@@ -1,3 +1,4 @@
+import { withBase } from "@/utils/basePath";
 import { cookies } from "next/headers";
 
 export default async function TermsPage() {
@@ -31,7 +32,7 @@ export default async function TermsPage() {
             <header>
                 <h1>개인정보처리방침</h1>
                 {/* 클라이언트 컴포넌트 없이 뒤로가기를 구현하려면 a태그나 별도 버튼 컴포넌트 사용 */}
-                <a href="/set" className="back" style={{ cursor: 'pointer' }}>뒤로 가기</a>
+                <a href={withBase("/set")} className="back" style={{ cursor: 'pointer' }}>뒤로 가기</a>
             </header>
 
             <main className="sub_article">

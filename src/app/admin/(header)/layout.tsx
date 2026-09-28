@@ -1,5 +1,6 @@
 "use client";
 
+import { withBase } from "@/utils/basePath";
 import React, {useEffect, useState, useSyncExternalStore} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import AdminHeader from "@/components/admin/AdminHeader";
@@ -22,7 +23,7 @@ export default function AdminHeaderLayout({children}: { children: React.ReactNod
                 if (event.data && event.data.type === 'NAVIGATE') {
                     const targetUrl = event.data.url;
                     if (targetUrl.startsWith(`/${userRole}`)) {
-                        window.location.href = targetUrl;
+                        window.location.href = withBase(targetUrl);
                     }
                 }
             };

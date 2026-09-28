@@ -11,6 +11,11 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// 등록 scope 기준 basePath (예: scope "https://its.gjcity.go.kr/pm/" → "/pm", 루트 배포면 "")
+// 백엔드(PushTargetUrl)는 basePath 없는 경로("/pm/reportList" 등)를 보내므로 여기서 붙인다.
+const BASE_PATH = new URL(self.registration.scope).pathname.replace(/\/$/, "");
+const withBase = (path) => (path.startsWith("/") ? BASE_PATH + path : path);
+
 self.addEventListener("install", (event) => {
   self.skipWaiting(); // 대기하지 않고 즉시 활성화 단계로 이동
 });
@@ -45,8 +50,8 @@ self.addEventListener("push" , function (e) {
     self.registration.showNotification(title, {
       body: body,
       data: { url: url },
-      icon: "/push-icon.png",
-      badge: "/badge.png",
+      icon: withBase("/push-icon.png"),
+      badge: withBase("/badge.png"),
       tag: "pm-report-alert",
       renotify: true,
       vibrate: [200, 100, 200],
@@ -61,7 +66,7 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   
   const relativeUrl = event.notification.data?.url || "/";
-  const absoluteUrl = new URL(relativeUrl, self.location.origin).href;
+  const absoluteUrl = new URL(withBase(relativeUrl), self.location.origin).href;
 
   event.waitUntil(
     clients.openWindow(absoluteUrl)

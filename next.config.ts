@@ -25,6 +25,7 @@ const buildCsp = () => {
 };
 
 const nextConfig: NextConfig = {
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
   reactStrictMode: false,
   output: 'standalone',
   async headers() {

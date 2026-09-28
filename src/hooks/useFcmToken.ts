@@ -1,3 +1,4 @@
+import { withBase } from "@/utils/basePath";
 import { getToken } from "firebase/messaging";
 import { getFirebaseMessaging } from "@/hooks/useFCM";
 import api from "@/services/api";
@@ -56,7 +57,7 @@ export const useFcmToken = () => {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") return null;
 
-      const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+      const registration = await navigator.serviceWorker.register(withBase("/firebase-messaging-sw.js"));
       await navigator.serviceWorker.ready;
 
       const messaging = getFirebaseMessaging();
@@ -84,7 +85,7 @@ export const useFcmToken = () => {
         return null;
       }
 
-      const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+      const registration = await navigator.serviceWorker.register(withBase("/firebase-messaging-sw.js"));
       await navigator.serviceWorker.ready;
 
       const messaging = getFirebaseMessaging();
@@ -124,7 +125,7 @@ export const useFcmToken = () => {
         if (permission !== "granted") return null;
   
         // 서비스 워커 등록 확인
-        const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+        const registration = await navigator.serviceWorker.register(withBase("/firebase-messaging-sw.js"));
         await navigator.serviceWorker.ready;
   
         // FCM 토큰 가져오기

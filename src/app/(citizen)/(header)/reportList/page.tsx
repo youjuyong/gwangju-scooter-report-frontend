@@ -1,5 +1,6 @@
 "use client";
 
+import { withBase } from "@/utils/basePath";
 import Cookies from "js-cookie";
 import React, {useEffect, useState} from "react";
 import {getReportList} from "@/services/report/reportApi";
@@ -60,7 +61,7 @@ export default function ReportListPage() {
                         const statusClass = isCompleted ? 'si2' : 'si1';
                         const firstImage = (item.imgUrls && item.imgUrls.length > 0 && item.imgUrls[0].startsWith("data:image"))
                             ? item.imgUrls[0]
-                            : "/images/camera.png";
+                            : withBase("/images/camera.png");
 
                         let statusText = "처리중";
                         if (statusCode === 'DEST10') {

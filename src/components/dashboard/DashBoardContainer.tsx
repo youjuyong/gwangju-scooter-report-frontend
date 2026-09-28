@@ -1,4 +1,5 @@
 "use client";
+import { withBase } from "@/utils/basePath";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {getOutlineType} from "@/services/common/commonApi";
@@ -700,7 +701,7 @@ export default function DashboardContainer() {
                     <div className="leftinfo">
                         {isToggleChecked ? <div className="hand">수동모드</div> :
                             <div className="auto">
-                                <img src="/assets/style_admin/images/icon_self.png" alt="self"/>
+                                <img src={withBase("/assets/style_admin/images/icon_self.png")} alt="self"/>
                                 자동 승인 처리중..
                             </div>
                         }
@@ -782,7 +783,7 @@ export default function DashboardContainer() {
                                                 </table>
                                             </div>
                                             <img
-                                                src={item.imgUrls?.[0] || "/assets/style_admin/images/no_img.png"}
+                                                src={item.imgUrls?.[0] || withBase("/assets/style_admin/images/no_img.png")}
                                                 alt="신고이미지"
                                             />
                                         </div>
@@ -919,7 +920,7 @@ export default function DashboardContainer() {
                                                     {pmImg ? (
                                                         <img src={pmImg} alt={item.bzenty?.bzentyNm || "logo"}/>
                                                     ) : (
-                                                        <img src="/assets/style_admin/images/mark.png"
+                                                        <img src={withBase("/assets/style_admin/images/mark.png")}
                                                              alt="defaultLogo"/>
                                                     )}
                                                 </div>

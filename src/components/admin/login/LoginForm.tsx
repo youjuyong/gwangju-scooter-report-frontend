@@ -1,5 +1,6 @@
 "use client";
 
+import { withBase } from "@/utils/basePath";
 import {useEffect, useState} from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { handleApiError } from "@/hooks/errorHandler";
@@ -170,13 +171,13 @@ export default function LoginForm() {
         <div className="wrap loginWrap">
             <header>
                 <h1>
-                    <img src="/assets/style_pm/images/simbol_s.png" alt="simbol" /> 방치 킥보드 회수 시스템
+                    <img src={withBase("/assets/style_pm/images/simbol_s.png")} alt="simbol" /> 방치 킥보드 회수 시스템
                 </h1>
             </header>
 
             <div className="loginback">
                 <div className="login_img">
-                    <img src="/assets/style_pm/images/main_all_img.png" alt="광주시 방치킥보드 회수 시스템" className="mainImg" />
+                    <img src={withBase("/assets/style_pm/images/main_all_img.png")} alt="광주시 방치킥보드 회수 시스템" className="mainImg" />
                 </div>
 
                 <div className="loginBox">

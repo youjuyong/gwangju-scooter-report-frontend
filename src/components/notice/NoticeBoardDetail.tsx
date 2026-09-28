@@ -1,4 +1,5 @@
 // src/components/NoticeBoardDetail.tsx
+import { withBase } from "@/utils/basePath";
 import { NoticeResponse } from "@/types/notice";
 
 interface NoticeBoardDetailProps {
@@ -47,7 +48,7 @@ export default async function NoticeBoardDetail({
             <header>
                 <h1>{title}</h1>
                 {/* Props로 받은 backUrl을 바인딩하여 동적으로 목록으로 돌아갑니다 */}
-                <a href={backUrl} className="back" style={{ cursor: 'pointer' }}>뒤로 가기</a>
+                <a href={withBase(backUrl)} className="back" style={{ cursor: 'pointer' }}>뒤로 가기</a>
             </header>
 
             <main className="sub_article">
@@ -76,7 +77,7 @@ export default async function NoticeBoardDetail({
                                     <th scope="row">첨부파일</th>
                                     <td className="borderBottom">
                                         <a 
-                                            href={`/api/system/files/download/${notice.files[0].fileId}`} 
+                                            href={withBase(`/api/system/files/download/${notice.files[0].fileId}`)} 
                                             download 
                                             aria-label={`${notice.files[0].orgnlFileNm} 다운로드`}
                                         >

@@ -1,9 +1,10 @@
+import { withBase } from "@/utils/basePath";
 import { Metadata } from "next";
 import "../../assets/style_pm/css/base_style.css"; // 경로에 맞춰 임포트
 import "../../assets/style_pm/css/style.css";
 
 export const metadata: Metadata = {
-  manifest: "/manifest-pm.json",
+  manifest: withBase("/manifest-pm.json"),
 };
 
 export default function RootLayout({

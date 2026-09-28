@@ -1,5 +1,6 @@
 "use client";
 
+import { withBase } from "@/utils/basePath";
 import {useAuthStore} from "@/store/authStore";
 import {toast} from "react-hot-toast";
 import api from "@/services/api";
@@ -37,7 +38,7 @@ const formatTime = (timeStr:string) => {
     const oauthHandleLogin = async (provider: string) => {
         const currentOrigin = window.location.origin;
         const deviceType = getDeviceInfo();
-        const loginUrl = `api-auth/oauth2/authorization/${provider}?redirect_uri=${currentOrigin}/api-auth/login/oauth2/code/${provider}`;
+        const loginUrl = withBase(`/api-auth/oauth2/authorization/${provider}?redirect_uri=${currentOrigin}${withBase(`/api-auth/login/oauth2/code/${provider}`)}`);
 
         if (deviceType === "iOS") {
             if ("Notification" in window && Notification.permission === "default") {
@@ -124,7 +125,7 @@ const formatTime = (timeStr:string) => {
 
             <div className="mainImgBox">
                 <div className="img">
-                    <img src="/assets/style/images/main_all_img.png" alt="광주시 킥보드 주정차 위반신고" className="mainImg"/>
+                    <img src={withBase("/assets/style/images/main_all_img.png")} alt="광주시 킥보드 주정차 위반신고" className="mainImg"/>
                 </div>
             </div>
 

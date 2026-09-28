@@ -1,5 +1,6 @@
 "use client";
 
+import { withBase } from "@/utils/basePath";
 import React, { useState, useEffect, useMemo, useRef, useCallback, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -486,7 +487,7 @@ export default function PointPage() {
                                                     )}
                                                 </div>
                                             </div>
-                                            <img src="/assets/style_admin/images/popup_arrow.png" className="poparrow"
+                                            <img src={withBase("/assets/style_admin/images/popup_arrow.png")} className="poparrow"
                                                  alt="화살표"/>
                                         </div>
                                     </CustomOverlayMap>

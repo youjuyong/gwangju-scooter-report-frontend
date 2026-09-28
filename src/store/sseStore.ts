@@ -1,3 +1,4 @@
+import { stripBase } from "@/utils/basePath";
 import {create} from 'zustand';
 import {EventSourcePolyfill} from 'event-source-polyfill';
 import {QueryClient} from "@tanstack/react-query";
@@ -144,7 +145,7 @@ export const useSseStore = create<SseState>((set, get) => ({
         //
         // //이벤트시 리스트 , 지도 리로드
         // const handleSseReload = (e: any) => {
-        //     const currentPath = window.location.pathname;
+        //     const currentPath = stripBase(window.location.pathname);
         //     // URL에 '/reportDetail'이 포함되어 있다면 새로고침을 건너뜁니다.
         //     if (currentPath.includes("/reportDetail")) {
         //         return;
@@ -170,7 +171,7 @@ export const useSseStore = create<SseState>((set, get) => ({
         };
 
         const handleSseReload = async (e: any) => {
-            const currentPath = window.location.pathname;
+            const currentPath = stripBase(window.location.pathname);
             const currentPrefix = currentPath.startsWith("/tow") ? "/tow" : "/pm";
 
             if (currentPath.includes("/reportDetail")) {

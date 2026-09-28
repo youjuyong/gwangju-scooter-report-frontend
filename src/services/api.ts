@@ -1,3 +1,4 @@
+import { stripBase, withBase } from "@/utils/basePath";
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { MemberRole } from '@/store/authStore';
@@ -26,7 +27,7 @@ const processQueue = (error: any, token: string | null = null) => {
 
 const getAuthTypeByPath = () => {
     if (typeof window === 'undefined') return 'reporter';
-    const path = window.location.pathname;
+    const path = stripBase(window.location.pathname);
     if (path.startsWith('/admin')) return 'admin';
     if (path.startsWith('/pm')) return 'pm';
     if (path.startsWith('/tow')) return 'tow';
@@ -57,7 +58,7 @@ const handleDuplicateLogin = async (errorResponse: any, state: any, authType: st
             'REPORT_USER': '/',
             'ADMIN': '/admin/login',
         };
-        window.location.href = pathMap[userRole] || '/';
+        window.location.href = withBase(pathMap[userRole] || '/');
     }
 
     setTimeout(() => { isSessionExpiredAlertShown = false; }, 5000);
@@ -73,7 +74,7 @@ const clearAuthSession = (authType: any, prefix: any) => {
     clearAlarms();
 
     if (typeof window !== "undefined") {
-        window.location.href = prefix ? `${prefix}/login` : "/";
+        window.location.href = withBase(prefix ? `${prefix}/login` : "/");
     }
 };
 

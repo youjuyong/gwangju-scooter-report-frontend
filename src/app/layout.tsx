@@ -9,6 +9,7 @@ import Script from "next/script";
 import { PopupProvider } from "@/components/popup/PopupProvider";
 import { headers } from "next/headers";
 import Providers from "@/components/providers";
+import { BASE_PATH, withBase } from "@/utils/basePath";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -23,8 +24,8 @@ const geistMono = Geist_Mono({
 
 const getBaseUrl = () => {
     if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-    return "http://localhost:3000";
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}${BASE_PATH}`;
+    return `http://localhost:3000${BASE_PATH}`;
 };
 
 // 2. 동적으로 메타데이터를 생성하는 함수
@@ -53,9 +54,9 @@ export async function generateMetadata(): Promise<Metadata> {
         metadataBase: new URL(baseUrl),
         title,
         description,
-        manifest: "/manifest.json",
+        manifest: withBase("/manifest.json"),
         icons: {
-            apple: "/push-icon.png",
+            apple: withBase("/push-icon.png"),
         },
         appleWebApp: {
             capable: true,

@@ -3,27 +3,27 @@
   "name": "경기도 광주시 공유 킥보드 신고 시스템 (운영자)",
   "description": "공유 킥보드 신고 시스템 통합 관리자 페이지입니다.",
   "display": "standalone",
-  "start_url": "/admin/login",
-  "scope": "/admin",
+  "start_url": "admin/login",
+  "scope": "admin",
   "lang": "ko-KR",
   "background_color": "#ffffff",
   "theme_color": "#1a237e",
   "icons": [
     {
-      "src": "/push-icon-192.png", 
+      "src": "push-icon-192.png", 
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/push-icon.png", 
+      "src": "push-icon.png", 
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
 
     {
-      "src": "/push-icon-192.png", 
+      "src": "push-icon-192.png", 
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable" 

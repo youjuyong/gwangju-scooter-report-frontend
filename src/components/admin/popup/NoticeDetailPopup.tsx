@@ -1,5 +1,6 @@
 "use client";
 
+import { withBase } from "@/utils/basePath";
 import React, { useState, useEffect } from 'react';
 import { NoticeResponse } from '@/types/notice';
 import {deleteNoticeApi, getMainNoticeApi, updateNoticeApi} from "@/services/notice/noticeApi";
@@ -285,7 +286,7 @@ export default function NoticeDetailPopup({ isOpen, ntcId, onClose, onRefreshLis
                                                 {existingFiles.map((file, idx) => (
                                                     <div key={file.fileId || idx}>
                                                         <a
-                                                            href={`/api/system/files/download/${file.fileId}`}
+                                                            href={withBase(`/api/system/files/download/${file.fileId}`)}
                                                             download
                                                             aria-label={`${file.orgnlFileNm} 다운로드`}
                                                             style={{

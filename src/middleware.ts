@@ -17,7 +17,11 @@ import type { NextRequest } from 'next/server'
         }
         const token = request.cookies.get(`${firstSegment}AccessToken`)?.value;
         if (!token) {
-            return NextResponse.redirect(new URL(`/${firstSegment}/login`, request.url));
+            // new URL('/...', request.url)은 basePath(/pm)를 잃어버리므로 nextUrl을 복제해서 pathname만 바꾼다
+            const loginUrl = request.nextUrl.clone();
+            loginUrl.pathname = `/${firstSegment}/login`;
+            loginUrl.search = '';
+            return NextResponse.redirect(loginUrl);
         }
         return NextResponse.next();
     }
@@ -34,7 +38,9 @@ import type { NextRequest } from 'next/server'
 
         if (!token || token === "null" || token === "undefined") {
             // 시민은 /login 페이지가 루트에 있으므로 /login으로 보냄
-            const loginUrl = new URL('/', request.url);
+            const loginUrl = request.nextUrl.clone();
+            loginUrl.pathname = '/';
+            loginUrl.search = '';
             // 로그인 후 다시 돌아오게 하고 싶다면 쿼리 추가
             // loginUrl.searchParams.set('callbackUrl', pathname);
             return NextResponse.redirect(loginUrl);

@@ -1,6 +1,7 @@
 // src/components/ReportBoardList.tsx
 "use client";
 
+import { withBase } from "@/utils/basePath";
 import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {toast} from "react-hot-toast";
@@ -236,7 +237,7 @@ export default function ReportList({
                                             </dl>
                                         </div>
                                         <img
-                                            src={item.imgUrls?.[0] || "/images/main_all_img.png"}
+                                            src={item.imgUrls?.[0] || withBase("/images/main_all_img.png")}
                                             className="list_img"
                                             alt="신고이미지"
                                         />

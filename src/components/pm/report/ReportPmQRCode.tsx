@@ -1,5 +1,6 @@
 "use client";
 
+import { withBase } from "@/utils/basePath";
 import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {Scanner} from "@yudiel/react-qr-scanner";
@@ -213,7 +214,7 @@ export default function ReportPmQRCode({formData, onUpdate}: QRProps) {
 
                     <div className="QRconten">
                         <p className="qrinfo">
-                            <img src="/assets/style/images/info.png" alt="정보 아이콘"/>
+                            <img src={withBase("/assets/style/images/info.png")} alt="정보 아이콘"/>
                             QR코드가 안될 경우 킥보드 정보를 입력해 주세요.
                         </p>
                         <form onSubmit={handleSubmit}>

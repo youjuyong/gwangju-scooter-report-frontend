@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { withBase } from "@/utils/basePath";
 import { usePathname } from "next/navigation";
 
 interface CommonErrorViewProps {
@@ -29,7 +30,7 @@ export default function CommonError({
     const currentRole = ['admin', 'pm', 'tow'].includes(firstSegment) ? firstSegment : '/';
 
     // 2. 권한별 자원 경로 설정 (일반 시민 '/' 일 경우 자산 폴더 매핑 예외 처리 보완)
-    const assetPath = `/assets/style_admin/images`;
+    const assetPath = withBase("/assets/style_admin/images");
 
     // 3. 권한별 로그인 URL 및 버튼 텍스트 매칭 (수정하신 본문 반영)
     const loginUrl = ['admin', 'pm', 'tow'].includes(firstSegment) ? `/${firstSegment}/login` : "/";
